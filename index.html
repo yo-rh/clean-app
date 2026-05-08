@@ -2424,8 +2424,12 @@
       state.auth.user = userProfile;
       saveState();
       renderShellVisibility();
-      if (!needsSetup()) {
-        await pullOnly(false);
+
+      await pullOnly(false);
+
+      if (needsSetup()) {
+        renderSetup();
+      } else {
         renderFull();
       }
     } catch (error) {
