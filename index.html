@@ -519,42 +519,76 @@
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 class="font-semibold">Tâches du foyer</h3>
-                    <p id="taskSettingsSummary" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configurez les tâches qui s’ajoutent automatiquement aux sessions.</p>
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-2">
+                      <span class="flex h-9 w-9 items-center justify-center rounded-2xl bg-apple-100 text-lg dark:bg-apple-950/60">🧹</span>
+                      <h3 class="font-semibold">Tâches du foyer</h3>
+                    </div>
+                    <p id="taskSettingsSummary" class="text-sm text-slate-500 dark:text-slate-400 mt-2">Configurez les tâches qui s’ajoutent automatiquement aux sessions.</p>
                   </div>
-                  <button id="toggleTaskSettingsBtn" type="button" class="shrink-0 text-sm font-medium text-apple-600 dark:text-apple-500">Voir / Modifier</button>
+                  <button id="toggleTaskSettingsBtn" type="button" class="shrink-0 rounded-full border border-apple-200 bg-white px-4 py-2 text-sm font-medium text-apple-600 shadow-sm dark:border-apple-900 dark:bg-slate-900 dark:text-apple-500">Voir / Modifier</button>
                 </div>
 
-                <div id="taskSettingsContent" class="hidden space-y-3">
-                  <div>
-                    <p class="text-sm font-medium mb-1">À chaque passage</p>
-                    <div class="flex gap-2">
-                      <input id="defaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Aspirateur" />
-                      <button id="addDefaultTaskBtn" type="button" class="shrink-0 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
+                <div id="taskSettingsContent" class="hidden space-y-4">
+                  <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-3 flex items-start gap-3">
+                      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-emerald-100 text-lg dark:bg-emerald-950/50">✅</span>
+                      <div>
+                        <p class="text-sm font-semibold">À chaque passage</p>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Liste fixe ajoutée automatiquement à toutes les sessions.</p>
+                      </div>
                     </div>
-                    <div id="defaultTasksList" class="mt-3 space-y-2"></div>
+                    <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
+                      <label class="sr-only" for="defaultTaskInput">Nom de la tâche à chaque passage</label>
+                      <input id="defaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Aspirateur" />
+                      <button id="addDefaultTaskBtn" type="button" class="rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
+                    </div>
+                    <div id="defaultTasksList" class="mt-4 space-y-2"></div>
                   </div>
 
-                  <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
-                    <p class="text-sm font-medium mb-1">Toutes les X sessions</p>
-                    <div class="grid grid-cols-[1fr_96px] gap-2">
-                      <input id="recurringTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Changer les draps" />
-                      <input id="recurringTaskEveryInput" type="number" min="2" step="1" inputmode="numeric" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="2" />
+                  <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-3 flex items-start gap-3">
+                      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-blue-100 text-lg dark:bg-blue-950/50">🔁</span>
+                      <div>
+                        <p class="text-sm font-semibold">Récurrentes</p>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Programmez les tâches qui reviennent toutes les X sessions.</p>
+                      </div>
                     </div>
-                    <button id="addRecurringTaskBtn" type="button" class="mt-2 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche récurrente</button>
-                    <div id="recurringTasksList" class="mt-3 space-y-2"></div>
+                    <div class="grid gap-2 sm:grid-cols-[1fr_8rem]">
+                      <div>
+                        <label for="recurringTaskInput" class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Tâche</label>
+                        <input id="recurringTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Changer les draps" />
+                      </div>
+                      <div>
+                        <label for="recurringTaskEveryInput" class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Sessions</label>
+                        <input id="recurringTaskEveryInput" type="number" min="2" step="1" inputmode="numeric" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="2" />
+                      </div>
+                    </div>
+                    <button id="addRecurringTaskBtn" type="button" class="mt-3 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche récurrente</button>
+                    <div id="recurringTasksList" class="mt-4 space-y-2"></div>
                   </div>
 
-                  <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
-                    <p class="text-sm font-medium mb-1">Tâche ponctuelle</p>
-                    <div class="space-y-2">
-                      <input id="punctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Nettoyer le balcon" />
-                      <input id="punctualTaskDateInput" type="date" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                  <div class="rounded-3xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+                    <div class="mb-3 flex items-start gap-3">
+                      <span class="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-amber-100 text-lg dark:bg-amber-950/50">📅</span>
+                      <div>
+                        <p class="text-sm font-semibold">Ponctuelles</p>
+                        <p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Ajoutez une tâche exceptionnelle pour une date précise.</p>
+                      </div>
                     </div>
-                    <button id="addPunctualTaskBtn" type="button" class="mt-2 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche ponctuelle</button>
-                    <div id="punctualTasksList" class="mt-3 space-y-2"></div>
+                    <div class="grid gap-2 sm:grid-cols-[1fr_10rem]">
+                      <div>
+                        <label for="punctualTaskInput" class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Tâche</label>
+                        <input id="punctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Nettoyer le balcon" />
+                      </div>
+                      <div>
+                        <label for="punctualTaskDateInput" class="mb-1 block text-xs font-medium text-slate-500 dark:text-slate-400">Date</label>
+                        <input id="punctualTaskDateInput" type="date" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                      </div>
+                    </div>
+                    <button id="addPunctualTaskBtn" type="button" class="mt-3 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche ponctuelle</button>
+                    <div id="punctualTasksList" class="mt-4 space-y-2"></div>
                   </div>
                 </div>
               </div>
@@ -1509,27 +1543,39 @@
     if (els.defaultTasksList) {
       const tasks = normalizeTaskSettings(state.settings.defaultTasks);
       els.defaultTasksList.innerHTML = tasks.length
-        ? tasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(task.label) + '</span><button type="button" data-task-kind="default" data-task-id="' + esc(task.id) + '" class="remove-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
-        : '<p class="text-sm text-slate-500 dark:text-slate-400">Aucune tâche de base.</p>';
+        ? tasks.map((task) => taskSettingItemHtml(task, 'default', 'À chaque passage')).join('')
+        : emptyTaskSettingHtml('Aucune tâche à chaque passage pour le moment.');
     }
 
     if (els.recurringTasksList) {
       const tasks = normalizeRecurringTaskSettings(state.settings.recurringTasks);
       els.recurringTasksList.innerHTML = tasks.length
-        ? tasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(task.label) + '<span class="block text-xs text-slate-500 dark:text-slate-400">Toutes les ' + esc(task.everySessions) + ' sessions</span></span><button type="button" data-task-kind="recurring" data-task-id="' + esc(task.id) + '" class="remove-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
-        : '<p class="text-sm text-slate-500 dark:text-slate-400">Aucune tâche récurrente.</p>';
+        ? tasks.map((task) => taskSettingItemHtml(task, 'recurring', 'Toutes les ' + task.everySessions + ' sessions')).join('')
+        : emptyTaskSettingHtml('Aucune tâche récurrente pour le moment.');
     }
 
     if (els.punctualTasksList) {
       const tasks = normalizePunctualTaskSettings(state.settings.punctualTasks);
       els.punctualTasksList.innerHTML = tasks.length
-        ? tasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(task.label) + '<span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(formatDate(task.date)) + '</span></span><button type="button" data-task-kind="punctual" data-task-id="' + esc(task.id) + '" class="remove-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
-        : '<p class="text-sm text-slate-500 dark:text-slate-400">Aucune tâche ponctuelle.</p>';
+        ? tasks.map((task) => taskSettingItemHtml(task, 'punctual', formatDate(task.date))).join('')
+        : emptyTaskSettingHtml('Aucune tâche ponctuelle planifiée.');
     }
 
     document.querySelectorAll('.remove-task-btn').forEach((btn) => {
       btn.addEventListener('click', () => removeTaskSetting(btn.dataset.taskKind, btn.dataset.taskId));
     });
+  }
+
+
+  function emptyTaskSettingHtml(message) {
+    return '<div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-3 text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">' + esc(message) + '</div>';
+  }
+
+  function taskSettingItemHtml(task, kind, meta) {
+    return '<div class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950">'
+      + '<div class="min-w-0"><p class="break-words text-sm font-medium">' + esc(task.label) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + esc(meta) + '</p></div>'
+      + '<button type="button" data-task-kind="' + esc(kind) + '" data-task-id="' + esc(task.id) + '" class="remove-task-btn shrink-0 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300">Supprimer</button>'
+      + '</div>';
   }
 
   async function persistTaskSettings() {
