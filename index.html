@@ -36,7 +36,8 @@
     }
     .page { display: none; }
     .page.active { display: block; }
-    .safe-bottom { padding-bottom: max(10rem, calc(env(safe-area-inset-bottom) + 9rem)); }
+    .safe-bottom { padding-bottom: max(11rem, calc(env(safe-area-inset-bottom) + 10rem)); }
+    main { padding-bottom: max(11rem, calc(env(safe-area-inset-bottom) + 10rem)); }
 
     input[type="date"],
     input[type="number"],
@@ -315,9 +316,20 @@
               </div>
             </div>
           </section>
+
+          <section id="nextSessionCard" class="hidden rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <h3 class="font-semibold text-lg">Prochaine session</h3>
+                <p id="nextSessionSummary" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Aucune session prévue.</p>
+              </div>
+              <button id="toggleNextSessionTasksBtn" type="button" class="shrink-0 text-sm font-medium text-apple-600 dark:text-apple-500">Voir</button>
+            </div>
+            <div id="nextSessionTasksWrap" class="hidden mt-3"></div>
+          </section>
         </section>
 
-        <section id="page-session" class="page space-y-4">
+        <section id="page-session" class="page space-y-4 pb-32">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">Ajouter une session</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400">Choisissez une durée rapide ou saisissez une autre valeur.</p>
@@ -348,11 +360,27 @@
               <p class="text-sm text-slate-500 dark:text-slate-400">Montant calculé</p>
               <p id="sessionComputedDisplay" class="text-xl font-semibold">0,00 €</p>
             </div>
+
+            <div class="rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4 space-y-3">
+              <div>
+                <p class="text-sm font-medium">Tâche ponctuelle pour cette session</p>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Ajoutez une tâche uniquement pour ce passage.</p>
+              </div>
+              <div class="flex gap-2">
+                <input id="sessionPunctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Arroser les plantes" />
+                <button id="addSessionPunctualTaskBtn" type="button" class="shrink-0 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
+              </div>
+              <div id="sessionPunctualTasksList" class="space-y-2"></div>
+            </div>
+
+            <button id="previewSessionTasksBtn" type="button" class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 font-medium">Aperçu des tâches prévues</button>
+            <div id="sessionTaskPreviewBox" class="hidden"></div>
+
             <button id="saveSessionBtn" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Enregistrer la session</button>
           </section>
         </section>
 
-        <section id="page-payment" class="page space-y-4">
+        <section id="page-payment" class="page space-y-4 pb-32">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">Ajouter un paiement</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400">Le paiement sera déduit du solde total.</p>
@@ -414,7 +442,7 @@
           </section>
         </section>
 
-        <section id="page-settings" class="page overflow-y-auto pb-44 space-y-4">
+        <section id="page-settings" class="page overflow-y-auto pb-32 space-y-4">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">Paramétrage</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400">Vos réglages et données sont synchronisés avec Firebase.</p>
@@ -492,55 +520,43 @@
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
-                <div>
-                  <h3 class="font-semibold">Tâches du foyer</h3>
-                  <p class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configurez les tâches qui s’ajoutent automatiquement aux sessions.</p>
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="font-semibold">Tâches du foyer</h3>
+                    <p id="taskSettingsSummary" class="text-sm text-slate-500 dark:text-slate-400 mt-1">Configurez les tâches qui s’ajoutent automatiquement aux sessions.</p>
+                  </div>
+                  <button id="toggleTaskSettingsBtn" type="button" class="shrink-0 text-sm font-medium text-apple-600 dark:text-apple-500">Voir / Modifier</button>
                 </div>
 
-                <div class="space-y-3">
-                  <details class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 overflow-hidden" open>
-                    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between gap-3">
-                      <span>À chaque passage</span>
-                      <span class="text-slate-400">⌄</span>
-                    </summary>
-                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 dark:border-slate-800">
-                      <div class="flex gap-2 pt-3">
-                        <input id="defaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Aspirateur" />
-                        <button id="addDefaultTaskBtn" type="button" class="shrink-0 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
-                      </div>
-                      <div id="defaultTasksList" class="space-y-2"></div>
+                <div id="taskSettingsContent" class="hidden space-y-3">
+                  <div>
+                    <p class="text-sm font-medium mb-1">À chaque passage</p>
+                    <div class="flex gap-2">
+                      <input id="defaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Aspirateur" />
+                      <button id="addDefaultTaskBtn" type="button" class="shrink-0 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
                     </div>
-                  </details>
+                    <div id="defaultTasksList" class="mt-3 space-y-2"></div>
+                  </div>
 
-                  <details class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 overflow-hidden">
-                    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between gap-3">
-                      <span>Toutes les X sessions</span>
-                      <span class="text-slate-400">⌄</span>
-                    </summary>
-                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 dark:border-slate-800">
-                      <div class="grid grid-cols-[1fr_96px] gap-2 pt-3">
-                        <input id="recurringTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Changer les draps" />
-                        <input id="recurringTaskEveryInput" type="number" min="2" step="1" inputmode="numeric" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="2" />
-                      </div>
-                      <button id="addRecurringTaskBtn" type="button" class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche récurrente</button>
-                      <div id="recurringTasksList" class="space-y-2"></div>
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <p class="text-sm font-medium mb-1">Toutes les X sessions</p>
+                    <div class="grid grid-cols-[1fr_96px] gap-2">
+                      <input id="recurringTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Changer les draps" />
+                      <input id="recurringTaskEveryInput" type="number" min="2" step="1" inputmode="numeric" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="2" />
                     </div>
-                  </details>
+                    <button id="addRecurringTaskBtn" type="button" class="mt-2 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche récurrente</button>
+                    <div id="recurringTasksList" class="mt-3 space-y-2"></div>
+                  </div>
 
-                  <details class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 overflow-hidden">
-                    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between gap-3">
-                      <span>Tâche ponctuelle</span>
-                      <span class="text-slate-400">⌄</span>
-                    </summary>
-                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 dark:border-slate-800">
-                      <div class="space-y-2 pt-3">
-                        <input id="punctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Nettoyer le balcon" />
-                        <input id="punctualTaskDateInput" type="date" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
-                      </div>
-                      <button id="addPunctualTaskBtn" type="button" class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche ponctuelle</button>
-                      <div id="punctualTasksList" class="space-y-2"></div>
+                  <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
+                    <p class="text-sm font-medium mb-1">Tâche ponctuelle</p>
+                    <div class="space-y-2">
+                      <input id="punctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Nettoyer le balcon" />
+                      <input id="punctualTaskDateInput" type="date" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
                     </div>
-                  </details>
+                    <button id="addPunctualTaskBtn" type="button" class="mt-2 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche ponctuelle</button>
+                    <div id="punctualTasksList" class="mt-3 space-y-2"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -637,7 +653,7 @@
         { id: 'recurring_draps', label: 'Changer les draps', everySessions: 2 }
       ],
       punctualTasks: [],
-      sessionTasksByEntryId: {}
+      sessionTasks: {}
     },
     auth: {
       token: '',
@@ -648,7 +664,11 @@
       selectedDurationMode: 'preset',
       selectedDurationValue: 2,
       authMode: 'login',
-      setupStep: 0
+      setupStep: 0,
+      sessionDraftTasks: [],
+      taskSettingsExpanded: false,
+      nextSessionTasksExpanded: false,
+      sessionTaskPreviewVisible: false
     },
     entries: []
   };
@@ -701,28 +721,13 @@
       .filter((task) => task.label);
   }
 
-  function normalizeSessionTasksMap(value, fallback = {}) {
+  function normalizeSessionTaskMap(value, fallback = {}) {
     const source = value && typeof value === 'object' && !Array.isArray(value) ? value : fallback;
     return Object.fromEntries(
       Object.entries(source || {})
         .map(([entryId, tasks]) => [String(entryId), normalizeSessionTasks(tasks)])
-        .filter(([entryId]) => entryId)
+        .filter(([, tasks]) => tasks.length)
     );
-  }
-
-  function tasksForEntry(entry) {
-    if (!entry || entry.type !== 'session') return [];
-    const mapTasks = state.settings.sessionTasksByEntryId?.[entry.id];
-    if (Array.isArray(mapTasks)) return normalizeSessionTasks(mapTasks);
-    return normalizeSessionTasks(entry.tasks);
-  }
-
-  function setTasksForEntry(entryId, tasks) {
-    if (!entryId) return;
-    state.settings.sessionTasksByEntryId = normalizeSessionTasksMap(state.settings.sessionTasksByEntryId);
-    state.settings.sessionTasksByEntryId[String(entryId)] = normalizeSessionTasks(tasks);
-    const entry = state.entries.find((item) => item.id === entryId && item.type === 'session');
-    if (entry) entry.tasks = normalizeSessionTasks(tasks);
   }
 
   function loadState() {
@@ -743,7 +748,7 @@
           defaultTasks: normalizeTaskSettings(parsed?.settings?.defaultTasks, defaultState.settings.defaultTasks),
           recurringTasks: normalizeRecurringTaskSettings(parsed?.settings?.recurringTasks, defaultState.settings.recurringTasks),
           punctualTasks: normalizePunctualTaskSettings(parsed?.settings?.punctualTasks, defaultState.settings.punctualTasks),
-          sessionTasksByEntryId: normalizeSessionTasksMap(parsed?.settings?.sessionTasksByEntryId, defaultState.settings.sessionTasksByEntryId)
+          sessionTasks: normalizeSessionTaskMap(parsed?.settings?.sessionTasks, defaultState.settings.sessionTasks)
         },
         auth: {
           token: String(parsed?.auth?.token ?? ''),
@@ -754,7 +759,11 @@
           selectedDurationMode: parsed?.ui?.selectedDurationMode ?? defaultState.ui.selectedDurationMode,
           selectedDurationValue: Number(parsed?.ui?.selectedDurationValue ?? defaultState.ui.selectedDurationValue),
           authMode: parsed?.ui?.authMode ?? defaultState.ui.authMode,
-          setupStep: Number(parsed?.ui?.setupStep ?? defaultState.ui.setupStep)
+          setupStep: Number(parsed?.ui?.setupStep ?? defaultState.ui.setupStep),
+          sessionDraftTasks: normalizeSessionTasks(parsed?.ui?.sessionDraftTasks || defaultState.ui.sessionDraftTasks),
+          taskSettingsExpanded: Boolean(parsed?.ui?.taskSettingsExpanded ?? defaultState.ui.taskSettingsExpanded),
+          nextSessionTasksExpanded: Boolean(parsed?.ui?.nextSessionTasksExpanded ?? defaultState.ui.nextSessionTasksExpanded),
+          sessionTaskPreviewVisible: Boolean(parsed?.ui?.sessionTaskPreviewVisible ?? defaultState.ui.sessionTaskPreviewVisible)
         },
         entries: Array.isArray(parsed?.entries) ? parsed.entries : []
       };
@@ -846,6 +855,18 @@
     punctualTaskDateInput: byId('punctualTaskDateInput'),
     addPunctualTaskBtn: byId('addPunctualTaskBtn'),
     punctualTasksList: byId('punctualTasksList'),
+    toggleTaskSettingsBtn: byId('toggleTaskSettingsBtn'),
+    taskSettingsContent: byId('taskSettingsContent'),
+    taskSettingsSummary: byId('taskSettingsSummary'),
+    sessionPunctualTaskInput: byId('sessionPunctualTaskInput'),
+    addSessionPunctualTaskBtn: byId('addSessionPunctualTaskBtn'),
+    sessionPunctualTasksList: byId('sessionPunctualTasksList'),
+    previewSessionTasksBtn: byId('previewSessionTasksBtn'),
+    sessionTaskPreviewBox: byId('sessionTaskPreviewBox'),
+    nextSessionCard: byId('nextSessionCard'),
+    nextSessionSummary: byId('nextSessionSummary'),
+    toggleNextSessionTasksBtn: byId('toggleNextSessionTasksBtn'),
+    nextSessionTasksWrap: byId('nextSessionTasksWrap'),
     toast: byId('toast')
   };
 
@@ -986,7 +1007,7 @@
       defaultTasks: normalizeTaskSettings(remoteSettings.defaultTasks, state.settings.defaultTasks || defaultState.settings.defaultTasks),
       recurringTasks: normalizeRecurringTaskSettings(remoteSettings.recurringTasks, state.settings.recurringTasks || defaultState.settings.recurringTasks),
       punctualTasks: normalizePunctualTaskSettings(remoteSettings.punctualTasks, state.settings.punctualTasks || defaultState.settings.punctualTasks),
-      sessionTasksByEntryId: normalizeSessionTasksMap(remoteSettings.sessionTasksByEntryId, state.settings.sessionTasksByEntryId || defaultState.settings.sessionTasksByEntryId),
+      sessionTasks: normalizeSessionTaskMap(remoteSettings.sessionTasks, state.settings.sessionTasks || defaultState.settings.sessionTasks),
       setupCompleted: hasSetupFlag
         ? Boolean(remoteSettings.setupCompleted ?? data.setupCompleted)
         : Boolean(remoteSettings.contactName || remoteSettings.contactPhone || remoteSettings.hourlyRate || remoteSettings.defaultDuration || state.entries.length > 0)
@@ -1287,7 +1308,7 @@
         duration: type === 'session' ? Number(entry.duration || 0) : undefined,
         rate: type === 'session' ? Number(entry.rate || 0) : undefined,
         amount: Number(entry.amount || 0),
-        tasks: type === 'session' ? normalizeSessionTasks(state.settings.sessionTasksByEntryId?.[String(entry.id || documentSnapshot.id)] || entry.tasks) : [],
+        tasks: type === 'session' ? normalizeSessionTasks(state.settings.sessionTasks?.[String(entry.id || documentSnapshot.id)] || []) : [],
         createdAt: String(entry.createdAt || nowISO())
       };
     });
@@ -1365,9 +1386,12 @@
       if (!isLoggedIn()) return;
       setSyncStatus('Récupération Firebase en cours...', false);
       const remoteEntries = await fetchRemoteEntries();
-      if (remoteEntries.length || !state.entries.length) {
-        state.entries = remoteEntries;
+      if (remoteEntries.length === 0 && state.entries.length > 0) {
+        setSyncStatus('Firebase ne contient aucune entrée : conservation de l’historique local.', false);
+        if (showSuccess) showToast('Historique local conservé.');
+        return;
       }
+      state.entries = remoteEntries;
       saveState();
       renderFull(sortedEntries());
       setSyncStatus('Données récupérées depuis Firebase le ' + new Date().toLocaleString('fr-FR'), false);
@@ -1398,6 +1422,8 @@
         + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400');
     });
 
+    if (page === 'session') applySessionDefaults(true);
+
     saveState();
   }
 
@@ -1412,9 +1438,15 @@
     return state.entries.filter((entry) => entry.type === 'session').length + 1;
   }
 
-  function generateTasksForSession(date) {
+  function sessionNumberForDate(date) {
+    const targetDate = toISODateOnly(date);
+    const existingBeforeOrSame = state.entries.filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) <= targetDate).length;
+    return existingBeforeOrSame + 1;
+  }
+
+  function generateTasksForSession(date, extraTasks = []) {
     const sessionDate = toISODateOnly(date);
-    const sessionNumber = sessionNumberForNewSession();
+    const sessionNumber = sessionNumberForDate(sessionDate);
     const tasks = [];
 
     normalizeTaskSettings(state.settings.defaultTasks).forEach((task) => {
@@ -1448,10 +1480,33 @@
       }
     });
 
+    normalizeSessionTasks(extraTasks).forEach((task) => {
+      tasks.push({
+        id: crypto.randomUUID(),
+        label: task.label,
+        source: 'manual',
+        done: false
+      });
+    });
+
     return tasks;
   }
 
   function renderTaskSettings() {
+    const defaultCount = normalizeTaskSettings(state.settings.defaultTasks).length;
+    const recurringCount = normalizeRecurringTaskSettings(state.settings.recurringTasks).length;
+    const punctualCount = normalizePunctualTaskSettings(state.settings.punctualTasks).length;
+
+    if (els.taskSettingsSummary) {
+      els.taskSettingsSummary.textContent = defaultCount + ' tâche(s) à chaque passage · ' + recurringCount + ' récurrente(s) · ' + punctualCount + ' ponctuelle(s)';
+    }
+    if (els.taskSettingsContent) {
+      els.taskSettingsContent.classList.toggle('hidden', !state.ui.taskSettingsExpanded);
+    }
+    if (els.toggleTaskSettingsBtn) {
+      els.toggleTaskSettingsBtn.textContent = state.ui.taskSettingsExpanded ? 'Réduire' : 'Voir / Modifier';
+    }
+
     if (els.defaultTasksList) {
       const tasks = normalizeTaskSettings(state.settings.defaultTasks);
       els.defaultTasksList.innerHTML = tasks.length
@@ -1482,7 +1537,6 @@
     state.settings.defaultTasks = normalizeTaskSettings(state.settings.defaultTasks);
     state.settings.recurringTasks = normalizeRecurringTaskSettings(state.settings.recurringTasks);
     state.settings.punctualTasks = normalizePunctualTaskSettings(state.settings.punctualTasks);
-    state.settings.sessionTasksByEntryId = normalizeSessionTasksMap(state.settings.sessionTasksByEntryId);
     saveState();
     renderTaskSettings();
     try {
@@ -1502,26 +1556,34 @@
     persistTaskSettings();
   }
 
+  function compactTaskListHtml(tasks, entryId, expanded, listId) {
+    const doneCount = tasks.filter((task) => task.done).length;
+    return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3">'
+      + '<div class="flex items-center justify-between gap-3">'
+      + '<div><p class="text-sm font-medium">Tâches prévues : ' + tasks.length + '</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">' + doneCount + ' terminée(s) / ' + tasks.length + '</p></div>'
+      + '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>'
+      + '</div>'
+      + '<div id="' + esc(listId) + '" class="' + (expanded ? '' : 'hidden ') + 'space-y-2 mt-3">'
+      + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+      + '</div></div>';
+  }
+
   function renderSessionTasks(entry) {
-    const tasks = tasksForEntry(entry);
+    const tasks = normalizeSessionTasks(entry.tasks);
     if (!tasks.length) {
       return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche associée à cette session.</div>';
     }
 
-    const doneCount = tasks.filter((task) => task.done).length;
-    return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3">'
-      + '<div class="flex items-center justify-between gap-3 mb-2"><p class="text-sm font-medium">Tâches</p><p class="text-xs text-slate-500 dark:text-slate-400">' + doneCount + '/' + tasks.length + '</p></div>'
-      + '<div class="space-y-2">'
-      + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entry.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
-      + '</div></div>';
+    return compactTaskListHtml(tasks, entry.id, false, 'history-tasks-' + entry.id);
   }
 
   async function toggleSessionTask(entryId, taskId, done) {
     const entry = state.entries.find((item) => item.id === entryId && item.type === 'session');
     if (!entry) return;
 
-    const updatedTasks = tasksForEntry(entry).map((task) => task.id === taskId ? { ...task, done: Boolean(done) } : task);
-    setTasksForEntry(entryId, updatedTasks);
+    entry.tasks = normalizeSessionTasks(entry.tasks).map((task) => task.id === taskId ? { ...task, done: Boolean(done) } : task);
+    state.settings.sessionTasks = normalizeSessionTaskMap(state.settings.sessionTasks);
+    state.settings.sessionTasks[entryId] = entry.tasks;
     saveState();
     renderFull();
 
@@ -1529,7 +1591,98 @@
       await saveUserSettings();
     } catch (error) {
       console.error(error);
-      showToast('⚠️ Tâche enregistrée localement.');
+      showToast('⚠️ Tâche non synchronisée.');
+    }
+  }
+
+
+  function renderSessionDraftTasks() {
+    state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks || []);
+    if (els.sessionPunctualTasksList) {
+      els.sessionPunctualTasksList.innerHTML = state.ui.sessionDraftTasks.length
+        ? state.ui.sessionDraftTasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(task.label) + '</span><button type="button" data-draft-task-id="' + esc(task.id) + '" class="remove-session-draft-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
+        : '<p class="text-sm text-slate-500 dark:text-slate-400">Aucune tâche ponctuelle ajoutée pour cette session.</p>';
+    }
+
+    document.querySelectorAll('.remove-session-draft-task-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks).filter((task) => task.id !== btn.dataset.draftTaskId);
+        saveState();
+        renderSessionDraftTasks();
+        renderSessionTaskPreview();
+      });
+    });
+  }
+
+  function renderSessionTaskPreview() {
+    if (!els.sessionTaskPreviewBox) return;
+    const date = toISODateOnly((els.sessionDateInput && els.sessionDateInput.value) || todayISO());
+    const tasks = generateTasksForSession(date, state.ui.sessionDraftTasks || []);
+
+    els.sessionTaskPreviewBox.classList.toggle('hidden', !state.ui.sessionTaskPreviewVisible);
+    if (els.previewSessionTasksBtn) els.previewSessionTasksBtn.textContent = state.ui.sessionTaskPreviewVisible ? 'Masquer l’aperçu des tâches' : 'Aperçu des tâches prévues';
+    if (!state.ui.sessionTaskPreviewVisible) return;
+
+    els.sessionTaskPreviewBox.innerHTML = tasks.length
+      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">Aperçu des tâches prévues (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="text-sm"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></div>').join('') + '</div></div>'
+      : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
+  }
+
+  function applySessionDefaults(force = false) {
+    const defaultDuration = Number(state.settings.defaultDuration || 0);
+    const defaultRate = Number(state.settings.hourlyRate || 0);
+    const presetButton = durationButtons.find((btn) => Number(btn.dataset.value) === defaultDuration);
+
+    if (force || state.ui.selectedDurationMode !== 'custom') {
+      if (presetButton) {
+        state.ui.selectedDurationMode = 'preset';
+        state.ui.selectedDurationValue = defaultDuration;
+      } else {
+        state.ui.selectedDurationMode = 'custom';
+        state.ui.selectedDurationValue = defaultDuration;
+        if (els.customDurationInput) els.customDurationInput.value = defaultDuration || '';
+      }
+    }
+
+    if (els.sessionRateInput && (force || !els.sessionRateInput.dataset.userEdited)) {
+      els.sessionRateInput.value = defaultRate || '';
+      els.sessionRateInput.dataset.userEdited = '';
+    }
+
+    renderDurationSelection();
+    updateSessionComputedAmount();
+  }
+
+  function nextSessionEntry(sorted) {
+    const today = todayISO();
+    return sorted
+      .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today)
+      .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)))[0] || null;
+  }
+
+  function renderNextSession(sorted) {
+    if (!els.nextSessionCard) return;
+    const next = nextSessionEntry(sorted || sortedEntries());
+
+    if (!next) {
+      els.nextSessionCard.classList.add('hidden');
+      return;
+    }
+
+    const tasks = normalizeSessionTasks(next.tasks);
+    const doneCount = tasks.filter((task) => task.done).length;
+    els.nextSessionCard.classList.remove('hidden');
+    if (els.nextSessionSummary) {
+      els.nextSessionSummary.textContent = formatDate(next.date) + ' · ' + next.duration + 'h · ' + euro(next.amount) + ' · ' + tasks.length + ' tâche(s) prévue(s)';
+    }
+    if (els.toggleNextSessionTasksBtn) {
+      els.toggleNextSessionTasksBtn.textContent = state.ui.nextSessionTasksExpanded ? 'Réduire' : 'Voir';
+    }
+    if (els.nextSessionTasksWrap) {
+      els.nextSessionTasksWrap.classList.toggle('hidden', !state.ui.nextSessionTasksExpanded);
+      els.nextSessionTasksWrap.innerHTML = tasks.length
+        ? compactTaskListHtml(tasks, next.id, true, 'next-session-tasks-list')
+        : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue.</div>';
     }
   }
 
@@ -1545,6 +1698,8 @@
     if (els.sessionRateInput && !els.sessionRateInput.value) els.sessionRateInput.value = state.settings.hourlyRate;
     if (els.punctualTaskDateInput && !els.punctualTaskDateInput.value) els.punctualTaskDateInput.value = todayISO();
     renderTaskSettings();
+    renderSessionDraftTasks();
+    renderSessionTaskPreview();
 
     const user = state.auth.user || {};
     if (els.accountEmailText) els.accountEmailText.textContent = 'Compte : ' + (user.email || '—');
@@ -1588,6 +1743,8 @@
         ? formatDate(lastPayment.date) + ' · ' + euro(lastPayment.amount)
         : 'Aucun';
     }
+
+    renderNextSession(sorted);
   }
 
   function renderHistory(sorted) {
@@ -1628,6 +1785,16 @@
 
     document.querySelectorAll('.task-done-checkbox').forEach((checkbox) => {
       checkbox.addEventListener('change', () => toggleSessionTask(checkbox.dataset.entryId, checkbox.dataset.taskId, checkbox.checked));
+    });
+
+    document.querySelectorAll('.toggle-task-list-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const target = byId(btn.dataset.target);
+        if (!target) return;
+        const willOpen = target.classList.contains('hidden');
+        target.classList.toggle('hidden', !willOpen);
+        btn.textContent = willOpen ? 'Réduire' : 'Voir';
+      });
     });
   }
 
@@ -1674,6 +1841,7 @@
   }
 
   function renderLight() {
+    hydrateEntriesWithSessionTasks();
     saveState();
     renderSettings();
     renderSummary(sortedEntries());
@@ -1681,7 +1849,16 @@
     setCurrentPage(state.ui.currentPage);
   }
 
+  function hydrateEntriesWithSessionTasks() {
+    state.settings.sessionTasks = normalizeSessionTaskMap(state.settings.sessionTasks);
+    state.entries = state.entries.map((entry) => {
+      if (entry.type !== 'session') return entry;
+      return { ...entry, tasks: normalizeSessionTasks(state.settings.sessionTasks[entry.id] || entry.tasks || []) };
+    });
+  }
+
   function renderFull(sorted) {
+    hydrateEntriesWithSessionTasks();
     const s = sorted || sortedEntries();
     saveState();
     renderSettings();
@@ -1691,28 +1868,32 @@
     setCurrentPage(state.ui.currentPage);
   }
 
-  function addSession(date, duration, rate) {
-    const entryId = crypto.randomUUID();
-    const generatedTasks = generateTasksForSession(date);
+  function addSession(date, duration, rate, extraTasks = []) {
     const entry = {
-      id: entryId,
+      id: crypto.randomUUID(),
       type: 'session',
       date: toISODateOnly(date),
       duration: Number(duration),
       rate: Number(rate),
       amount: Number((Number(duration) * Number(rate)).toFixed(2)),
-      tasks: generatedTasks,
       createdAt: nowISO()
     };
+
+    const generatedTasks = generateTasksForSession(date, extraTasks);
+    state.settings.sessionTasks = normalizeSessionTaskMap(state.settings.sessionTasks);
+    if (generatedTasks.length) state.settings.sessionTasks[entry.id] = generatedTasks;
+    entry.tasks = generatedTasks;
+
     state.entries.push(entry);
-    setTasksForEntry(entryId, generatedTasks);
+    saveState();
     renderFull();
+
     saveRemoteEntry(entry)
       .then(() => saveUserSettings())
-      .then(() => showToast('✅ Session synchronisée.'))
+      .then(() => pullOnly(false))
       .catch((error) => {
         console.error(error);
-        showToast('⚠️ Session enregistrée localement.');
+        showToast('⚠️ Non synchronisé.');
       });
   }
 
@@ -1726,9 +1907,9 @@
     };
     state.entries.push(entry);
     renderFull();
-    saveRemoteEntry(entry).then(() => showToast('✅ Paiement synchronisé.')).catch((error) => {
+    saveRemoteEntry(entry).then(() => pullOnly(false)).catch((error) => {
       console.error(error);
-      showToast('⚠️ Paiement enregistré localement.');
+      showToast('⚠️ Non synchronisé.');
     });
   }
 
@@ -1756,13 +1937,15 @@
       if (!_pendingDeleteId) return;
       const idToDelete = _pendingDeleteId;
       state.entries = state.entries.filter((item) => item.id !== idToDelete);
-      if (state.settings.sessionTasksByEntryId) delete state.settings.sessionTasksByEntryId[idToDelete];
+      if (state.settings.sessionTasks && state.settings.sessionTasks[idToDelete]) {
+        delete state.settings.sessionTasks[idToDelete];
+        saveUserSettings().catch(console.error);
+      }
       closeConfirm();
       renderFull();
       showToast('🗑️ Entrée supprimée.');
       try {
         await deleteRemoteEntry(idToDelete);
-        await saveUserSettings();
       } catch (error) {
         console.error(error);
         showToast('⚠️ Suppression locale uniquement.');
@@ -1840,6 +2023,7 @@
       if (els.sessionRateInput && !els.sessionRateInput.dataset.userEdited) {
         els.sessionRateInput.value = state.settings.hourlyRate;
       }
+      applySessionDefaults(true);
       renderLight();
       saveUserSettings().catch(console.error);
     });
@@ -1848,6 +2032,7 @@
   if (els.defaultDurationInput) {
     els.defaultDurationInput.addEventListener('change', () => {
       state.settings.defaultDuration = Number(Math.max(0, Number(els.defaultDurationInput.value || 0)).toFixed(2));
+      applySessionDefaults(true);
       saveState();
       saveUserSettings().catch(console.error);
     });
@@ -1932,9 +2117,11 @@
       state.entries
         .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) === date)
         .forEach((entry) => {
-          const updatedTasks = tasksForEntry(entry);
-          updatedTasks.push({ id: crypto.randomUUID(), label, source: 'punctual', done: false });
-          setTasksForEntry(entry.id, updatedTasks);
+          entry.tasks = normalizeSessionTasks(entry.tasks);
+          entry.tasks.push({ id: crypto.randomUUID(), label, source: 'punctual', done: false });
+          state.settings.sessionTasks = normalizeSessionTaskMap(state.settings.sessionTasks);
+          state.settings.sessionTasks[entry.id] = entry.tasks;
+          saveUserSettings().catch(console.error);
         });
 
       if (els.punctualTaskInput) els.punctualTaskInput.value = '';
@@ -1947,6 +2134,58 @@
     els.punctualTaskInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') els.addPunctualTaskBtn?.click();
     });
+  }
+
+  if (els.toggleTaskSettingsBtn) {
+    els.toggleTaskSettingsBtn.addEventListener('click', () => {
+      state.ui.taskSettingsExpanded = !state.ui.taskSettingsExpanded;
+      saveState();
+      renderTaskSettings();
+    });
+  }
+
+  if (els.toggleNextSessionTasksBtn) {
+    els.toggleNextSessionTasksBtn.addEventListener('click', () => {
+      state.ui.nextSessionTasksExpanded = !state.ui.nextSessionTasksExpanded;
+      saveState();
+      renderNextSession(sortedEntries());
+      document.querySelectorAll('.task-done-checkbox').forEach((checkbox) => {
+        checkbox.addEventListener('change', () => toggleSessionTask(checkbox.dataset.entryId, checkbox.dataset.taskId, checkbox.checked));
+      });
+    });
+  }
+
+  if (els.addSessionPunctualTaskBtn) {
+    els.addSessionPunctualTaskBtn.addEventListener('click', () => {
+      const label = (els.sessionPunctualTaskInput?.value || '').trim();
+      if (!label) return;
+      state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks || []);
+      state.ui.sessionDraftTasks.push({ id: crypto.randomUUID(), label, source: 'manual', done: false });
+      if (els.sessionPunctualTaskInput) els.sessionPunctualTaskInput.value = '';
+      state.ui.sessionTaskPreviewVisible = true;
+      saveState();
+      renderSessionDraftTasks();
+      renderSessionTaskPreview();
+    });
+  }
+
+  if (els.sessionPunctualTaskInput) {
+    els.sessionPunctualTaskInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') els.addSessionPunctualTaskBtn?.click();
+    });
+  }
+
+  if (els.previewSessionTasksBtn) {
+    els.previewSessionTasksBtn.addEventListener('click', () => {
+      state.ui.sessionTaskPreviewVisible = !state.ui.sessionTaskPreviewVisible;
+      if (els.previewSessionTasksBtn) els.previewSessionTasksBtn.textContent = state.ui.sessionTaskPreviewVisible ? 'Masquer l’aperçu des tâches' : 'Aperçu des tâches prévues';
+      saveState();
+      renderSessionTaskPreview();
+    });
+  }
+
+  if (els.sessionDateInput) {
+    els.sessionDateInput.addEventListener('change', renderSessionTaskPreview);
   }
 
   if (els.syncNowBtn) els.syncNowBtn.addEventListener('click', () => syncBidirectional(true));
@@ -1992,7 +2231,9 @@
         return;
       }
 
-      addSession(date, duration, rate);
+      addSession(date, duration, rate, state.ui.sessionDraftTasks || []);
+      state.ui.sessionDraftTasks = [];
+      state.ui.sessionTaskPreviewVisible = false;
 
       if (els.sessionDateInput) els.sessionDateInput.value = todayISO();
       if (els.sessionRateInput) {
@@ -2002,6 +2243,9 @@
       if (state.ui.selectedDurationMode === 'custom' && els.customDurationInput) {
         els.customDurationInput.value = '';
       }
+      renderSessionDraftTasks();
+      renderSessionTaskPreview();
+      applySessionDefaults(true);
 
       showToast('✅ Session enregistrée.');
       setCurrentPage('history');
@@ -2114,6 +2358,7 @@
 
   if (els.sessionDateInput) els.sessionDateInput.value = todayISO();
   if (els.paymentDateInput) els.paymentDateInput.value = todayISO();
+  applySessionDefaults(true);
 
   renderShellVisibility();
   renderFull();
