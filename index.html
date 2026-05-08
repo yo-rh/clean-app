@@ -701,6 +701,7 @@
       sessionDraftTasks: [],
       taskSettingsExpanded: false,
       nextSessionTasksExpanded: false,
+      historyTaskListsExpanded: {},
       sessionTaskPreviewVisible: false
     },
     entries: []
@@ -796,6 +797,10 @@
           sessionDraftTasks: normalizeSessionTasks(parsed?.ui?.sessionDraftTasks || defaultState.ui.sessionDraftTasks),
           taskSettingsExpanded: Boolean(parsed?.ui?.taskSettingsExpanded ?? defaultState.ui.taskSettingsExpanded),
           nextSessionTasksExpanded: Boolean(parsed?.ui?.nextSessionTasksExpanded ?? defaultState.ui.nextSessionTasksExpanded),
+          historyTaskListsExpanded: Object.fromEntries(
+            Object.entries(parsed?.ui?.historyTaskListsExpanded || {})
+              .map(([entryId, expanded]) => [String(entryId), Boolean(expanded)])
+          ),
           sessionTaskPreviewVisible: Boolean(parsed?.ui?.sessionTaskPreviewVisible ?? defaultState.ui.sessionTaskPreviewVisible)
         },
         entries: Array.isArray(parsed?.entries) ? parsed.entries : []
@@ -1606,7 +1611,7 @@
     return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3">'
       + '<div class="flex items-center justify-between gap-3">'
       + '<div><p class="text-sm font-medium">Tâches prévues : ' + tasks.length + '</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">' + doneCount + ' terminée(s) / ' + tasks.length + '</p></div>'
-      + (showToggle ? '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>' : '')
+      + (showToggle ? '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '" data-entry-id="' + esc(entryId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>' : '')
       + '</div>'
       + '<div id="' + esc(listId) + '" class="' + (expanded ? '' : 'hidden ') + 'space-y-2 mt-3">'
       + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
@@ -1619,7 +1624,7 @@
       return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche associée à cette session.</div>';
     }
 
-    return compactTaskListHtml(tasks, entry.id, false, 'history-tasks-' + entry.id);
+    return compactTaskListHtml(tasks, entry.id, Boolean(state.ui.historyTaskListsExpanded?.[entry.id]), 'history-tasks-' + entry.id);
   }
 
   async function toggleSessionTask(entryId, taskId, done) {
@@ -1839,6 +1844,10 @@
         const willOpen = target.classList.contains('hidden');
         target.classList.toggle('hidden', !willOpen);
         btn.textContent = willOpen ? 'Réduire' : 'Voir';
+        state.ui.historyTaskListsExpanded = state.ui.historyTaskListsExpanded || {};
+        const entryId = btn.dataset.entryId;
+        if (entryId) state.ui.historyTaskListsExpanded[entryId] = willOpen;
+        saveState();
       });
     });
   }
