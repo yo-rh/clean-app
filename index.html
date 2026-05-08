@@ -498,34 +498,49 @@
                 </div>
 
                 <div class="space-y-3">
-                  <div>
-                    <p class="text-sm font-medium mb-1">À chaque passage</p>
-                    <div class="flex gap-2">
-                      <input id="defaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Aspirateur" />
-                      <button id="addDefaultTaskBtn" type="button" class="shrink-0 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
+                  <details class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 overflow-hidden" open>
+                    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between gap-3">
+                      <span>À chaque passage</span>
+                      <span class="text-slate-400">⌄</span>
+                    </summary>
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 dark:border-slate-800">
+                      <div class="flex gap-2 pt-3">
+                        <input id="defaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Aspirateur" />
+                        <button id="addDefaultTaskBtn" type="button" class="shrink-0 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter</button>
+                      </div>
+                      <div id="defaultTasksList" class="space-y-2"></div>
                     </div>
-                    <div id="defaultTasksList" class="mt-3 space-y-2"></div>
-                  </div>
+                  </details>
 
-                  <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
-                    <p class="text-sm font-medium mb-1">Toutes les X sessions</p>
-                    <div class="grid grid-cols-[1fr_96px] gap-2">
-                      <input id="recurringTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Changer les draps" />
-                      <input id="recurringTaskEveryInput" type="number" min="2" step="1" inputmode="numeric" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="2" />
+                  <details class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 overflow-hidden">
+                    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between gap-3">
+                      <span>Toutes les X sessions</span>
+                      <span class="text-slate-400">⌄</span>
+                    </summary>
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 dark:border-slate-800">
+                      <div class="grid grid-cols-[1fr_96px] gap-2 pt-3">
+                        <input id="recurringTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Changer les draps" />
+                        <input id="recurringTaskEveryInput" type="number" min="2" step="1" inputmode="numeric" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="2" />
+                      </div>
+                      <button id="addRecurringTaskBtn" type="button" class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche récurrente</button>
+                      <div id="recurringTasksList" class="space-y-2"></div>
                     </div>
-                    <button id="addRecurringTaskBtn" type="button" class="mt-2 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche récurrente</button>
-                    <div id="recurringTasksList" class="mt-3 space-y-2"></div>
-                  </div>
+                  </details>
 
-                  <div class="pt-3 border-t border-slate-200 dark:border-slate-800">
-                    <p class="text-sm font-medium mb-1">Tâche ponctuelle</p>
-                    <div class="space-y-2">
-                      <input id="punctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Nettoyer le balcon" />
-                      <input id="punctualTaskDateInput" type="date" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                  <details class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/70 dark:bg-slate-900/70 overflow-hidden">
+                    <summary class="cursor-pointer select-none px-4 py-3 text-sm font-medium flex items-center justify-between gap-3">
+                      <span>Tâche ponctuelle</span>
+                      <span class="text-slate-400">⌄</span>
+                    </summary>
+                    <div class="px-4 pb-4 space-y-3 border-t border-slate-200 dark:border-slate-800">
+                      <div class="space-y-2 pt-3">
+                        <input id="punctualTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Nettoyer le balcon" />
+                        <input id="punctualTaskDateInput" type="date" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                      </div>
+                      <button id="addPunctualTaskBtn" type="button" class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche ponctuelle</button>
+                      <div id="punctualTasksList" class="space-y-2"></div>
                     </div>
-                    <button id="addPunctualTaskBtn" type="button" class="mt-2 w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 text-sm font-medium">Ajouter la tâche ponctuelle</button>
-                    <div id="punctualTasksList" class="mt-3 space-y-2"></div>
-                  </div>
+                  </details>
                 </div>
               </div>
             </div>
