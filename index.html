@@ -255,7 +255,7 @@
     <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
       <div>
         <label for="workerCodeInput" class="block text-sm font-medium mb-1">Entrez votre code d’accès</label>
-        <input id="workerCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : ABC123" />
+        <input id="workerCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : CA.xxxxx.ABC123" />
       </div>
       <p id="workerAccessError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300">Code invalide.</p>
       <button id="workerCodeSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Voir ma session</button>
@@ -528,7 +528,7 @@
                 </div>
                 <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
                   <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Code d’accès</p>
-                  <p id="workerAccessCodeDisplay" class="mt-1 text-2xl font-semibold tracking-[0.25em]">—</p>
+                  <p id="workerAccessCodeDisplay" class="mt-1 break-all text-lg font-semibold tracking-wide sm:text-xl">—</p>
                 </div>
                 <button id="generateWorkerCodeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Générer un code intervenante</button>
               </div>
@@ -1555,14 +1555,48 @@
   }
 
   function workerCodeValue(value) {
-    return String(value || '').trim().toUpperCase().replace(/[^A-Z0-9]/g, '');
+    return String(value || '').trim();
   }
 
-  function generateWorkerCodeValue() {
+  function workerAccessRef(homeId) {
+    return doc(db, 'users', homeId, 'intervenanteAccess', 'current');
+  }
+
+  function encodeWorkerHomeId(homeId) {
+    return btoa(String(homeId || '')).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+  }
+
+  function decodeWorkerHomeId(encodedHomeId) {
+    try {
+      const normalized = String(encodedHomeId || '').replace(/-/g, '+').replace(/_/g, '/');
+      const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+      return atob(padded);
+    } catch (error) {
+      return '';
+    }
+  }
+
+  function workerCodeHomeId(code) {
+    const match = workerCodeValue(code).match(/^CA\.([A-Za-z0-9_-]+)\.[A-Z0-9]+$/);
+    return match ? decodeWorkerHomeId(match[1]) : '';
+  }
+
+  function isValidWorkerAccess(access, code) {
+    return Boolean(
+      access &&
+      access.active === true &&
+      access.role === 'intervenante' &&
+      access.homeId &&
+      String(access.code || '') === code
+    );
+  }
+
+  function generateWorkerCodeValue(homeId) {
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const bytes = new Uint8Array(6);
     crypto.getRandomValues(bytes);
-    return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+    const secret = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+    return 'CA.' + encodeWorkerHomeId(homeId) + '.' + secret;
   }
 
   async function generateWorkerAccessCode() {
@@ -1572,14 +1606,15 @@
     }
 
     const previousCode = state.settings.intervenanteAccessCode;
-    const code = generateWorkerCodeValue();
     const uid = currentUid();
+    const code = generateWorkerCodeValue(uid);
     const payload = {
       code,
       homeId: uid,
       role: 'intervenante',
       active: true,
-      createdAt: serverTimestamp()
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
     };
 
     state.settings.intervenanteAccessCode = code;
@@ -1587,16 +1622,27 @@
     renderSettings();
 
     try {
+      await setDoc(workerAccessRef(uid), payload, { merge: true });
+      await saveUserSettings();
+    } catch (error) {
+      console.error(error);
+      state.settings.intervenanteAccessCode = previousCode || '';
+      saveState();
+      renderSettings();
+      alert('Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.');
+      return;
+    }
+
+    try {
       if (previousCode && previousCode !== code) {
         await setDoc(doc(db, WORKER_CODES_COLLECTION, previousCode), { active: false, updatedAt: serverTimestamp() }, { merge: true });
       }
-      await setDoc(doc(db, WORKER_CODES_COLLECTION, code), payload);
-      await saveUserSettings();
-      showToast('✅ Code intervenante généré.');
+      await setDoc(doc(db, WORKER_CODES_COLLECTION, code), payload, { merge: true });
     } catch (error) {
-      console.error(error);
-      showToast('⚠️ Code non synchronisé.');
+      console.warn('Index global intervenante non disponible, génération conservée via le chemin utilisateur.', error);
     }
+
+    showToast('✅ Code intervenante généré.');
   }
 
   function showWorkerAccessScreen() {
@@ -1624,6 +1670,26 @@
     if (!isLoggedIn() && els.authScreen) els.authScreen.classList.remove('hidden');
   }
 
+  async function resolveWorkerAccessCode(code) {
+    try {
+      const snapshot = await getDoc(doc(db, WORKER_CODES_COLLECTION, code));
+      const access = snapshot.exists() ? snapshot.data() : null;
+      if (isValidWorkerAccess(access, code)) return access;
+    } catch (error) {
+      console.warn('Index global intervenante inaccessible, tentative via le chemin utilisateur.', error);
+    }
+
+    const homeId = workerCodeHomeId(code);
+    if (!homeId) throw new Error('Code invalide.');
+
+    const snapshot = await getDoc(workerAccessRef(homeId));
+    const access = snapshot.exists() ? snapshot.data() : null;
+    if (!isValidWorkerAccess(access, code) || String(access.homeId) !== homeId) {
+      throw new Error('Code invalide.');
+    }
+    return access;
+  }
+
   async function enterWorkerWithCode() {
     const code = workerCodeValue(els.workerCodeInput?.value);
     if (els.workerAccessError) els.workerAccessError.classList.add('hidden');
@@ -1635,11 +1701,7 @@
     }
 
     try {
-      const snapshot = await getDoc(doc(db, WORKER_CODES_COLLECTION, code));
-      const access = snapshot.exists() ? snapshot.data() : null;
-      if (!access || access.active !== true || access.role !== 'intervenante' || !access.homeId) {
-        throw new Error('Code invalide.');
-      }
+      const access = await resolveWorkerAccessCode(code);
 
       state.ui.accessMode = 'intervenante';
       state.ui.workerHomeId = String(access.homeId);
@@ -2365,7 +2427,6 @@
   if (els.workerCodeSubmitBtn) els.workerCodeSubmitBtn.addEventListener('click', enterWorkerWithCode);
   if (els.workerCodeInput) {
     els.workerCodeInput.addEventListener('input', () => {
-      els.workerCodeInput.value = workerCodeValue(els.workerCodeInput.value);
       if (els.workerAccessError) els.workerAccessError.classList.add('hidden');
     });
     els.workerCodeInput.addEventListener('keydown', (event) => {
