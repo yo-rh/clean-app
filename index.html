@@ -167,6 +167,7 @@
       </div>
 
       <button id="authSubmitBtn" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
+      <button id="openWorkerAccessBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Accès intervenante</button>
 
       <p id="authHintText" class="text-sm text-slate-500 dark:text-slate-400 text-center">Créez votre compte pour commencer.</p>
     </section>
@@ -241,6 +242,56 @@
         <button id="setupNextBtn" type="button" class="rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Continuer</button>
       </div>
     </section>
+  </div>
+
+  <div id="workerAccessScreen" class="hidden min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
+    <div class="mb-8 text-center">
+      <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
+      <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
+      <h1 class="text-3xl font-semibold tracking-tight">Accès intervenante</h1>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Entrez votre code d’accès pour voir votre prochaine session.</p>
+    </div>
+
+    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+      <div>
+        <label for="workerCodeInput" class="block text-sm font-medium mb-1">Entrez votre code d’accès</label>
+        <input id="workerCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Collez le code reçu" />
+      </div>
+      <p id="workerAccessError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300">Code invalide.</p>
+      <button id="workerCodeSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Voir ma session</button>
+      <button id="backToClientLoginBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour au mode client</button>
+    </section>
+  </div>
+
+  <div id="workerShell" class="hidden min-h-screen max-w-md mx-auto px-4 py-5 safe-bottom">
+    <header class="mb-5 flex items-start justify-between gap-3">
+      <div>
+        <p id="workerHomeName" class="text-sm text-slate-500 dark:text-slate-400">Foyer</p>
+        <h1 class="text-2xl font-semibold tracking-tight">Accès intervenante</h1>
+      </div>
+      <button id="workerChangeModeBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Changer</button>
+    </header>
+
+    <main class="space-y-4">
+      <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+        <div>
+          <h2 class="text-xl font-semibold tracking-tight">Prochaine session</h2>
+          <p id="workerSessionSummary" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Chargement…</p>
+        </div>
+
+        <div>
+          <h3 class="font-semibold mb-2">Tâches à faire</h3>
+          <div id="workerTasksList" class="space-y-2"></div>
+        </div>
+
+        <div>
+          <label for="workerCommentInput" class="block text-sm font-medium mb-1">Commentaire optionnel</label>
+          <textarea id="workerCommentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le foyer"></textarea>
+        </div>
+
+        <button id="workerFinishSessionBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Terminer la session</button>
+      </section>
+    </main>
   </div>
 
   <div id="appShell" class="hidden">
@@ -469,6 +520,20 @@
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
+                    <h3 class="font-semibold">Accès intervenante</h3>
+                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Générez un code à copier exactement et à transmettre à votre intervenante.</p>
+                  </div>
+                </div>
+                <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
+                  <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Code d’accès</p>
+                  <p id="workerAccessCodeDisplay" class="mt-1 break-all font-mono text-sm font-semibold">—</p>
+                </div>
+                <button id="generateWorkerCodeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Générer un code intervenante</button>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <h3 class="font-semibold">IA</h3>
                 <div>
                   <label for="translationLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
@@ -666,6 +731,7 @@
   const db = getFirestore(firebaseApp);
 
   const STORAGE_KEY = 'cleanAppFirebaseV1';
+  const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
 
   const defaultState = {
     settings: {
@@ -686,7 +752,8 @@
         { id: 'recurring_draps', label: 'Changer les draps', everySessions: 2 }
       ],
       punctualTasks: [],
-      sessionTasks: {}
+      sessionTasks: {},
+      intervenanteAccessCode: ''
     },
     auth: {
       token: '',
@@ -702,7 +769,11 @@
       taskSettingsExpanded: false,
       nextSessionTasksExpanded: false,
       historyTaskListsExpanded: {},
-      sessionTaskPreviewVisible: false
+      sessionTaskPreviewVisible: false,
+      accessMode: 'client',
+      workerHomeId: '',
+      workerCode: '',
+      workerSessionId: ''
     },
     entries: []
   };
@@ -782,7 +853,8 @@
           defaultTasks: normalizeTaskSettings(parsed?.settings?.defaultTasks, defaultState.settings.defaultTasks),
           recurringTasks: normalizeRecurringTaskSettings(parsed?.settings?.recurringTasks, defaultState.settings.recurringTasks),
           punctualTasks: normalizePunctualTaskSettings(parsed?.settings?.punctualTasks, defaultState.settings.punctualTasks),
-          sessionTasks: normalizeSessionTaskMap(parsed?.settings?.sessionTasks, defaultState.settings.sessionTasks)
+          sessionTasks: normalizeSessionTaskMap(parsed?.settings?.sessionTasks, defaultState.settings.sessionTasks),
+          intervenanteAccessCode: String(parsed?.settings?.intervenanteAccessCode ?? '')
         },
         auth: {
           token: String(parsed?.auth?.token ?? ''),
@@ -801,7 +873,11 @@
             Object.entries(parsed?.ui?.historyTaskListsExpanded || {})
               .map(([entryId, expanded]) => [String(entryId), Boolean(expanded)])
           ),
-          sessionTaskPreviewVisible: Boolean(parsed?.ui?.sessionTaskPreviewVisible ?? defaultState.ui.sessionTaskPreviewVisible)
+          sessionTaskPreviewVisible: Boolean(parsed?.ui?.sessionTaskPreviewVisible ?? defaultState.ui.sessionTaskPreviewVisible),
+          accessMode: parsed?.ui?.accessMode === 'intervenante' ? 'intervenante' : 'client',
+          workerHomeId: String(parsed?.ui?.workerHomeId ?? ''),
+          workerCode: String(parsed?.ui?.workerCode ?? ''),
+          workerSessionId: String(parsed?.ui?.workerSessionId ?? '')
         },
         entries: Array.isArray(parsed?.entries) ? parsed.entries : []
       };
@@ -820,11 +896,24 @@
     authScreen: byId('authScreen'),
     setupScreen: byId('setupScreen'),
     appShell: byId('appShell'),
+    workerAccessScreen: byId('workerAccessScreen'),
+    workerShell: byId('workerShell'),
+    workerCodeInput: byId('workerCodeInput'),
+    workerAccessError: byId('workerAccessError'),
+    workerCodeSubmitBtn: byId('workerCodeSubmitBtn'),
+    backToClientLoginBtn: byId('backToClientLoginBtn'),
+    workerHomeName: byId('workerHomeName'),
+    workerSessionSummary: byId('workerSessionSummary'),
+    workerTasksList: byId('workerTasksList'),
+    workerCommentInput: byId('workerCommentInput'),
+    workerFinishSessionBtn: byId('workerFinishSessionBtn'),
+    workerChangeModeBtn: byId('workerChangeModeBtn'),
     loginTabBtn: byId('loginTabBtn'),
     registerTabBtn: byId('registerTabBtn'),
     authEmailInput: byId('authEmailInput'),
     authPasswordInput: byId('authPasswordInput'),
     authSubmitBtn: byId('authSubmitBtn'),
+    openWorkerAccessBtn: byId('openWorkerAccessBtn'),
     authHintText: byId('authHintText'),
     setupStepLabel: byId('setupStepLabel'),
     setupProgressBar: byId('setupProgressBar'),
@@ -882,6 +971,8 @@
     adminSyncCard: byId('adminSyncCard'),
     accountEmailText: byId('accountEmailText'),
     accountRoleText: byId('accountRoleText'),
+    generateWorkerCodeBtn: byId('generateWorkerCodeBtn'),
+    workerAccessCodeDisplay: byId('workerAccessCodeDisplay'),
     defaultTaskInput: byId('defaultTaskInput'),
     addDefaultTaskBtn: byId('addDefaultTaskBtn'),
     defaultTasksList: byId('defaultTasksList'),
@@ -1046,6 +1137,7 @@
       recurringTasks: normalizeRecurringTaskSettings(remoteSettings.recurringTasks, state.settings.recurringTasks || defaultState.settings.recurringTasks),
       punctualTasks: normalizePunctualTaskSettings(remoteSettings.punctualTasks, state.settings.punctualTasks || defaultState.settings.punctualTasks),
       sessionTasks: normalizeSessionTaskMap(remoteSettings.sessionTasks, state.settings.sessionTasks || defaultState.settings.sessionTasks),
+      intervenanteAccessCode: String(remoteSettings.intervenanteAccessCode ?? state.settings.intervenanteAccessCode ?? ''),
       setupCompleted: hasSetupFlag
         ? Boolean(remoteSettings.setupCompleted ?? data.setupCompleted)
         : Boolean(remoteSettings.contactName || remoteSettings.contactPhone || remoteSettings.hourlyRate || remoteSettings.defaultDuration || state.entries.length > 0)
@@ -1204,11 +1296,14 @@
   }
 
   function renderShellVisibility() {
+    const workerMode = state.ui.accessMode === 'intervenante' && Boolean(state.ui.workerHomeId);
     const logged = isLoggedIn();
-    const setup = needsSetup();
-    if (els.authScreen) els.authScreen.classList.toggle('hidden', logged);
-    if (els.setupScreen) els.setupScreen.classList.toggle('hidden', !setup);
-    if (els.appShell) els.appShell.classList.toggle('hidden', !logged || setup);
+    const setup = !workerMode && needsSetup();
+    if (els.authScreen) els.authScreen.classList.toggle('hidden', workerMode || logged);
+    if (els.workerAccessScreen) els.workerAccessScreen.classList.add('hidden');
+    if (els.workerShell) els.workerShell.classList.toggle('hidden', !workerMode);
+    if (els.setupScreen) els.setupScreen.classList.toggle('hidden', workerMode || !setup);
+    if (els.appShell) els.appShell.classList.toggle('hidden', workerMode || !logged || setup);
     renderAuthMode();
     renderSetup();
   }
@@ -1311,7 +1406,7 @@
   }
 
   function entryToSyncRow(entry) {
-    return {
+    const row = {
       id: entry.id,
       type: entry.type,
       date: toISODateOnly(entry.date),
@@ -1320,6 +1415,15 @@
       amount: Number(entry.amount || 0),
       createdAt: entry.createdAt || nowISO()
     };
+
+    if (entry.type === 'session') {
+      row.tasks = normalizeSessionTasks(entry.tasks);
+      if (entry.status) row.status = String(entry.status);
+      if (entry.intervenanteComment) row.intervenanteComment = String(entry.intervenanteComment);
+      if (entry.intervenanteValidatedAt) row.intervenanteValidatedAt = String(entry.intervenanteValidatedAt);
+    }
+
+    return row;
   }
 
   function entryToFirestore(entry) {
@@ -1346,7 +1450,10 @@
         duration: type === 'session' ? Number(entry.duration || 0) : undefined,
         rate: type === 'session' ? Number(entry.rate || 0) : undefined,
         amount: Number(entry.amount || 0),
-        tasks: type === 'session' ? normalizeSessionTasks(state.settings.sessionTasks?.[String(entry.id || documentSnapshot.id)] || []) : [],
+        tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || state.settings.sessionTasks?.[String(entry.id || documentSnapshot.id)] || []) : [],
+        status: type === 'session' ? String(entry.status || '') : undefined,
+        intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined,
+        intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined,
         createdAt: String(entry.createdAt || nowISO())
       };
     });
@@ -1445,6 +1552,251 @@
     if (!isLoggedIn()) return;
     if (autoSyncTimer) clearTimeout(autoSyncTimer);
     autoSyncTimer = setTimeout(() => syncBidirectional(false), 900);
+  }
+
+  function workerCodeValue(value) {
+    return String(value || '').trim().replace(/\s+/g, '').replace(/[^A-Za-z0-9_-]/g, '');
+  }
+
+  function generateWorkerCodeValue() {
+    const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    const bytes = new Uint8Array(6);
+    crypto.getRandomValues(bytes);
+    return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
+  }
+
+  async function generateWorkerAccessCode() {
+    if (!isLoggedIn()) {
+      alert('Merci de vous connecter avant de générer un code.');
+      return;
+    }
+
+    const previousCode = state.settings.intervenanteAccessCode;
+    const uid = currentUid();
+    const code = uid + '-' + generateWorkerCodeValue();
+    const payload = {
+      code,
+      homeId: uid,
+      role: 'intervenante',
+      active: true,
+      createdAt: serverTimestamp()
+    };
+
+    state.settings.intervenanteAccessCode = code;
+    saveState();
+    renderSettings();
+
+    try {
+      await setDoc(doc(db, 'users', uid, 'intervenanteAccess', 'current'), payload, { merge: true });
+      await saveUserSettings();
+
+      try {
+        if (previousCode && previousCode !== code) {
+          await setDoc(doc(db, WORKER_CODES_COLLECTION, previousCode), { active: false, updatedAt: serverTimestamp() }, { merge: true });
+        }
+        await setDoc(doc(db, WORKER_CODES_COLLECTION, code), payload);
+      } catch (indexError) {
+        console.warn('Index public intervenante non synchronisé, accès direct par code long conservé.', indexError);
+      }
+
+      showToast('✅ Code intervenante généré.');
+    } catch (error) {
+      console.error(error);
+      state.settings.intervenanteAccessCode = previousCode || '';
+      saveState();
+      renderSettings();
+      showToast('⚠️ Code non synchronisé : vérifiez Firebase.');
+    }
+  }
+
+  function showWorkerAccessScreen() {
+    state.ui.accessMode = 'client';
+    state.ui.workerHomeId = '';
+    state.ui.workerCode = '';
+    state.ui.workerSessionId = '';
+    saveState();
+    if (els.authScreen) els.authScreen.classList.add('hidden');
+    if (els.setupScreen) els.setupScreen.classList.add('hidden');
+    if (els.appShell) els.appShell.classList.add('hidden');
+    if (els.workerShell) els.workerShell.classList.add('hidden');
+    if (els.workerAccessScreen) els.workerAccessScreen.classList.remove('hidden');
+    if (els.workerAccessError) els.workerAccessError.classList.add('hidden');
+    if (els.workerCodeInput) els.workerCodeInput.focus();
+  }
+
+  function leaveWorkerMode() {
+    state.ui.accessMode = 'client';
+    state.ui.workerHomeId = '';
+    state.ui.workerCode = '';
+    state.ui.workerSessionId = '';
+    saveState();
+    renderShellVisibility();
+    if (!isLoggedIn() && els.authScreen) els.authScreen.classList.remove('hidden');
+  }
+
+  async function resolveWorkerAccess(code) {
+    try {
+      const snapshot = await getDoc(doc(db, WORKER_CODES_COLLECTION, code));
+      if (snapshot.exists()) return snapshot.data();
+    } catch (error) {
+      console.warn('Index public intervenante indisponible, tentative via code direct.', error);
+    }
+
+    const separatorIndex = code.lastIndexOf('-');
+    if (separatorIndex <= 0) return null;
+    const homeId = code.slice(0, separatorIndex);
+    const snapshot = await getDoc(doc(db, 'users', homeId, 'intervenanteAccess', 'current'));
+    if (!snapshot.exists()) return null;
+    const access = snapshot.data() || {};
+    return access.code === code ? access : null;
+  }
+
+  async function enterWorkerWithCode() {
+    const code = workerCodeValue(els.workerCodeInput?.value);
+    if (els.workerAccessError) els.workerAccessError.classList.add('hidden');
+    if (!code) return;
+
+    if (els.workerCodeSubmitBtn) {
+      els.workerCodeSubmitBtn.disabled = true;
+      els.workerCodeSubmitBtn.classList.add('opacity-60');
+    }
+
+    try {
+      const access = await resolveWorkerAccess(code);
+      if (!access || access.active !== true || access.role !== 'intervenante' || !access.homeId) {
+        throw new Error('Code invalide.');
+      }
+
+      state.ui.accessMode = 'intervenante';
+      state.ui.workerHomeId = String(access.homeId);
+      state.ui.workerCode = code;
+      saveState();
+      renderShellVisibility();
+      await loadWorkerHome();
+    } catch (error) {
+      console.error(error);
+      if (els.workerAccessError) {
+        els.workerAccessError.textContent = 'Code invalide ou accès Firebase refusé.';
+        els.workerAccessError.classList.remove('hidden');
+      }
+    } finally {
+      if (els.workerCodeSubmitBtn) {
+        els.workerCodeSubmitBtn.disabled = false;
+        els.workerCodeSubmitBtn.classList.remove('opacity-60');
+      }
+    }
+  }
+
+  async function fetchWorkerEntries(homeId) {
+    const snapshot = await getDocs(collection(db, 'users', homeId, 'entries'));
+    return snapshot.docs.map((documentSnapshot) => {
+      const entry = documentSnapshot.data() || {};
+      const type = String(entry.type || 'payment');
+      return {
+        id: String(entry.id || documentSnapshot.id),
+        type,
+        date: toISODateOnly(entry.date),
+        duration: type === 'session' ? Number(entry.duration || 0) : undefined,
+        amount: Number(entry.amount || 0),
+        tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : [],
+        status: type === 'session' ? String(entry.status || '') : undefined,
+        intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined,
+        intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined,
+        createdAt: String(entry.createdAt || nowISO())
+      };
+    });
+  }
+
+  async function loadWorkerHome() {
+    if (state.ui.accessMode !== 'intervenante' || !state.ui.workerHomeId) return;
+    try {
+      const homeSnapshot = await getDoc(doc(db, 'users', state.ui.workerHomeId));
+      const home = homeSnapshot.exists() ? homeSnapshot.data() : {};
+      const remoteSettings = home.settings || {};
+      const entries = (await fetchWorkerEntries(state.ui.workerHomeId)).map((entry) => {
+        if (entry.type !== 'session') return entry;
+        return { ...entry, tasks: normalizeSessionTasks(entry.tasks?.length ? entry.tasks : remoteSettings.sessionTasks?.[entry.id] || []) };
+      });
+      renderWorkerView(home, remoteSettings, entries);
+    } catch (error) {
+      console.error(error);
+      if (els.workerSessionSummary) els.workerSessionSummary.textContent = firebaseErrorMessage(error);
+    }
+  }
+
+  function nextWorkerSession(entries) {
+    const today = todayISO();
+    return entries
+      .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today && entry.status !== 'terminee_intervenante')
+      .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)))[0] || null;
+  }
+
+  function renderWorkerView(home, remoteSettings, entries) {
+    const homeName = remoteSettings.homeName || home.homeName || home.email || 'Foyer Clean’ App';
+    const next = nextWorkerSession(entries);
+    if (els.workerHomeName) els.workerHomeName.textContent = homeName;
+
+    if (!next) {
+      state.ui.workerSessionId = '';
+      if (els.workerSessionSummary) els.workerSessionSummary.textContent = 'Aucune session prévue.';
+      if (els.workerTasksList) els.workerTasksList.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche à afficher.</div>';
+      if (els.workerCommentInput) els.workerCommentInput.value = '';
+      if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = true;
+      saveState();
+      return;
+    }
+
+    state.ui.workerSessionId = next.id;
+    const tasks = normalizeSessionTasks(next.tasks);
+    if (els.workerSessionSummary) {
+      els.workerSessionSummary.textContent = formatDate(next.date) + ' · ' + (next.duration || 0) + 'h';
+    }
+    if (els.workerTasksList) {
+      els.workerTasksList.innerHTML = tasks.length
+        ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
+    }
+    if (els.workerCommentInput) els.workerCommentInput.value = next.intervenanteComment || '';
+    if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = false;
+    saveState();
+  }
+
+  async function finishWorkerSession() {
+    const homeId = state.ui.workerHomeId;
+    const sessionId = state.ui.workerSessionId;
+    if (!homeId || !sessionId) return;
+
+    if (els.workerFinishSessionBtn) {
+      els.workerFinishSessionBtn.disabled = true;
+      els.workerFinishSessionBtn.classList.add('opacity-60');
+    }
+
+    try {
+      const sessionRef = doc(db, 'users', homeId, 'entries', sessionId);
+      const sessionSnapshot = await getDoc(sessionRef);
+      const session = sessionSnapshot.exists() ? sessionSnapshot.data() : {};
+      const homeSnapshot = await getDoc(doc(db, 'users', homeId));
+      const homeSettings = homeSnapshot.exists() ? (homeSnapshot.data().settings || {}) : {};
+      const checked = new Set(Array.from(document.querySelectorAll('.worker-task-checkbox:checked')).map((checkbox) => checkbox.dataset.taskId));
+      const tasks = normalizeSessionTasks((session.tasks && session.tasks.length ? session.tasks : homeSettings.sessionTasks?.[sessionId]) || []).map((task) => ({ ...task, done: checked.has(task.id) }));
+      const payload = {
+        tasks,
+        status: 'terminee_intervenante',
+        intervenanteComment: (els.workerCommentInput?.value || '').trim(),
+        intervenanteValidatedAt: nowISO(),
+        updatedAt: serverTimestamp()
+      };
+
+      await setDoc(sessionRef, payload, { merge: true });
+      showToast('✅ Session terminée.');
+      await loadWorkerHome();
+    } catch (error) {
+      console.error(error);
+      showToast('⚠️ Session non enregistrée.');
+      if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = false;
+    } finally {
+      if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.classList.remove('opacity-60');
+    }
   }
 
   function setCurrentPage(page) {
@@ -1754,6 +2106,7 @@
     const user = state.auth.user || {};
     if (els.accountEmailText) els.accountEmailText.textContent = 'Compte : ' + (user.email || '—');
     if (els.accountRoleText) els.accountRoleText.textContent = 'Rôle : ' + (user.role === 'admin' ? 'admin' : 'utilisateur');
+    if (els.workerAccessCodeDisplay) els.workerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
     if (els.adminSyncCard) els.adminSyncCard.classList.toggle('hidden', !isAdmin());
   }
 
@@ -2033,6 +2386,21 @@
   if (els.loginTabBtn) els.loginTabBtn.addEventListener('click', () => setAuthMode('login'));
   if (els.registerTabBtn) els.registerTabBtn.addEventListener('click', () => setAuthMode('register'));
   if (els.authSubmitBtn) els.authSubmitBtn.addEventListener('click', submitAuth);
+  if (els.openWorkerAccessBtn) els.openWorkerAccessBtn.addEventListener('click', showWorkerAccessScreen);
+  if (els.backToClientLoginBtn) els.backToClientLoginBtn.addEventListener('click', leaveWorkerMode);
+  if (els.workerCodeSubmitBtn) els.workerCodeSubmitBtn.addEventListener('click', enterWorkerWithCode);
+  if (els.workerCodeInput) {
+    els.workerCodeInput.addEventListener('input', () => {
+      els.workerCodeInput.value = workerCodeValue(els.workerCodeInput.value);
+      if (els.workerAccessError) els.workerAccessError.classList.add('hidden');
+    });
+    els.workerCodeInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') enterWorkerWithCode();
+    });
+  }
+  if (els.workerChangeModeBtn) els.workerChangeModeBtn.addEventListener('click', leaveWorkerMode);
+  if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.addEventListener('click', finishWorkerSession);
+  if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.addEventListener('click', generateWorkerAccessCode);
   if (els.authPasswordInput) {
     els.authPasswordInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') submitAuth();
@@ -2416,6 +2784,7 @@
 
   renderShellVisibility();
   renderFull();
+  if (state.ui.accessMode === 'intervenante' && state.ui.workerHomeId) loadWorkerHome();
 
   onAuthStateChanged(auth, async (firebaseUser) => {
     try {
@@ -2425,6 +2794,7 @@
         saveState();
         renderShellVisibility();
         renderFull();
+        if (state.ui.accessMode === 'intervenante' && state.ui.workerHomeId) loadWorkerHome();
         return;
       }
 
