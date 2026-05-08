@@ -329,7 +329,7 @@
           </section>
         </section>
 
-        <section id="page-session" class="page space-y-4 pb-32">
+        <section id="page-session" class="page space-y-4 pb-4">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">Ajouter une session</h2>
             <p class="text-sm text-slate-500 dark:text-slate-400">Choisissez une durée rapide ou saisissez une autre valeur.</p>
@@ -1555,12 +1555,12 @@
     persistTaskSettings();
   }
 
-  function compactTaskListHtml(tasks, entryId, expanded, listId) {
+  function compactTaskListHtml(tasks, entryId, expanded, listId, showToggle = true) {
     const doneCount = tasks.filter((task) => task.done).length;
     return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3">'
       + '<div class="flex items-center justify-between gap-3">'
       + '<div><p class="text-sm font-medium">Tâches prévues : ' + tasks.length + '</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">' + doneCount + ' terminée(s) / ' + tasks.length + '</p></div>'
-      + '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>'
+      + (showToggle ? '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>' : '')
       + '</div>'
       + '<div id="' + esc(listId) + '" class="' + (expanded ? '' : 'hidden ') + 'space-y-2 mt-3">'
       + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
@@ -1680,7 +1680,7 @@
     if (els.nextSessionTasksWrap) {
       els.nextSessionTasksWrap.classList.toggle('hidden', !state.ui.nextSessionTasksExpanded);
       els.nextSessionTasksWrap.innerHTML = tasks.length
-        ? compactTaskListHtml(tasks, next.id, true, 'next-session-tasks-list')
+        ? compactTaskListHtml(tasks, next.id, true, 'next-session-tasks-list', false)
         : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue.</div>';
     }
   }
