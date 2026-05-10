@@ -163,7 +163,7 @@
           <p class="text-sm text-slate-500 mb-4">Saisissez le code fourni par votre client pour accéder à son foyer.</p>
 
           <div class="flex gap-2">
-            <input id="inviteCodeInput" inputmode="numeric" maxlength="8" placeholder="Code foyer" class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+            <input id="inviteCodeInput" inputmode="text" autocomplete="one-time-code" placeholder="Code foyer" class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 uppercase" />
             <button id="addHouseholdBtn" class="rounded-2xl bg-violet-600 text-white font-semibold px-4 active:scale-95">Ajouter</button>
           </div>
           <p id="inviteCodeMessage" class="text-sm mt-3 hidden"></p>
@@ -235,14 +235,14 @@
 
     // IMPORTANT : remplacez ce bloc par le même firebaseConfig que dans index.html.
     const firebaseConfig = {
-  apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
-  authDomain: "clean-app-5de06.firebaseapp.com",
-  projectId: "clean-app-5de06",
-  storageBucket: "clean-app-5de06.firebasestorage.app",
-  messagingSenderId: "82379739846",
-  appId: "1:82379739846:web:64fe9a6424e3dbd9d97dc7",
-  measurementId: "G-Y3Q0JBX615"
-};
+      apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
+      authDomain: "clean-app-5de06.firebaseapp.com",
+      projectId: "clean-app-5de06",
+      storageBucket: "clean-app-5de06.firebasestorage.app",
+      messagingSenderId: "82379739846",
+      appId: "1:82379739846:web:64fe9a6424e3dbd9d97dc7",
+      measurementId: "G-Y3Q0JBX615"
+    };
 
     const els = {
       configErrorView: document.getElementById("configErrorView"),
@@ -425,31 +425,37 @@
       });
     }
 
-    async function ensureWorkerProfile(user) {
+    async function getWorkerProfile(user) {
       const ref = doc(db, "workers", user.uid);
       const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        const profile = {
-          uid: user.uid,
-          email: user.email,
-          displayName: user.email?.split("@")[0] || "Intervenante",
-          role: "worker",
-          language: "fr",
-          createdAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        };
-        await setDoc(ref, profile);
-        return profile;
-      }
-
+      if (!snap.exists()) return null;
       return { id: snap.id, ...snap.data() };
+    }
+
+    async function createWorkerProfile(user) {
+      const profile = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.email?.split("@")[0] || "Intervenante",
+        role: "worker",
+        language: "fr",
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+      await setDoc(doc(db, "workers", user.uid), profile, { merge: true });
+      return profile;
     }
 
     async function loadWorkerData() {
       if (!currentUser) return;
 
-      workerProfile = await ensureWorkerProfile(currentUser);
+      workerProfile = await getWorkerProfile(currentUser);
+      if (!workerProfile) {
+        await signOut(auth);
+        showAuthOnly();
+        showError("Vous étiez connecté avec un compte client. Connectez-vous ou créez un compte intervenante.");
+        return;
+      }
       els.accountEmail.textContent = currentUser.email;
       els.languageSelect.value = workerProfile.language || "fr";
       els.welcomeName.textContent = `Bonjour ${workerProfile.displayName || "👋"}`;
@@ -682,7 +688,7 @@
     }
 
     async function addHouseholdByCode() {
-      const code = els.inviteCodeInput.value.trim();
+      const code = els.inviteCodeInput.value.trim().toUpperCase();
       if (!code) {
         setMessage(els.inviteCodeMessage, "Saisissez un code foyer.", "error");
         return;
@@ -771,7 +777,8 @@
         if (!validateAuthForm(authValues, "signup")) return;
 
         try {
-          await createUserWithEmailAndPassword(auth, authValues.email, authValues.password);
+          const userCredential = await createUserWithEmailAndPassword(auth, authValues.email, authValues.password);
+          await createWorkerProfile(userCredential.user);
         } catch (error) {
           console.error(error);
           if (error.code === "auth/email-already-in-use") {
@@ -790,6 +797,10 @@
 
       els.authPassword.addEventListener("keydown", event => {
         if (event.key === "Enter") els.loginBtn.click();
+      });
+
+      els.inviteCodeInput.addEventListener("input", () => {
+        els.inviteCodeInput.value = els.inviteCodeInput.value.trim().toUpperCase();
       });
 
       els.logoutBtn.addEventListener("click", () => signOut(auth));
