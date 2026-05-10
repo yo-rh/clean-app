@@ -4,905 +4,687 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Clean' App — Intervenante</title>
-
   <script src="https://cdn.tailwindcss.com"></script>
-
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.08)' },
+          colors: { apple: { 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af' } }
+        }
+      }
+    };
+  </script>
   <style>
-    :root {
-      --primary: #7c3aed;
-      --bg: #f8fafc;
-      --text: #111827;
-      --muted: #6b7280;
+    html { -webkit-tap-highlight-color: transparent; height: 100%; }
+    body { min-height: 100%; overflow-x: hidden; }
+    .hidden-view { display: none !important; }
+    .safe-bottom { padding-bottom: max(7rem, calc(env(safe-area-inset-bottom) + 6rem)); }
+    input, select, textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+    #toast {
+      position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(8px);
+      background: rgba(15,23,42,.92); color: white; padding: .55rem 1.2rem; border-radius: 99px;
+      font-size: .85rem; font-weight: 500; white-space: nowrap; z-index: 9999; pointer-events: none;
+      opacity: 0; transition: opacity .25s ease, transform .25s ease; backdrop-filter: blur(12px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.25);
     }
-
-    body {
-      background: var(--bg);
-      color: var(--text);
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    .hidden-view {
-      display: none !important;
-    }
-
-    .app-shell {
-      min-height: 100dvh;
-      padding-bottom: calc(88px + env(safe-area-inset-bottom));
-    }
-
-    .bottom-nav {
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-
-    .glass-card {
-      background: rgba(255,255,255,0.94);
-      backdrop-filter: blur(16px);
-    }
-
-    .task-checkbox:checked + span {
-      text-decoration: line-through;
-      color: var(--muted);
-    }
-
-    body:not(.authenticated) #mainView,
-    body:not(.authenticated) #bottomNav {
-      display: none !important;
-    }
-
-    body.authenticated #authView,
-    body.authenticated #configErrorView {
-      display: none !important;
-    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Clean' App" />
+  <meta name="theme-color" content="#2563eb" />
 </head>
-<body>
-  <div id="app" class="app-shell max-w-md mx-auto bg-slate-50 relative overflow-hidden font-sans antialiased">
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
+  <div id="toast"></div>
 
-    <!-- CONFIG ERROR VIEW -->
-    <section id="configErrorView" class="hidden-view min-h-dvh flex flex-col justify-center px-6 py-10">
-      <div class="bg-white rounded-3xl border border-red-100 shadow-sm p-6">
-        <div class="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
-          <span class="text-2xl">⚠️</span>
-        </div>
-        <h1 class="text-xl font-bold text-slate-900">Configuration Firebase à vérifier</h1>
-        <p id="configErrorText" class="text-sm text-slate-600 mt-3 leading-6"></p>
-        <div class="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-xs text-slate-700 overflow-auto">
-          <pre><code>const firebaseConfig = {
-  apiKey: "votre-vraie-api-key",
-  authDomain: "votre-projet.firebaseapp.com",
-  projectId: "votre-projet",
-  storageBucket: "votre-projet.appspot.com",
-  messagingSenderId: "...",
-  appId: "..."
-};</code></pre>
-        </div>
+  <section id="authScreen" class="min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
+    <div class="mb-8 text-center">
+      <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
+      <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
+      <h1 class="text-3xl font-semibold tracking-tight">Espace intervenante</h1>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous puis ajoutez vos foyers avec les codes fournis par les clients.</p>
+    </div>
+
+    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+      <div class="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 dark:bg-slate-950 p-1">
+        <button id="loginTabBtn" type="button" class="rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm">Connexion</button>
+        <button id="registerTabBtn" type="button" class="rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Créer</button>
       </div>
+
+      <div>
+        <label for="emailInput" class="block text-sm font-medium mb-1">Email</label>
+        <input id="emailInput" type="email" autocomplete="email" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="intervenante@mail.com" />
+      </div>
+
+      <div>
+        <label for="passwordInput" class="block text-sm font-medium mb-1">Mot de passe</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Minimum 6 caractères" />
+      </div>
+
+      <p id="authError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300"></p>
+      <button id="authSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
+      <a href="./index.html" class="block w-full text-center rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour espace client</a>
     </section>
+  </section>
 
-    <!-- AUTH VIEW -->
-    <section id="authView" class="min-h-dvh flex flex-col justify-center px-6 py-10">
-      <div class="text-center mb-8">
-        <img src="./icons/icon-180.png" alt="Clean' App" class="w-20 h-20 rounded-3xl mx-auto shadow-lg shadow-violet-200 mb-4 object-cover" />
-        <h1 class="text-2xl font-bold tracking-tight">Clean' App</h1>
-        <p class="text-slate-500 mt-2">Espace intervenante</p>
+  <section id="appShell" class="hidden-view min-h-screen max-w-md mx-auto px-4 py-5 safe-bottom">
+    <header class="mb-5 flex items-start justify-between gap-3">
+      <div>
+        <p id="accountText" class="text-sm text-slate-500 dark:text-slate-400">Compte intervenante</p>
+        <h1 class="text-2xl font-semibold tracking-tight">Mes foyers</h1>
       </div>
+      <button id="logoutBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Déconnexion</button>
+    </header>
 
-      <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 space-y-4">
+    <main class="space-y-4">
+      <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
         <div>
-          <label class="text-sm font-medium text-slate-700" for="authEmail">Email</label>
-          <input id="authEmail" type="email" autocomplete="email" placeholder="exemple@email.com" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+          <h2 class="text-xl font-semibold tracking-tight">Ajouter un foyer</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Saisissez le code court généré côté client. Exemple : A7K92P</p>
         </div>
-
         <div>
-          <label class="text-sm font-medium text-slate-700" for="authPassword">Mot de passe</label>
-          <input id="authPassword" type="password" autocomplete="current-password" placeholder="6 caractères minimum" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+          <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code foyer</label>
+          <input id="homeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
         </div>
-
-        <button id="loginBtn" class="w-full rounded-2xl bg-violet-600 text-white font-semibold py-3 shadow-sm active:scale-[0.99]">
-          Se connecter
-        </button>
-
-        <button id="signupBtn" class="w-full rounded-2xl bg-violet-50 text-violet-700 font-semibold py-3 active:scale-[0.99]">
-          Créer mon compte intervenante
-        </button>
-
-        <p id="authError" class="text-sm text-red-600 hidden"></p>
-      </div>
-    </section>
-
-    <!-- MAIN VIEW -->
-    <main id="mainView" class="hidden-view">
-      <header class="sticky top-0 z-40 glass-card border-b border-slate-100 px-5 pt-5 pb-4">
-        <div class="flex items-center justify-between gap-3">
-          <div>
-            <p class="text-sm text-slate-500">Espace intervenante</p>
-            <h2 id="headerTitle" class="text-xl font-bold tracking-tight">Accueil</h2>
-          </div>
-          <button id="refreshBtn" class="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center active:scale-95" title="Actualiser">↻</button>
-        </div>
-      </header>
-
-      <!-- HOME -->
-      <section id="homeView" class="px-5 py-5 space-y-5">
-        <div class="rounded-3xl bg-gradient-to-br from-violet-600 to-indigo-600 text-white p-5 shadow-lg shadow-violet-100">
-          <p class="text-white/80 text-sm">Bonjour 👋</p>
-          <h1 id="welcomeName" class="text-2xl font-bold mt-1">Votre planning</h1>
-          <p id="homeSummary" class="text-white/80 text-sm mt-2">Chargement des foyers...</p>
-        </div>
-
-        <div id="nextSessionCard" class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 hidden"></div>
-
-        <div>
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="font-bold text-lg">Vos foyers</h3>
-            <button data-nav="settings" class="text-sm font-semibold text-violet-700">Ajouter</button>
-          </div>
-          <div id="homeHouseholdsList" class="space-y-3"></div>
-        </div>
+        <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce foyer</button>
+        <p id="addHomeMessage" class="hidden text-sm"></p>
       </section>
 
-      <!-- HOUSEHOLDS -->
-      <section id="householdsView" class="hidden-view px-5 py-5 space-y-4">
-        <div class="flex items-center justify-between">
-          <h3 class="font-bold text-lg">Foyers liés</h3>
-          <span id="householdCount" class="text-sm text-slate-500"></span>
+      <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+        <div>
+          <h2 class="text-xl font-semibold tracking-tight">Foyer actif</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Choisissez le foyer à consulter.</p>
         </div>
-        <div id="householdsList" class="space-y-3"></div>
+        <select id="homeSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500"></select>
+        <div id="homesList" class="space-y-2"></div>
       </section>
 
-      <!-- SESSION DETAIL -->
-      <section id="sessionView" class="hidden-view px-5 py-5 space-y-5">
-        <button id="backToHomeBtn" class="text-sm font-semibold text-violet-700">← Retour</button>
-        <div id="sessionDetail"></div>
+      <section class="rounded-3xl bg-gradient-to-br from-apple-500 to-apple-700 text-white p-5 shadow-soft">
+        <p class="text-white/75 text-sm" id="homeNameText">Foyer</p>
+        <h2 class="text-2xl font-semibold tracking-tight mt-1">Prochaine session</h2>
+        <p id="sessionSummary" class="mt-2 text-sm text-white/80">Chargement…</p>
       </section>
 
-      <!-- SETTINGS -->
-      <section id="settingsView" class="hidden-view px-5 py-5 space-y-5">
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
-          <h3 class="font-bold text-lg mb-1">Ajouter un foyer</h3>
-          <p class="text-sm text-slate-500 mb-4">Saisissez le code fourni par votre client pour accéder à son foyer.</p>
-
-          <div class="flex gap-2">
-            <input id="inviteCodeInput" inputmode="text" autocomplete="one-time-code" placeholder="Code foyer" class="flex-1 rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 uppercase" />
-            <button id="addHouseholdBtn" class="rounded-2xl bg-violet-600 text-white font-semibold px-4 active:scale-95">Ajouter</button>
-          </div>
-          <p id="inviteCodeMessage" class="text-sm mt-3 hidden"></p>
+      <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+        <div>
+          <h3 class="font-semibold text-lg">Tâches à faire</h3>
+          <p id="taskCountText" class="mt-1 text-sm text-slate-500 dark:text-slate-400">—</p>
         </div>
-
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 space-y-4">
-          <div>
-            <h3 class="font-bold text-lg">Mon compte</h3>
-            <p id="accountEmail" class="text-sm text-slate-500 mt-1"></p>
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700" for="languageSelect">Langue préférée</label>
-            <select id="languageSelect" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400">
-              <option value="fr">Français</option>
-              <option value="es">Espagnol</option>
-              <option value="pt">Portugais</option>
-              <option value="en">Anglais</option>
-            </select>
-          </div>
-
-          <button id="logoutBtn" class="w-full rounded-2xl bg-slate-100 text-slate-800 font-semibold py-3 active:scale-[0.99]">Se déconnecter</button>
+        <div id="tasksList" class="space-y-2"></div>
+        <div>
+          <label for="commentInput" class="block text-sm font-medium mb-1">Commentaire optionnel</label>
+          <textarea id="commentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le client"></textarea>
         </div>
+        <button id="finishSessionBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Terminer la session</button>
       </section>
     </main>
-
-    <!-- BOTTOM NAV -->
-    <nav id="bottomNav" class="hidden-view bottom-nav fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md z-50 bg-white/95 backdrop-blur border-t border-slate-200 px-4 pt-2">
-      <div class="grid grid-cols-3 gap-2">
-        <button data-nav="home" class="nav-btn rounded-2xl py-2 text-sm font-semibold text-violet-700 bg-violet-50">
-          <div class="text-lg leading-none">⌂</div>
-          Accueil
-        </button>
-        <button data-nav="households" class="nav-btn rounded-2xl py-2 text-sm font-semibold text-slate-500">
-          <div class="text-lg leading-none">▦</div>
-          Foyers
-        </button>
-        <button data-nav="settings" class="nav-btn rounded-2xl py-2 text-sm font-semibold text-slate-500">
-          <div class="text-lg leading-none">⚙</div>
-          Réglages
-        </button>
-      </div>
-    </nav>
-  </div>
+  </section>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    'use strict';
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
       getAuth,
-      onAuthStateChanged,
-      signInWithEmailAndPassword,
       createUserWithEmailAndPassword,
-      signOut
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import {
       getFirestore,
       doc,
-      getDoc,
-      getDocs,
       setDoc,
-      updateDoc,
+      getDoc,
       collection,
-      query,
-      where,
-      orderBy,
-      limit,
+      getDocs,
       serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-    // IMPORTANT : remplacez ce bloc par le même firebaseConfig que dans index.html.
     const firebaseConfig = {
       apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
       authDomain: "clean-app-5de06.firebaseapp.com",
       projectId: "clean-app-5de06",
       storageBucket: "clean-app-5de06.firebasestorage.app",
       messagingSenderId: "82379739846",
-      appId: "1:82379739846:web:64fe9a6424e3dbd9d97dc7",
-      measurementId: "G-Y3Q0JBX615"
+      appId: "1:82379739846:web:8ad0fce19cc89958d97dc7",
+      measurementId: "G-VLH9KQB80W"
+    };
+
+    const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const state = {
+      authMode: 'login',
+      currentUser: null,
+      workerProfile: null,
+      homeLinks: [],
+      currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
+      currentSession: null,
+      currentHomeSettings: null
     };
 
     const els = {
-      configErrorView: document.getElementById("configErrorView"),
-      configErrorText: document.getElementById("configErrorText"),
-      authView: document.getElementById("authView"),
-      mainView: document.getElementById("mainView"),
-      bottomNav: document.getElementById("bottomNav"),
-      authEmail: document.getElementById("authEmail"),
-      authPassword: document.getElementById("authPassword"),
-      authError: document.getElementById("authError"),
-      loginBtn: document.getElementById("loginBtn"),
-      signupBtn: document.getElementById("signupBtn"),
-      logoutBtn: document.getElementById("logoutBtn"),
-      refreshBtn: document.getElementById("refreshBtn"),
-      headerTitle: document.getElementById("headerTitle"),
-      welcomeName: document.getElementById("welcomeName"),
-      homeSummary: document.getElementById("homeSummary"),
-      nextSessionCard: document.getElementById("nextSessionCard"),
-      homeHouseholdsList: document.getElementById("homeHouseholdsList"),
-      householdsList: document.getElementById("householdsList"),
-      householdCount: document.getElementById("householdCount"),
-      sessionDetail: document.getElementById("sessionDetail"),
-      inviteCodeInput: document.getElementById("inviteCodeInput"),
-      addHouseholdBtn: document.getElementById("addHouseholdBtn"),
-      inviteCodeMessage: document.getElementById("inviteCodeMessage"),
-      accountEmail: document.getElementById("accountEmail"),
-      languageSelect: document.getElementById("languageSelect"),
-      backToHomeBtn: document.getElementById("backToHomeBtn"),
-      views: {
-        home: document.getElementById("homeView"),
-        households: document.getElementById("householdsView"),
-        session: document.getElementById("sessionView"),
-        settings: document.getElementById("settingsView")
-      }
+      authScreen: document.getElementById('authScreen'),
+      appShell: document.getElementById('appShell'),
+      loginTabBtn: document.getElementById('loginTabBtn'),
+      registerTabBtn: document.getElementById('registerTabBtn'),
+      emailInput: document.getElementById('emailInput'),
+      passwordInput: document.getElementById('passwordInput'),
+      authSubmitBtn: document.getElementById('authSubmitBtn'),
+      authError: document.getElementById('authError'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      accountText: document.getElementById('accountText'),
+      homeCodeInput: document.getElementById('homeCodeInput'),
+      addHomeBtn: document.getElementById('addHomeBtn'),
+      addHomeMessage: document.getElementById('addHomeMessage'),
+      homeSelect: document.getElementById('homeSelect'),
+      homesList: document.getElementById('homesList'),
+      homeNameText: document.getElementById('homeNameText'),
+      sessionSummary: document.getElementById('sessionSummary'),
+      taskCountText: document.getElementById('taskCountText'),
+      tasksList: document.getElementById('tasksList'),
+      commentInput: document.getElementById('commentInput'),
+      finishSessionBtn: document.getElementById('finishSessionBtn'),
+      toast: document.getElementById('toast')
     };
 
-    let app = null;
-    let auth = null;
-    let db = null;
-    let currentUser = null;
-    let workerProfile = null;
-    let linkedHouseholds = [];
-    let sessionsByHousehold = new Map();
-    let currentSessionContext = null;
+    let toastTimer = null;
+    function showToast(message) {
+      if (!els.toast) return;
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2400);
+    }
 
-    function hasValidFirebaseConfig(config) {
+    function esc(value) {
+      return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function firebaseErrorMessage(error) {
+      const code = error?.code || '';
+      if (code.includes('auth/email-already-in-use')) return 'Un compte existe déjà avec cet email.';
+      if (code.includes('auth/invalid-email')) return 'Adresse email invalide.';
+      if (code.includes('auth/weak-password')) return 'Le mot de passe doit contenir au moins 6 caractères.';
+      if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password') || code.includes('auth/user-not-found')) return 'Email ou mot de passe incorrect.';
+      if (code.includes('permission-denied')) return 'Accès refusé par les règles Firestore.';
+      return error?.message || 'Erreur Firebase.';
+    }
+
+    function showAuthError(message) {
+      els.authError.textContent = message;
+      els.authError.classList.remove('hidden');
+    }
+
+    function clearAuthError() {
+      els.authError.textContent = '';
+      els.authError.classList.add('hidden');
+    }
+
+    function setAddHomeMessage(message, type = 'info') {
+      els.addHomeMessage.textContent = message;
+      els.addHomeMessage.className = 'text-sm ' + (type === 'error' ? 'text-red-600 dark:text-red-400' : type === 'success' ? 'text-green-600 dark:text-green-400' : 'text-slate-500 dark:text-slate-400');
+      els.addHomeMessage.classList.remove('hidden');
+    }
+
+    function workerCodeValue(value) {
+      return String(value || '').trim().replace(/\s+/g, '').toUpperCase();
+    }
+
+    function todayISO() {
+      const now = new Date();
+      const offset = now.getTimezoneOffset() * 60000;
+      return new Date(now - offset).toISOString().split('T')[0];
+    }
+
+    function nowISO() {
+      return new Date().toISOString();
+    }
+
+    function toISODateOnly(value) {
+      if (!value) return todayISO();
+      if (typeof value === 'string') {
+        const trimmed = value.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) return trimmed;
+        const isoMatch = trimmed.match(/^(\d{4}-\d{2}-\d{2})T/);
+        if (isoMatch) return isoMatch[1];
+      }
+      const d = new Date(value);
+      if (Number.isNaN(d.getTime())) return todayISO();
+      return d.toISOString().split('T')[0];
+    }
+
+    function formatDate(value) {
+      const iso = toISODateOnly(value);
+      const d = new Date(iso + 'T12:00:00');
+      return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' }).format(d);
+    }
+
+    function normalizeSessionTasks(value) {
+      if (!Array.isArray(value)) return [];
+      return value
+        .map((task) => ({
+          id: String(task?.id || crypto.randomUUID()),
+          label: String(task?.label || task?.title || '').trim(),
+          source: String(task?.source || 'manual'),
+          done: Boolean(task?.done)
+        }))
+        .filter((task) => task.label);
+    }
+
+    function taskSourceLabel(source) {
+      if (source === 'recurring') return 'Récurrente';
+      if (source === 'punctual') return 'Ponctuelle';
+      if (source === 'manual') return 'Ajoutée';
+      return 'Base';
+    }
+
+    function isValidWorkerAccess(access, code) {
       return Boolean(
-        config &&
-        config.apiKey &&
-        !String(config.apiKey).startsWith("REMPLACER_") &&
-        config.authDomain &&
-        !String(config.authDomain).startsWith("REMPLACER_") &&
-        config.projectId &&
-        !String(config.projectId).startsWith("REMPLACER_") &&
-        config.appId &&
-        !String(config.appId).startsWith("REMPLACER_")
+        access &&
+        access.active === true &&
+        access.role === 'intervenante' &&
+        access.homeId &&
+        String(access.code || '').toUpperCase() === code
       );
     }
 
-    function showConfigError(message) {
-      document.body.classList.remove("authenticated");
-      els.authView.classList.add("hidden-view");
-      els.mainView.classList.add("hidden-view");
-      els.bottomNav.classList.add("hidden-view");
-      els.configErrorText.textContent = message;
-      els.configErrorView.classList.remove("hidden-view");
+    async function ensureWorkerUserDocument(firebaseUser) {
+      const ref = doc(db, 'users', firebaseUser.uid);
+      const snapshot = await getDoc(ref);
+      const email = firebaseUser.email || '';
+
+      if (!snapshot.exists()) {
+        const profile = {
+          email,
+          role: 'intervenante',
+          settings: { setupCompleted: true },
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        await setDoc(ref, profile);
+        return { uid: firebaseUser.uid, ...profile };
+      }
+
+      const data = snapshot.data() || {};
+      if (data.role !== 'intervenante') {
+        return { uid: firebaseUser.uid, email, role: data.role || 'user' };
+      }
+
+      await setDoc(ref, { email, role: 'intervenante', updatedAt: serverTimestamp() }, { merge: true });
+      return { uid: firebaseUser.uid, email, role: 'intervenante', ...(data || {}) };
     }
 
-    function showAuthOnly() {
-      document.body.classList.remove("authenticated");
-      els.configErrorView.classList.add("hidden-view");
-      els.authView.classList.remove("hidden-view");
-      els.mainView.classList.add("hidden-view");
-      els.bottomNav.classList.add("hidden-view");
+    function renderAuthMode() {
+      const register = state.authMode === 'register';
+      els.loginTabBtn.className = register
+        ? 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400'
+        : 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm';
+      els.registerTabBtn.className = register
+        ? 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm'
+        : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400';
+      els.authSubmitBtn.textContent = register ? 'Créer mon compte intervenante' : 'Se connecter';
+    }
+
+    function showAuth() {
+      els.authScreen.classList.remove('hidden-view');
+      els.appShell.classList.add('hidden-view');
+      renderAuthMode();
     }
 
     function showApp() {
-      document.body.classList.add("authenticated");
-      els.configErrorView.classList.add("hidden-view");
-      els.authView.classList.add("hidden-view");
-      els.mainView.classList.remove("hidden-view");
-      els.bottomNav.classList.remove("hidden-view");
+      els.authScreen.classList.add('hidden-view');
+      els.appShell.classList.remove('hidden-view');
     }
 
-    function showError(message) {
-      els.authError.textContent = message;
-      els.authError.classList.remove("hidden");
-    }
-
-    function clearError() {
-      els.authError.textContent = "";
-      els.authError.classList.add("hidden");
-    }
-
-    function getAuthValues() {
-      return {
-        email: els.authEmail.value.trim(),
-        password: els.authPassword.value
-      };
-    }
-
-    function validateAuthForm(values, mode = "login") {
-      if (!values.email) {
-        showError("Saisissez votre email.");
-        return false;
-      }
-
-      if (!values.password) {
-        showError("Saisissez votre mot de passe.");
-        return false;
-      }
-
-      if (mode === "signup" && values.password.length < 6) {
-        showError("Le mot de passe doit contenir au moins 6 caractères. Exemple : maison1");
-        return false;
-      }
-
-      return true;
-    }
-
-    function setMessage(el, message, type = "info") {
-      el.textContent = message;
-      el.classList.remove("hidden", "text-red-600", "text-green-600", "text-slate-500");
-      if (type === "error") el.classList.add("text-red-600");
-      else if (type === "success") el.classList.add("text-green-600");
-      else el.classList.add("text-slate-500");
-    }
-
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function formatDate(dateValue) {
-      if (!dateValue) return "Date non renseignée";
-      const date = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
-      if (Number.isNaN(date.getTime())) return "Date non renseignée";
-      return new Intl.DateTimeFormat("fr-FR", {
-        weekday: "long",
-        day: "numeric",
-        month: "long",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).format(date);
-    }
-
-    function formatShortDate(dateValue) {
-      if (!dateValue) return "Date non renseignée";
-      const date = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
-      if (Number.isNaN(date.getTime())) return "Date non renseignée";
-      return new Intl.DateTimeFormat("fr-FR", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit"
-      }).format(date);
-    }
-
-    function navigate(view) {
-      Object.values(els.views).forEach(section => section.classList.add("hidden-view"));
-      els.views[view].classList.remove("hidden-view");
-
-      const titles = {
-        home: "Accueil",
-        households: "Foyers",
-        session: "Session",
-        settings: "Réglages"
-      };
-      els.headerTitle.textContent = titles[view] || "Accueil";
-
-      document.querySelectorAll(".nav-btn").forEach(btn => {
-        const isActive = btn.dataset.nav === view;
-        btn.className = isActive
-          ? "nav-btn rounded-2xl py-2 text-sm font-semibold text-violet-700 bg-violet-50"
-          : "nav-btn rounded-2xl py-2 text-sm font-semibold text-slate-500";
-      });
-    }
-
-    async function getWorkerProfile(user) {
-      const ref = doc(db, "workers", user.uid);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) return null;
-      return { id: snap.id, ...snap.data() };
-    }
-
-    async function createWorkerProfile(user) {
-      const profile = {
-        uid: user.uid,
-        email: user.email,
-        displayName: user.email?.split("@")[0] || "Intervenante",
-        role: "worker",
-        language: "fr",
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-      await setDoc(doc(db, "workers", user.uid), profile, { merge: true });
-      return profile;
-    }
-
-    async function loadWorkerData() {
-      if (!currentUser) return;
-
-      workerProfile = await getWorkerProfile(currentUser);
-      if (!workerProfile) {
-        // Ne pas appeler signOut ici : Firebase partage la session entre index.html
-        // et intervenante.html. Un signOut automatique ici déconnecterait aussi le client.
-        showAuthOnly();
-        showError("Vous êtes connecté avec un compte client. Pour utiliser l’espace intervenante, connectez-vous avec un compte intervenante ou créez-en un.");
+    async function submitAuth() {
+      clearAuthError();
+      const email = els.emailInput.value.trim();
+      const password = els.passwordInput.value;
+      if (!email || !password) {
+        showAuthError('Merci de renseigner votre email et votre mot de passe.');
         return;
       }
-      els.accountEmail.textContent = currentUser.email;
-      els.languageSelect.value = workerProfile.language || "fr";
-      els.welcomeName.textContent = `Bonjour ${workerProfile.displayName || "👋"}`;
-
-      await loadLinkedHouseholds();
-      renderAll();
-    }
-
-    async function loadLinkedHouseholds() {
-      linkedHouseholds = [];
-      sessionsByHousehold = new Map();
-
-      const linksRef = collection(db, "workerHouseholds");
-      const q = query(linksRef, where("workerUid", "==", currentUser.uid));
-      const linksSnap = await getDocs(q);
-
-      for (const linkDoc of linksSnap.docs) {
-        const link = { id: linkDoc.id, ...linkDoc.data() };
-        const householdId = link.householdId;
-        if (!householdId) continue;
-
-        const householdSnap = await getDoc(doc(db, "households", householdId));
-        if (!householdSnap.exists()) continue;
-
-        const household = {
-          id: householdId,
-          linkId: linkDoc.id,
-          ...householdSnap.data()
-        };
-
-        linkedHouseholds.push(household);
-        const nextSessions = await loadNextSessionsForHousehold(householdId);
-        sessionsByHousehold.set(householdId, nextSessions);
-      }
-    }
-
-    async function loadNextSessionsForHousehold(householdId) {
-      const sessionsRef = collection(db, "households", householdId, "sessions");
-      const q = query(
-        sessionsRef,
-        where("status", "in", ["planned", "completed_by_worker"]),
-        orderBy("startAt", "asc"),
-        limit(5)
-      );
-
-      const snap = await getDocs(q);
-      return snap.docs.map(docSnap => ({ id: docSnap.id, householdId, ...docSnap.data() }));
-    }
-
-    function findGlobalNextSession() {
-      const allSessions = [];
-      for (const household of linkedHouseholds) {
-        const sessions = sessionsByHousehold.get(household.id) || [];
-        sessions.forEach(session => allSessions.push({ session, household }));
-      }
-
-      return allSessions
-        .filter(item => item.session.status !== "cancelled")
-        .sort((a, b) => {
-          const da = a.session.startAt?.toDate ? a.session.startAt.toDate() : new Date(a.session.startAt || 0);
-          const dbb = b.session.startAt?.toDate ? b.session.startAt.toDate() : new Date(b.session.startAt || 0);
-          return da - dbb;
-        })[0] || null;
-    }
-
-    function renderAll() {
-      renderHome();
-      renderHouseholds();
-    }
-
-    function renderHome() {
-      const count = linkedHouseholds.length;
-      els.homeSummary.textContent = count === 0
-        ? "Aucun foyer lié pour le moment."
-        : `${count} foyer${count > 1 ? "s" : ""} lié${count > 1 ? "s" : ""} à votre compte.`;
-
-      const next = findGlobalNextSession();
-      if (next) {
-        const taskCount = Array.isArray(next.session.tasks) ? next.session.tasks.length : 0;
-        els.nextSessionCard.classList.remove("hidden");
-        els.nextSessionCard.innerHTML = `
-          <div class="flex items-start justify-between gap-3">
-            <div>
-              <p class="text-sm font-semibold text-violet-700">Prochaine session</p>
-              <h3 class="text-lg font-bold mt-1">${escapeHtml(next.household.name || "Foyer")}</h3>
-              <p class="text-sm text-slate-500 mt-1">${formatDate(next.session.startAt)}</p>
-              <p class="text-sm text-slate-500">${taskCount} tâche${taskCount > 1 ? "s" : ""} prévue${taskCount > 1 ? "s" : ""}</p>
-            </div>
-            <button class="open-session rounded-2xl bg-violet-600 text-white text-sm font-semibold px-4 py-3 active:scale-95" data-household-id="${next.household.id}" data-session-id="${next.session.id}">Voir</button>
-          </div>
-        `;
-      } else {
-        els.nextSessionCard.classList.add("hidden");
-        els.nextSessionCard.innerHTML = "";
-      }
-
-      els.homeHouseholdsList.innerHTML = linkedHouseholds.length
-        ? linkedHouseholds.map(renderHouseholdCard).join("")
-        : renderEmptyState("Aucun foyer", "Ajoutez un foyer avec le code fourni par votre client depuis les réglages.");
-    }
-
-    function renderHouseholds() {
-      els.householdCount.textContent = `${linkedHouseholds.length} foyer${linkedHouseholds.length > 1 ? "s" : ""}`;
-      els.householdsList.innerHTML = linkedHouseholds.length
-        ? linkedHouseholds.map(renderHouseholdCard).join("")
-        : renderEmptyState("Aucun foyer lié", "Quand un client vous donnera un code, vous pourrez l’ajouter ici.");
-    }
-
-    function renderHouseholdCard(household) {
-      const sessions = sessionsByHousehold.get(household.id) || [];
-      const nextSession = sessions[0];
-      const taskCount = nextSession?.tasks?.length || 0;
-
-      return `
-        <article class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5">
-          <div class="flex items-start justify-between gap-3">
-            <div class="min-w-0">
-              <h4 class="font-bold text-base truncate">🏠 ${escapeHtml(household.name || "Foyer sans nom")}</h4>
-              ${nextSession ? `
-                <p class="text-sm text-slate-500 mt-1">${formatShortDate(nextSession.startAt)}</p>
-                <p class="text-sm text-slate-500">${taskCount} tâche${taskCount > 1 ? "s" : ""} prévue${taskCount > 1 ? "s" : ""}</p>
-              ` : `<p class="text-sm text-slate-500 mt-1">Aucune session prévue</p>`}
-            </div>
-            ${nextSession ? `
-              <button class="open-session rounded-2xl bg-slate-900 text-white text-sm font-semibold px-4 py-3 active:scale-95" data-household-id="${household.id}" data-session-id="${nextSession.id}">Ouvrir</button>
-            ` : ""}
-          </div>
-        </article>
-      `;
-    }
-
-    function renderEmptyState(title, text) {
-      return `
-        <div class="bg-white rounded-3xl border border-dashed border-slate-200 p-6 text-center">
-          <p class="font-bold">${title}</p>
-          <p class="text-sm text-slate-500 mt-2">${text}</p>
-        </div>
-      `;
-    }
-
-    async function openSession(householdId, sessionId) {
-      const household = linkedHouseholds.find(h => h.id === householdId);
-      const sessionSnap = await getDoc(doc(db, "households", householdId, "sessions", sessionId));
-      if (!sessionSnap.exists()) return;
-
-      const session = { id: sessionSnap.id, householdId, ...sessionSnap.data() };
-      currentSessionContext = { household, session };
-      renderSessionDetail(household, session);
-      navigate("session");
-    }
-
-    function renderSessionDetail(household, session) {
-      const tasks = Array.isArray(session.tasks) ? session.tasks : [];
-      const completed = tasks.filter(task => task.done).length;
-      const isCompleted = session.status === "completed_by_worker" || session.status === "confirmed_by_client";
-
-      els.sessionDetail.innerHTML = `
-        <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-5 space-y-4">
-          <div>
-            <p class="text-sm font-semibold text-violet-700">${escapeHtml(household?.name || "Foyer")}</p>
-            <h3 class="text-xl font-bold mt-1">${formatDate(session.startAt)}</h3>
-            <p class="text-sm text-slate-500 mt-1">${completed}/${tasks.length} tâche${tasks.length > 1 ? "s" : ""} réalisée${completed > 1 ? "s" : ""}</p>
-          </div>
-
-          <div class="h-px bg-slate-100"></div>
-
-          <div class="space-y-3">
-            <h4 class="font-bold">Tâches à faire</h4>
-            ${tasks.length ? tasks.map((task, index) => `
-              <label class="flex items-start gap-3 rounded-2xl border border-slate-100 p-3 active:bg-slate-50">
-                <input class="task-checkbox mt-1 w-5 h-5 accent-violet-600" type="checkbox" data-task-index="${index}" ${task.done ? "checked" : ""} ${isCompleted ? "disabled" : ""} />
-                <span class="text-sm leading-6">${escapeHtml(task.title || task.label || "Tâche sans nom")}</span>
-              </label>
-            `).join("") : `<p class="text-sm text-slate-500">Aucune tâche prévue pour cette session.</p>`}
-          </div>
-
-          <div>
-            <label class="text-sm font-medium text-slate-700" for="sessionComment">Commentaire pour le client</label>
-            <textarea id="sessionComment" rows="4" ${isCompleted ? "disabled" : ""} placeholder="Ex : tout est fait, il manque seulement les draps..." class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400">${escapeHtml(session.workerComment || "")}</textarea>
-          </div>
-
-          ${isCompleted ? `
-            <div class="rounded-2xl bg-green-50 text-green-700 px-4 py-3 text-sm font-semibold">Session déjà terminée par l’intervenante.</div>
-          ` : `
-            <button id="completeSessionBtn" class="w-full rounded-2xl bg-violet-600 text-white font-semibold py-3 active:scale-[0.99]">Confirmer la session terminée</button>
-          `}
-        </div>
-      `;
-    }
-
-    async function saveTaskState() {
-      if (!currentSessionContext) return;
-      const { household, session } = currentSessionContext;
-      const tasks = Array.isArray(session.tasks) ? [...session.tasks] : [];
-
-      document.querySelectorAll(".task-checkbox").forEach(input => {
-        const index = Number(input.dataset.taskIndex);
-        if (tasks[index]) tasks[index] = { ...tasks[index], done: input.checked };
-      });
-
-      await updateDoc(doc(db, "households", household.id, "sessions", session.id), {
-        tasks,
-        updatedAt: serverTimestamp()
-      });
-
-      currentSessionContext.session.tasks = tasks;
-    }
-
-    async function completeCurrentSession() {
-      if (!currentSessionContext) return;
-      const { household, session } = currentSessionContext;
-
-      await saveTaskState();
-
-      const comment = document.getElementById("sessionComment")?.value?.trim() || "";
-      const tasks = currentSessionContext.session.tasks || [];
-      const completedTasks = tasks.filter(task => task.done).length;
-
-      await updateDoc(doc(db, "households", household.id, "sessions", session.id), {
-        status: "completed_by_worker",
-        workerComment: comment,
-        workerCompletedAt: serverTimestamp(),
-        completedTasks,
-        totalTasks: tasks.length,
-        updatedAt: serverTimestamp()
-      });
-
-      await loadWorkerData();
-      await openSession(household.id, session.id);
-    }
-
-    async function addHouseholdByCode() {
-      const code = els.inviteCodeInput.value.trim().toUpperCase();
-      if (!code) {
-        setMessage(els.inviteCodeMessage, "Saisissez un code foyer.", "error");
+      if (state.authMode === 'register' && password.length < 6) {
+        showAuthError('Le mot de passe doit contenir au moins 6 caractères.');
         return;
       }
 
-      els.addHouseholdBtn.disabled = true;
-      els.addHouseholdBtn.textContent = "...";
-
+      els.authSubmitBtn.disabled = true;
+      els.authSubmitBtn.classList.add('opacity-60');
       try {
-        const codesRef = collection(db, "householdInviteCodes");
-        const q = query(codesRef, where("code", "==", code), where("active", "==", true), limit(1));
-        const snap = await getDocs(q);
+        const credential = state.authMode === 'register'
+          ? await createUserWithEmailAndPassword(auth, email, password)
+          : await signInWithEmailAndPassword(auth, email, password);
 
-        if (snap.empty) {
-          setMessage(els.inviteCodeMessage, "Code invalide ou inactif.", "error");
+        const profile = state.authMode === 'register'
+          ? await ensureWorkerUserDocument(credential.user)
+          : await ensureWorkerUserDocument(credential.user);
+
+        if (profile.role !== 'intervenante') {
+          showAuthError('Ce compte est un compte client. Utilisez un compte intervenante ou créez-en un avec un autre email.');
           return;
         }
 
-        const codeDoc = snap.docs[0];
-        const invite = { id: codeDoc.id, ...codeDoc.data() };
-        const householdId = invite.householdId;
-
-        if (!householdId) {
-          setMessage(els.inviteCodeMessage, "Ce code n’est lié à aucun foyer.", "error");
-          return;
-        }
-
-        const linkId = `${currentUser.uid}_${householdId}`;
-        await setDoc(doc(db, "workerHouseholds", linkId), {
-          workerUid: currentUser.uid,
-          workerEmail: currentUser.email,
-          householdId,
-          role: "worker",
-          createdAt: serverTimestamp()
-        }, { merge: true });
-
-        await setDoc(doc(db, "households", householdId, "members", currentUser.uid), {
-          uid: currentUser.uid,
-          email: currentUser.email,
-          role: "worker",
-          createdAt: serverTimestamp()
-        }, { merge: true });
-
-        await updateDoc(doc(db, "householdInviteCodes", invite.id), {
-          usedBy: currentUser.uid,
-          usedAt: serverTimestamp(),
-          updatedAt: serverTimestamp()
-        });
-
-        els.inviteCodeInput.value = "";
-        setMessage(els.inviteCodeMessage, "Foyer ajouté avec succès.", "success");
-        await loadWorkerData();
-        navigate("home");
+        state.currentUser = credential.user;
+        state.workerProfile = profile;
+        showApp();
+        await loadWorkerHomes();
+        showToast(state.authMode === 'register' ? '✅ Compte intervenante créé.' : '✅ Connectée.');
       } catch (error) {
         console.error(error);
-        setMessage(els.inviteCodeMessage, "Impossible d’ajouter le foyer. Vérifiez les règles Firestore.", "error");
+        showAuthError(firebaseErrorMessage(error));
       } finally {
-        els.addHouseholdBtn.disabled = false;
-        els.addHouseholdBtn.textContent = "Ajouter";
+        els.authSubmitBtn.disabled = false;
+        els.authSubmitBtn.classList.remove('opacity-60');
+      }
+    }
+
+    async function resolveWorkerAccessCode(code) {
+      const cleanedCode = workerCodeValue(code);
+      if (!cleanedCode) throw new Error('Code invalide.');
+
+      const snapshot = await getDoc(doc(db, WORKER_CODES_COLLECTION, cleanedCode));
+      const access = snapshot.exists() ? snapshot.data() : null;
+      if (isValidWorkerAccess(access, cleanedCode)) return access;
+      throw new Error('Code invalide ou inactif.');
+    }
+
+    function workerHomeLinkRef(workerUid, homeId) {
+      return doc(db, 'users', workerUid, 'workerHomes', homeId);
+    }
+
+    async function addWorkerHomeWithCode() {
+      const user = auth.currentUser;
+      if (!user || !state.workerProfile || state.workerProfile.role !== 'intervenante') {
+        setAddHomeMessage('Connectez-vous comme intervenante.', 'error');
+        return;
+      }
+
+      const code = workerCodeValue(els.homeCodeInput.value);
+      if (!code) {
+        setAddHomeMessage('Saisissez un code foyer.', 'error');
+        return;
+      }
+
+      els.addHomeBtn.disabled = true;
+      els.addHomeBtn.classList.add('opacity-60');
+      try {
+        const access = await resolveWorkerAccessCode(code);
+        const homeId = String(access.homeId || '');
+        if (!homeId) throw new Error('Code invalide.');
+
+        await setDoc(workerHomeLinkRef(user.uid, homeId), {
+          homeId,
+          code,
+          role: 'intervenante',
+          active: true,
+          addedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        await setDoc(doc(db, WORKER_CODES_COLLECTION, code), {
+          lastUsedBy: user.uid,
+          lastUsedAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+
+        state.currentHomeId = homeId;
+        localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId);
+        els.homeCodeInput.value = '';
+        setAddHomeMessage('Foyer ajouté avec succès.', 'success');
+        await loadWorkerHomes();
+      } catch (error) {
+        console.error(error);
+        setAddHomeMessage(firebaseErrorMessage(error) || error.message || 'Code invalide.', 'error');
+      } finally {
+        els.addHomeBtn.disabled = false;
+        els.addHomeBtn.classList.remove('opacity-60');
+      }
+    }
+
+    async function fetchWorkerHomeLinks() {
+      const user = auth.currentUser;
+      if (!user) return [];
+      const snapshot = await getDocs(collection(db, 'users', user.uid, 'workerHomes'));
+      return snapshot.docs
+        .map((documentSnapshot) => ({ id: documentSnapshot.id, ...(documentSnapshot.data() || {}) }))
+        .filter((link) => link.active !== false && link.homeId);
+    }
+
+    async function homeLabel(homeId) {
+      try {
+        const snapshot = await getDoc(doc(db, 'users', String(homeId)));
+        const home = snapshot.exists() ? snapshot.data() : {};
+        const settings = home.settings || {};
+        return settings.homeName || settings.contactName || home.email || ('Foyer ' + String(homeId).slice(0, 6));
+      } catch (error) {
+        return 'Foyer ' + String(homeId).slice(0, 6);
+      }
+    }
+
+    async function renderHomes(links) {
+      const labels = [];
+      for (const link of links) {
+        labels.push({ homeId: String(link.homeId), label: await homeLabel(link.homeId) });
+      }
+
+      if (!state.currentHomeId && labels.length) state.currentHomeId = labels[0].homeId;
+      if (state.currentHomeId && !labels.some((home) => home.homeId === state.currentHomeId) && labels.length) {
+        state.currentHomeId = labels[0].homeId;
+      }
+      localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || '');
+
+      els.homeSelect.innerHTML = labels.length
+        ? labels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.currentHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('')
+        : '<option value="">Aucun foyer ajouté</option>';
+      els.homeSelect.disabled = !labels.length;
+
+      els.homesList.innerHTML = labels.length
+        ? labels.map((home) => '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Foyer lié</span></div>').join('')
+        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun foyer ajouté pour le moment.</div>';
+    }
+
+    async function loadWorkerHomes() {
+      if (!auth.currentUser) return;
+      els.accountText.textContent = auth.currentUser.email || 'Compte intervenante';
+      const links = await fetchWorkerHomeLinks();
+      state.homeLinks = links;
+      await renderHomes(links);
+      if (!links.length) {
+        renderEmptySession('Ajoutez un foyer avec le code fourni par un client.');
+        return;
+      }
+      await loadWorkerHome(state.currentHomeId);
+    }
+
+    async function fetchWorkerEntries(homeId) {
+      const snapshot = await getDocs(collection(db, 'users', homeId, 'entries'));
+      return snapshot.docs.map((documentSnapshot) => {
+        const entry = documentSnapshot.data() || {};
+        const type = String(entry.type || 'payment');
+        return {
+          id: String(entry.id || documentSnapshot.id),
+          type,
+          date: toISODateOnly(entry.date),
+          duration: type === 'session' ? Number(entry.duration || 0) : undefined,
+          amount: Number(entry.amount || 0),
+          tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : [],
+          status: type === 'session' ? String(entry.status || '') : undefined,
+          intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined,
+          intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined,
+          createdAt: String(entry.createdAt || nowISO())
+        };
+      });
+    }
+
+    function nextWorkerSession(entries) {
+      const today = todayISO();
+      return entries
+        .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today && entry.status !== 'terminee_intervenante')
+        .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)))[0] || null;
+    }
+
+    function renderEmptySession(message) {
+      state.currentSession = null;
+      els.homeNameText.textContent = 'Foyer';
+      els.sessionSummary.textContent = message || 'Aucune session prévue.';
+      els.taskCountText.textContent = 'Aucune tâche';
+      els.tasksList.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche à afficher.</div>';
+      els.commentInput.value = '';
+      els.finishSessionBtn.disabled = true;
+      els.finishSessionBtn.classList.add('opacity-60');
+    }
+
+    async function loadWorkerHome(homeId) {
+      if (!homeId) {
+        renderEmptySession('Ajoutez ou sélectionnez un foyer.');
+        return;
+      }
+      state.currentHomeId = String(homeId);
+      localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId);
+
+      try {
+        const homeSnapshot = await getDoc(doc(db, 'users', state.currentHomeId));
+        const home = homeSnapshot.exists() ? homeSnapshot.data() : {};
+        const settings = home.settings || {};
+        state.currentHomeSettings = settings;
+
+        const entries = (await fetchWorkerEntries(state.currentHomeId)).map((entry) => {
+          if (entry.type !== 'session') return entry;
+          return { ...entry, tasks: normalizeSessionTasks(entry.tasks.length ? entry.tasks : settings.sessionTasks?.[entry.id] || []) };
+        });
+
+        renderWorkerView(home, settings, entries);
+      } catch (error) {
+        console.error(error);
+        renderEmptySession(firebaseErrorMessage(error));
+      }
+    }
+
+    function renderWorkerView(home, settings, entries) {
+      const name = settings.homeName || settings.contactName || home.email || 'Foyer Clean’ App';
+      const next = nextWorkerSession(entries);
+      els.homeNameText.textContent = name;
+
+      if (!next) {
+        renderEmptySession('Aucune session prévue.');
+        els.homeNameText.textContent = name;
+        return;
+      }
+
+      state.currentSession = next;
+      const tasks = normalizeSessionTasks(next.tasks);
+      const doneCount = tasks.filter((task) => task.done).length;
+      els.sessionSummary.textContent = formatDate(next.date) + ' · ' + (next.duration || 0) + 'h';
+      els.taskCountText.textContent = doneCount + ' terminée(s) / ' + tasks.length;
+      els.tasksList.innerHTML = tasks.length
+        ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
+      els.commentInput.value = next.intervenanteComment || '';
+      els.finishSessionBtn.disabled = false;
+      els.finishSessionBtn.classList.remove('opacity-60');
+    }
+
+    async function finishWorkerSession() {
+      if (!state.currentHomeId || !state.currentSession) return;
+      els.finishSessionBtn.disabled = true;
+      els.finishSessionBtn.classList.add('opacity-60');
+      try {
+        const sessionId = state.currentSession.id;
+        const checked = new Set(Array.from(document.querySelectorAll('.worker-task-checkbox:checked')).map((checkbox) => checkbox.dataset.taskId));
+        const tasks = normalizeSessionTasks(state.currentSession.tasks).map((task) => ({ ...task, done: checked.has(task.id) }));
+        const payload = {
+          tasks,
+          status: 'terminee_intervenante',
+          intervenanteComment: (els.commentInput.value || '').trim(),
+          intervenanteValidatedAt: nowISO(),
+          updatedAt: serverTimestamp()
+        };
+        await setDoc(doc(db, 'users', state.currentHomeId, 'entries', sessionId), payload, { merge: true });
+        showToast('✅ Session terminée.');
+        await loadWorkerHome(state.currentHomeId);
+      } catch (error) {
+        console.error(error);
+        showToast('⚠️ Session non enregistrée.');
+        els.finishSessionBtn.disabled = false;
+        els.finishSessionBtn.classList.remove('opacity-60');
       }
     }
 
     function bindEvents() {
-      els.loginBtn.addEventListener("click", async () => {
-        clearError();
-        const authValues = getAuthValues();
-        if (!validateAuthForm(authValues, "login")) return;
-
-        try {
-          await signInWithEmailAndPassword(auth, authValues.email, authValues.password);
-        } catch (error) {
-          console.error(error);
-          if (error.code === "auth/invalid-credential") {
-            showError("Email ou mot de passe incorrect.");
-          } else if (error.code === "auth/invalid-email") {
-            showError("L’adresse email n’est pas valide.");
-          } else {
-            showError("Connexion impossible. Vérifiez l’email et le mot de passe.");
-          }
-        }
+      els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
+      els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
+      els.authSubmitBtn.addEventListener('click', submitAuth);
+      els.passwordInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') submitAuth(); });
+      els.logoutBtn.addEventListener('click', async () => {
+        await signOut(auth);
+        state.currentUser = null;
+        state.workerProfile = null;
+        showAuth();
+        showToast('Déconnectée.');
       });
-
-      els.signupBtn.addEventListener("click", async () => {
-        clearError();
-        const authValues = getAuthValues();
-        if (!validateAuthForm(authValues, "signup")) return;
-
-        try {
-          const userCredential = await createUserWithEmailAndPassword(auth, authValues.email, authValues.password);
-          await createWorkerProfile(userCredential.user);
-        } catch (error) {
-          console.error(error);
-          if (error.code === "auth/email-already-in-use") {
-            showError("Un compte existe déjà avec cet email. Essayez de vous connecter.");
-          } else if (error.code === "auth/invalid-email") {
-            showError("L’adresse email n’est pas valide.");
-          } else if (error.code === "auth/weak-password") {
-            showError("Le mot de passe doit contenir au moins 6 caractères.");
-          } else if (error.code === "auth/operation-not-allowed") {
-            showError("La connexion email/mot de passe n’est pas activée dans Firebase Auth.");
-          } else {
-            showError("Création impossible. Vérifiez l’email, le mot de passe et la configuration Firebase Auth.");
-          }
-        }
-      });
-
-      els.authPassword.addEventListener("keydown", event => {
-        if (event.key === "Enter") els.loginBtn.click();
-      });
-
-      els.inviteCodeInput.addEventListener("input", () => {
-        els.inviteCodeInput.value = els.inviteCodeInput.value.trim().toUpperCase();
-      });
-
-      els.logoutBtn.addEventListener("click", () => signOut(auth));
-      els.refreshBtn.addEventListener("click", loadWorkerData);
-      els.addHouseholdBtn.addEventListener("click", addHouseholdByCode);
-      els.backToHomeBtn.addEventListener("click", () => navigate("home"));
-
-      els.languageSelect.addEventListener("change", async () => {
-        if (!currentUser) return;
-        await setDoc(doc(db, "workers", currentUser.uid), {
-          language: els.languageSelect.value,
-          updatedAt: serverTimestamp()
-        }, { merge: true });
-      });
-
-      document.addEventListener("click", async event => {
-        const navBtn = event.target.closest("[data-nav]");
-        if (navBtn && currentUser) navigate(navBtn.dataset.nav);
-
-        const openSessionBtn = event.target.closest(".open-session");
-        if (openSessionBtn && currentUser) {
-          await openSession(openSessionBtn.dataset.householdId, openSessionBtn.dataset.sessionId);
-        }
-
-        if (event.target.id === "completeSessionBtn" && currentUser) {
-          await completeCurrentSession();
-        }
-      });
-
-      document.addEventListener("change", async event => {
-        if (event.target.classList.contains("task-checkbox") && currentUser) {
-          try {
-            await saveTaskState();
-          } catch (error) {
-            console.error(error);
-            alert("Impossible d’enregistrer la tâche. Vérifiez la connexion.");
-          }
-        }
-      });
-    }
-
-    function initFirebase() {
-      if (!hasValidFirebaseConfig(firebaseConfig)) {
-        showConfigError("Le fichier contient encore les valeurs REMPlACER_*. Copiez le firebaseConfig réel depuis index.html pour relier cette page à l’espace client.");
-        return false;
-      }
-
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
-        return true;
-      } catch (error) {
-        console.error(error);
-        showConfigError("Firebase n’a pas pu démarrer. Vérifiez que le firebaseConfig est complet et identique à celui de index.html.");
-        return false;
-      }
-    }
-
-    function startAuthObserver() {
-      onAuthStateChanged(auth, async user => {
-        currentUser = user;
-
-        if (!user) {
-          showAuthOnly();
-          return;
-        }
-
-        showApp();
-        navigate("home");
-
-        try {
-          await loadWorkerData();
-        } catch (error) {
-          console.error(error);
-          els.homeSummary.textContent = "Erreur de chargement. Vérifiez les règles Firestore et les index nécessaires.";
-        }
-      });
+      els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
+      els.homeCodeInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') addWorkerHomeWithCode(); });
+      els.addHomeBtn.addEventListener('click', addWorkerHomeWithCode);
+      els.homeSelect.addEventListener('change', () => loadWorkerHome(els.homeSelect.value));
+      els.finishSessionBtn.addEventListener('click', finishWorkerSession);
     }
 
     function runSmokeTests() {
-      const results = [
-        ["Mot de passe vide refusé", validateAuthForm({ email: "a@b.com", password: "" }, "signup") === false],
-        ["Mot de passe court refusé", validateAuthForm({ email: "a@b.com", password: "12345" }, "signup") === false],
-        ["Mot de passe 6 caractères accepté", validateAuthForm({ email: "a@b.com", password: "123456" }, "signup") === true],
-        ["HTML échappé", escapeHtml("<test>") === "&lt;test&gt;"],
-        ["Config placeholder détectée", hasValidFirebaseConfig({ ...firebaseConfig, apiKey: "REMPLACER_API_KEY" }) === false]
+      const tests = [
+        ['Code normalisé', workerCodeValue(' a7 k92p ') === 'A7K92P'],
+        ['Tâches normalisées', normalizeSessionTasks([{ label: 'Aspirateur' }]).length === 1],
+        ['HTML échappé', esc('<x>') === '&lt;x&gt;'],
+        ['Date ISO conservée', toISODateOnly('2026-05-10') === '2026-05-10']
       ];
-      clearError();
-      console.table(results.map(([test, ok]) => ({ test, ok })));
-      return results.every(([, ok]) => ok);
+      console.table(tests.map(([test, ok]) => ({ test, ok })));
+      return tests.every(([, ok]) => ok);
     }
+    window.__cleanAppIntervenanteTests = { runSmokeTests, workerCodeValue, normalizeSessionTasks };
 
-    window.__cleanAppIntervenanteTests = { runSmokeTests, validateAuthForm, hasValidFirebaseConfig, escapeHtml };
+    bindEvents();
+    renderAuthMode();
+    showAuth();
 
-    showAuthOnly();
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) {
+        state.currentUser = null;
+        state.workerProfile = null;
+        showAuth();
+        return;
+      }
 
-    if (initFirebase()) {
-      bindEvents();
-      startAuthObserver();
-    }
+      try {
+        const profile = await ensureWorkerUserDocument(firebaseUser);
+        if (profile.role !== 'intervenante') {
+          state.currentUser = firebaseUser;
+          state.workerProfile = profile;
+          showAuth();
+          showAuthError('Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.');
+          return;
+        }
+
+        state.currentUser = firebaseUser;
+        state.workerProfile = profile;
+        showApp();
+        await loadWorkerHomes();
+      } catch (error) {
+        console.error(error);
+        showAuth();
+        showAuthError(firebaseErrorMessage(error));
+      }
+    });
   </script>
 </body>
 </html>
