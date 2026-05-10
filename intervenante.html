@@ -451,9 +451,10 @@
 
       workerProfile = await getWorkerProfile(currentUser);
       if (!workerProfile) {
-        await signOut(auth);
+        // Ne pas appeler signOut ici : Firebase partage la session entre index.html
+        // et intervenante.html. Un signOut automatique ici déconnecterait aussi le client.
         showAuthOnly();
-        showError("Vous étiez connecté avec un compte client. Connectez-vous ou créez un compte intervenante.");
+        showError("Vous êtes connecté avec un compte client. Pour utiliser l’espace intervenante, connectez-vous avec un compte intervenante ou créez-en un.");
         return;
       }
       els.accountEmail.textContent = currentUser.email;
