@@ -10,22 +10,19 @@
   <style>
     :root {
       --primary: #7c3aed;
-      --primary-dark: #6d28d9;
-      --primary-soft: #ede9fe;
       --bg: #f8fafc;
-      --card: #ffffff;
       --text: #111827;
       --muted: #6b7280;
-      --border: #e5e7eb;
-      --success: #16a34a;
-      --warning: #f59e0b;
-      --danger: #dc2626;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
       -webkit-tap-highlight-color: transparent;
+    }
+
+    .hidden-view {
+      display: none !important;
     }
 
     .app-shell {
@@ -38,22 +35,49 @@
     }
 
     .glass-card {
-      background: rgba(255,255,255,0.92);
+      background: rgba(255,255,255,0.94);
       backdrop-filter: blur(16px);
-    }
-
-    .hidden-view {
-      display: none;
     }
 
     .task-checkbox:checked + span {
       text-decoration: line-through;
       color: var(--muted);
     }
+
+    body:not(.authenticated) #mainView,
+    body:not(.authenticated) #bottomNav {
+      display: none !important;
+    }
+
+    body.authenticated #authView,
+    body.authenticated #configErrorView {
+      display: none !important;
+    }
   </style>
 </head>
-<body class="font-sans antialiased">
-  <div id="app" class="app-shell max-w-md mx-auto bg-slate-50 relative overflow-hidden">
+<body>
+  <div id="app" class="app-shell max-w-md mx-auto bg-slate-50 relative overflow-hidden font-sans antialiased">
+
+    <!-- CONFIG ERROR VIEW -->
+    <section id="configErrorView" class="hidden-view min-h-dvh flex flex-col justify-center px-6 py-10">
+      <div class="bg-white rounded-3xl border border-red-100 shadow-sm p-6">
+        <div class="w-14 h-14 rounded-2xl bg-red-50 flex items-center justify-center mb-4">
+          <span class="text-2xl">⚠️</span>
+        </div>
+        <h1 class="text-xl font-bold text-slate-900">Configuration Firebase à vérifier</h1>
+        <p id="configErrorText" class="text-sm text-slate-600 mt-3 leading-6"></p>
+        <div class="mt-4 rounded-2xl bg-slate-50 border border-slate-200 p-4 text-xs text-slate-700 overflow-auto">
+          <pre><code>const firebaseConfig = {
+  apiKey: "votre-vraie-api-key",
+  authDomain: "votre-projet.firebaseapp.com",
+  projectId: "votre-projet",
+  storageBucket: "votre-projet.appspot.com",
+  messagingSenderId: "...",
+  appId: "..."
+};</code></pre>
+        </div>
+      </div>
+    </section>
 
     <!-- AUTH VIEW -->
     <section id="authView" class="min-h-dvh flex flex-col justify-center px-6 py-10">
@@ -65,13 +89,13 @@
 
       <div class="bg-white rounded-3xl shadow-sm border border-slate-100 p-5 space-y-4">
         <div>
-          <label class="text-sm font-medium text-slate-700">Email</label>
+          <label class="text-sm font-medium text-slate-700" for="authEmail">Email</label>
           <input id="authEmail" type="email" autocomplete="email" placeholder="exemple@email.com" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
         </div>
 
         <div>
-          <label class="text-sm font-medium text-slate-700">Mot de passe</label>
-          <input id="authPassword" type="password" autocomplete="current-password" placeholder="••••••••" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
+          <label class="text-sm font-medium text-slate-700" for="authPassword">Mot de passe</label>
+          <input id="authPassword" type="password" autocomplete="current-password" placeholder="6 caractères minimum" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400" />
         </div>
 
         <button id="loginBtn" class="w-full rounded-2xl bg-violet-600 text-white font-semibold py-3 shadow-sm active:scale-[0.99]">
@@ -94,9 +118,7 @@
             <p class="text-sm text-slate-500">Espace intervenante</p>
             <h2 id="headerTitle" class="text-xl font-bold tracking-tight">Accueil</h2>
           </div>
-          <button id="refreshBtn" class="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center active:scale-95" title="Actualiser">
-            ↻
-          </button>
+          <button id="refreshBtn" class="w-10 h-10 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-center active:scale-95" title="Actualiser">↻</button>
         </div>
       </header>
 
@@ -154,7 +176,7 @@
           </div>
 
           <div>
-            <label class="text-sm font-medium text-slate-700">Langue préférée</label>
+            <label class="text-sm font-medium text-slate-700" for="languageSelect">Langue préférée</label>
             <select id="languageSelect" class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 bg-white outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400">
               <option value="fr">Français</option>
               <option value="es">Espagnol</option>
@@ -163,9 +185,7 @@
             </select>
           </div>
 
-          <button id="logoutBtn" class="w-full rounded-2xl bg-slate-100 text-slate-800 font-semibold py-3 active:scale-[0.99]">
-            Se déconnecter
-          </button>
+          <button id="logoutBtn" class="w-full rounded-2xl bg-slate-100 text-slate-800 font-semibold py-3 active:scale-[0.99]">Se déconnecter</button>
         </div>
       </section>
     </main>
@@ -213,7 +233,7 @@
       serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-    // À remplacer par la même configuration Firebase que dans index.html
+    // IMPORTANT : remplacez ce bloc par le même firebaseConfig que dans index.html.
     const firebaseConfig = {
   apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
   authDomain: "clean-app-5de06.firebaseapp.com",
@@ -224,11 +244,9 @@
   measurementId: "G-Y3Q0JBX615"
 };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
     const els = {
+      configErrorView: document.getElementById("configErrorView"),
+      configErrorText: document.getElementById("configErrorText"),
       authView: document.getElementById("authView"),
       mainView: document.getElementById("mainView"),
       bottomNav: document.getElementById("bottomNav"),
@@ -261,11 +279,53 @@
       }
     };
 
+    let app = null;
+    let auth = null;
+    let db = null;
     let currentUser = null;
     let workerProfile = null;
     let linkedHouseholds = [];
     let sessionsByHousehold = new Map();
     let currentSessionContext = null;
+
+    function hasValidFirebaseConfig(config) {
+      return Boolean(
+        config &&
+        config.apiKey &&
+        !String(config.apiKey).startsWith("REMPLACER_") &&
+        config.authDomain &&
+        !String(config.authDomain).startsWith("REMPLACER_") &&
+        config.projectId &&
+        !String(config.projectId).startsWith("REMPLACER_") &&
+        config.appId &&
+        !String(config.appId).startsWith("REMPLACER_")
+      );
+    }
+
+    function showConfigError(message) {
+      document.body.classList.remove("authenticated");
+      els.authView.classList.add("hidden-view");
+      els.mainView.classList.add("hidden-view");
+      els.bottomNav.classList.add("hidden-view");
+      els.configErrorText.textContent = message;
+      els.configErrorView.classList.remove("hidden-view");
+    }
+
+    function showAuthOnly() {
+      document.body.classList.remove("authenticated");
+      els.configErrorView.classList.add("hidden-view");
+      els.authView.classList.remove("hidden-view");
+      els.mainView.classList.add("hidden-view");
+      els.bottomNav.classList.add("hidden-view");
+    }
+
+    function showApp() {
+      document.body.classList.add("authenticated");
+      els.configErrorView.classList.add("hidden-view");
+      els.authView.classList.add("hidden-view");
+      els.mainView.classList.remove("hidden-view");
+      els.bottomNav.classList.remove("hidden-view");
+    }
 
     function showError(message) {
       els.authError.textContent = message;
@@ -277,6 +337,32 @@
       els.authError.classList.add("hidden");
     }
 
+    function getAuthValues() {
+      return {
+        email: els.authEmail.value.trim(),
+        password: els.authPassword.value
+      };
+    }
+
+    function validateAuthForm(values, mode = "login") {
+      if (!values.email) {
+        showError("Saisissez votre email.");
+        return false;
+      }
+
+      if (!values.password) {
+        showError("Saisissez votre mot de passe.");
+        return false;
+      }
+
+      if (mode === "signup" && values.password.length < 6) {
+        showError("Le mot de passe doit contenir au moins 6 caractères. Exemple : maison1");
+        return false;
+      }
+
+      return true;
+    }
+
     function setMessage(el, message, type = "info") {
       el.textContent = message;
       el.classList.remove("hidden", "text-red-600", "text-green-600", "text-slate-500");
@@ -285,9 +371,19 @@
       else el.classList.add("text-slate-500");
     }
 
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
     function formatDate(dateValue) {
       if (!dateValue) return "Date non renseignée";
       const date = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return "Date non renseignée";
       return new Intl.DateTimeFormat("fr-FR", {
         weekday: "long",
         day: "numeric",
@@ -300,6 +396,7 @@
     function formatShortDate(dateValue) {
       if (!dateValue) return "Date non renseignée";
       const date = dateValue?.toDate ? dateValue.toDate() : new Date(dateValue);
+      if (Number.isNaN(date.getTime())) return "Date non renseignée";
       return new Intl.DateTimeFormat("fr-FR", {
         day: "numeric",
         month: "short",
@@ -441,9 +538,7 @@
               <p class="text-sm text-slate-500 mt-1">${formatDate(next.session.startAt)}</p>
               <p class="text-sm text-slate-500">${taskCount} tâche${taskCount > 1 ? "s" : ""} prévue${taskCount > 1 ? "s" : ""}</p>
             </div>
-            <button class="open-session rounded-2xl bg-violet-600 text-white text-sm font-semibold px-4 py-3 active:scale-95" data-household-id="${next.household.id}" data-session-id="${next.session.id}">
-              Voir
-            </button>
+            <button class="open-session rounded-2xl bg-violet-600 text-white text-sm font-semibold px-4 py-3 active:scale-95" data-household-id="${next.household.id}" data-session-id="${next.session.id}">Voir</button>
           </div>
         `;
       } else {
@@ -476,14 +571,10 @@
               ${nextSession ? `
                 <p class="text-sm text-slate-500 mt-1">${formatShortDate(nextSession.startAt)}</p>
                 <p class="text-sm text-slate-500">${taskCount} tâche${taskCount > 1 ? "s" : ""} prévue${taskCount > 1 ? "s" : ""}</p>
-              ` : `
-                <p class="text-sm text-slate-500 mt-1">Aucune session prévue</p>
-              `}
+              ` : `<p class="text-sm text-slate-500 mt-1">Aucune session prévue</p>`}
             </div>
             ${nextSession ? `
-              <button class="open-session rounded-2xl bg-slate-900 text-white text-sm font-semibold px-4 py-3 active:scale-95" data-household-id="${household.id}" data-session-id="${nextSession.id}">
-                Ouvrir
-              </button>
+              <button class="open-session rounded-2xl bg-slate-900 text-white text-sm font-semibold px-4 py-3 active:scale-95" data-household-id="${household.id}" data-session-id="${nextSession.id}">Ouvrir</button>
             ` : ""}
           </div>
         </article>
@@ -532,24 +623,18 @@
                 <input class="task-checkbox mt-1 w-5 h-5 accent-violet-600" type="checkbox" data-task-index="${index}" ${task.done ? "checked" : ""} ${isCompleted ? "disabled" : ""} />
                 <span class="text-sm leading-6">${escapeHtml(task.title || task.label || "Tâche sans nom")}</span>
               </label>
-            `).join("") : `
-              <p class="text-sm text-slate-500">Aucune tâche prévue pour cette session.</p>
-            `}
+            `).join("") : `<p class="text-sm text-slate-500">Aucune tâche prévue pour cette session.</p>`}
           </div>
 
           <div>
-            <label class="text-sm font-medium text-slate-700">Commentaire pour le client</label>
+            <label class="text-sm font-medium text-slate-700" for="sessionComment">Commentaire pour le client</label>
             <textarea id="sessionComment" rows="4" ${isCompleted ? "disabled" : ""} placeholder="Ex : tout est fait, il manque seulement les draps..." class="mt-1 w-full rounded-2xl border border-slate-200 px-4 py-3 outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400">${escapeHtml(session.workerComment || "")}</textarea>
           </div>
 
           ${isCompleted ? `
-            <div class="rounded-2xl bg-green-50 text-green-700 px-4 py-3 text-sm font-semibold">
-              Session déjà terminée par l’intervenante.
-            </div>
+            <div class="rounded-2xl bg-green-50 text-green-700 px-4 py-3 text-sm font-semibold">Session déjà terminée par l’intervenante.</div>
           ` : `
-            <button id="completeSessionBtn" class="w-full rounded-2xl bg-violet-600 text-white font-semibold py-3 active:scale-[0.99]">
-              Confirmer la session terminée
-            </button>
+            <button id="completeSessionBtn" class="w-full rounded-2xl bg-violet-600 text-white font-semibold py-3 active:scale-[0.99]">Confirmer la session terminée</button>
           `}
         </div>
       `;
@@ -660,95 +745,152 @@
       }
     }
 
-    function escapeHtml(value) {
-      return String(value ?? "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
+    function bindEvents() {
+      els.loginBtn.addEventListener("click", async () => {
+        clearError();
+        const authValues = getAuthValues();
+        if (!validateAuthForm(authValues, "login")) return;
 
-    els.loginBtn.addEventListener("click", async () => {
-      clearError();
-      try {
-        await signInWithEmailAndPassword(auth, els.authEmail.value.trim(), els.authPassword.value);
-      } catch (error) {
-        console.error(error);
-        showError("Connexion impossible. Vérifiez l’email et le mot de passe.");
-      }
-    });
-
-    els.signupBtn.addEventListener("click", async () => {
-      clearError();
-      try {
-        await createUserWithEmailAndPassword(auth, els.authEmail.value.trim(), els.authPassword.value);
-      } catch (error) {
-        console.error(error);
-        showError("Création impossible. Le mot de passe doit contenir au moins 6 caractères.");
-      }
-    });
-
-    els.logoutBtn.addEventListener("click", () => signOut(auth));
-    els.refreshBtn.addEventListener("click", loadWorkerData);
-    els.addHouseholdBtn.addEventListener("click", addHouseholdByCode);
-    els.backToHomeBtn.addEventListener("click", () => navigate("home"));
-
-    els.languageSelect.addEventListener("change", async () => {
-      if (!currentUser) return;
-      await setDoc(doc(db, "workers", currentUser.uid), {
-        language: els.languageSelect.value,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-    });
-
-    document.addEventListener("click", async event => {
-      const navBtn = event.target.closest("[data-nav]");
-      if (navBtn) navigate(navBtn.dataset.nav);
-
-      const openSessionBtn = event.target.closest(".open-session");
-      if (openSessionBtn) {
-        await openSession(openSessionBtn.dataset.householdId, openSessionBtn.dataset.sessionId);
-      }
-
-      if (event.target.id === "completeSessionBtn") {
-        await completeCurrentSession();
-      }
-    });
-
-    document.addEventListener("change", async event => {
-      if (event.target.classList.contains("task-checkbox")) {
         try {
-          await saveTaskState();
+          await signInWithEmailAndPassword(auth, authValues.email, authValues.password);
         } catch (error) {
           console.error(error);
-          alert("Impossible d’enregistrer la tâche. Vérifiez la connexion.");
+          if (error.code === "auth/invalid-credential") {
+            showError("Email ou mot de passe incorrect.");
+          } else if (error.code === "auth/invalid-email") {
+            showError("L’adresse email n’est pas valide.");
+          } else {
+            showError("Connexion impossible. Vérifiez l’email et le mot de passe.");
+          }
         }
+      });
+
+      els.signupBtn.addEventListener("click", async () => {
+        clearError();
+        const authValues = getAuthValues();
+        if (!validateAuthForm(authValues, "signup")) return;
+
+        try {
+          await createUserWithEmailAndPassword(auth, authValues.email, authValues.password);
+        } catch (error) {
+          console.error(error);
+          if (error.code === "auth/email-already-in-use") {
+            showError("Un compte existe déjà avec cet email. Essayez de vous connecter.");
+          } else if (error.code === "auth/invalid-email") {
+            showError("L’adresse email n’est pas valide.");
+          } else if (error.code === "auth/weak-password") {
+            showError("Le mot de passe doit contenir au moins 6 caractères.");
+          } else if (error.code === "auth/operation-not-allowed") {
+            showError("La connexion email/mot de passe n’est pas activée dans Firebase Auth.");
+          } else {
+            showError("Création impossible. Vérifiez l’email, le mot de passe et la configuration Firebase Auth.");
+          }
+        }
+      });
+
+      els.authPassword.addEventListener("keydown", event => {
+        if (event.key === "Enter") els.loginBtn.click();
+      });
+
+      els.logoutBtn.addEventListener("click", () => signOut(auth));
+      els.refreshBtn.addEventListener("click", loadWorkerData);
+      els.addHouseholdBtn.addEventListener("click", addHouseholdByCode);
+      els.backToHomeBtn.addEventListener("click", () => navigate("home"));
+
+      els.languageSelect.addEventListener("change", async () => {
+        if (!currentUser) return;
+        await setDoc(doc(db, "workers", currentUser.uid), {
+          language: els.languageSelect.value,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+      });
+
+      document.addEventListener("click", async event => {
+        const navBtn = event.target.closest("[data-nav]");
+        if (navBtn && currentUser) navigate(navBtn.dataset.nav);
+
+        const openSessionBtn = event.target.closest(".open-session");
+        if (openSessionBtn && currentUser) {
+          await openSession(openSessionBtn.dataset.householdId, openSessionBtn.dataset.sessionId);
+        }
+
+        if (event.target.id === "completeSessionBtn" && currentUser) {
+          await completeCurrentSession();
+        }
+      });
+
+      document.addEventListener("change", async event => {
+        if (event.target.classList.contains("task-checkbox") && currentUser) {
+          try {
+            await saveTaskState();
+          } catch (error) {
+            console.error(error);
+            alert("Impossible d’enregistrer la tâche. Vérifiez la connexion.");
+          }
+        }
+      });
+    }
+
+    function initFirebase() {
+      if (!hasValidFirebaseConfig(firebaseConfig)) {
+        showConfigError("Le fichier contient encore les valeurs REMPlACER_*. Copiez le firebaseConfig réel depuis index.html pour relier cette page à l’espace client.");
+        return false;
       }
-    });
-
-    onAuthStateChanged(auth, async user => {
-      currentUser = user;
-
-      if (!user) {
-        els.authView.classList.remove("hidden-view");
-        els.mainView.classList.add("hidden-view");
-        els.bottomNav.classList.add("hidden-view");
-        return;
-      }
-
-      els.authView.classList.add("hidden-view");
-      els.mainView.classList.remove("hidden-view");
-      els.bottomNav.classList.remove("hidden-view");
-      navigate("home");
 
       try {
-        await loadWorkerData();
+        app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+        return true;
       } catch (error) {
         console.error(error);
-        els.homeSummary.textContent = "Erreur de chargement. Vérifiez la configuration Firebase et les règles Firestore.";
+        showConfigError("Firebase n’a pas pu démarrer. Vérifiez que le firebaseConfig est complet et identique à celui de index.html.");
+        return false;
       }
-    });
+    }
+
+    function startAuthObserver() {
+      onAuthStateChanged(auth, async user => {
+        currentUser = user;
+
+        if (!user) {
+          showAuthOnly();
+          return;
+        }
+
+        showApp();
+        navigate("home");
+
+        try {
+          await loadWorkerData();
+        } catch (error) {
+          console.error(error);
+          els.homeSummary.textContent = "Erreur de chargement. Vérifiez les règles Firestore et les index nécessaires.";
+        }
+      });
+    }
+
+    function runSmokeTests() {
+      const results = [
+        ["Mot de passe vide refusé", validateAuthForm({ email: "a@b.com", password: "" }, "signup") === false],
+        ["Mot de passe court refusé", validateAuthForm({ email: "a@b.com", password: "12345" }, "signup") === false],
+        ["Mot de passe 6 caractères accepté", validateAuthForm({ email: "a@b.com", password: "123456" }, "signup") === true],
+        ["HTML échappé", escapeHtml("<test>") === "&lt;test&gt;"],
+        ["Config placeholder détectée", hasValidFirebaseConfig({ ...firebaseConfig, apiKey: "REMPLACER_API_KEY" }) === false]
+      ];
+      clearError();
+      console.table(results.map(([test, ok]) => ({ test, ok })));
+      return results.every(([, ok]) => ok);
+    }
+
+    window.__cleanAppIntervenanteTests = { runSmokeTests, validateAuthForm, hasValidFirebaseConfig, escapeHtml };
+
+    showAuthOnly();
+
+    if (initFirebase()) {
+      bindEvents();
+      startAuthObserver();
+    }
   </script>
 </body>
 </html>
