@@ -311,7 +311,7 @@
         </div>
         <div>
           <label for="workerAddHomeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout foyer</label>
-          <input id="workerAddHomeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : CA.xxxxx.ABC123" />
+          <input id="workerAddHomeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : A7K92P" />
         </div>
         <button id="workerAddHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce foyer</button>
         <div id="workerHomesList" class="space-y-2"></div>
@@ -1668,7 +1668,7 @@
   }
 
   function workerCodeValue(value) {
-    return String(value || '').trim();
+    return String(value || '').trim().replace(/\s+/g, '').toUpperCase();
   }
 
   function workerAccessRef(homeId) {
@@ -1704,12 +1704,12 @@
     );
   }
 
-  function generateWorkerCodeValue(homeId) {
+  function generateWorkerCodeValue() {
+    // Code court et lisible pour le MVP : 6 caractères sans caractères ambigus.
     const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     const bytes = new Uint8Array(6);
     crypto.getRandomValues(bytes);
-    const secret = Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
-    return 'CA.' + encodeWorkerHomeId(homeId) + '.' + secret;
+    return Array.from(bytes, (byte) => alphabet[byte % alphabet.length]).join('');
   }
 
   async function generateWorkerAccessCode() {
@@ -1720,7 +1720,7 @@
 
     const previousCode = state.settings.intervenanteAccessCode;
     const uid = currentUid();
-    const code = generateWorkerCodeValue(uid);
+    const code = generateWorkerCodeValue();
     const payload = {
       code,
       homeId: uid,
@@ -2329,6 +2329,7 @@
     if (els.accountEmailText) els.accountEmailText.textContent = 'Compte : ' + (user.email || '—');
     if (els.accountRoleText) els.accountRoleText.textContent = 'Rôle : ' + (user.role === 'admin' ? 'admin' : 'utilisateur');
     if (els.workerAccessCodeDisplay) els.workerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
+    if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.textContent = state.settings.intervenanteAccessCode ? 'Renouveler le code intervenante' : 'Générer un code intervenante';
     if (els.adminSyncCard) els.adminSyncCard.classList.toggle('hidden', !isAdmin());
   }
 
@@ -2608,7 +2609,9 @@
   if (els.loginTabBtn) els.loginTabBtn.addEventListener('click', () => setAuthMode('login'));
   if (els.registerTabBtn) els.registerTabBtn.addEventListener('click', () => setAuthMode('register'));
   if (els.authSubmitBtn) els.authSubmitBtn.addEventListener('click', submitAuth);
-  if (els.openWorkerAccessBtn) els.openWorkerAccessBtn.addEventListener('click', showWorkerAccessScreen);
+  if (els.openWorkerAccessBtn) els.openWorkerAccessBtn.addEventListener('click', () => {
+    window.location.href = './intervenante.html';
+  });
   if (els.backToClientLoginBtn) els.backToClientLoginBtn.addEventListener('click', leaveWorkerMode);
   if (els.workerLoginTabBtn) els.workerLoginTabBtn.addEventListener('click', () => setWorkerAuthMode('login'));
   if (els.workerRegisterTabBtn) els.workerRegisterTabBtn.addEventListener('click', () => setWorkerAuthMode('register'));
@@ -2620,6 +2623,9 @@
   }
   if (els.workerAddHomeBtn) els.workerAddHomeBtn.addEventListener('click', addWorkerHomeWithCode);
   if (els.workerAddHomeCodeInput) {
+    els.workerAddHomeCodeInput.addEventListener('input', () => {
+      els.workerAddHomeCodeInput.value = workerCodeValue(els.workerAddHomeCodeInput.value);
+    });
     els.workerAddHomeCodeInput.addEventListener('keydown', (event) => {
       if (event.key === 'Enter') addWorkerHomeWithCode();
     });
