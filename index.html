@@ -221,12 +221,10 @@
         <label for="setupLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
         <select id="setupLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
           <option value="fr">Français</option>
-          <option value="es">Espagnol</option>
-          <option value="en">Anglais</option>
-          <option value="pt">Portugais</option>
-          <option value="ar">Arabe</option>
-          <option value="it">Italien</option>
-          <option value="ro">Roumain</option>
+          <option value="en">English</option>
+          <option value="es">Español</option>
+          <option value="pt">Português</option>
+          <option value="ar">العربية</option>
         </select>
       </div>
 
@@ -593,12 +591,10 @@
                   <label for="translationLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
                   <select id="translationLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
                     <option value="fr">Français</option>
-                    <option value="es">Espagnol</option>
-                    <option value="en">Anglais</option>
-                    <option value="pt">Portugais</option>
-                    <option value="ar">Arabe</option>
-                    <option value="it">Italien</option>
-                    <option value="ro">Roumain</option>
+                    <option value="en">English</option>
+                    <option value="es">Español</option>
+                    <option value="pt">Português</option>
+                    <option value="ar">العربية</option>
                   </select>
                 </div>
                 <div>
@@ -787,6 +783,32 @@
   const STORAGE_KEY = 'cleanAppFirebaseV1';
   const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
 
+  const SUPPORTED_LANGUAGES = ['fr', 'en', 'es', 'pt', 'ar'];
+  const I18N = {
+    fr: {
+      'nav.home': 'Accueil', 'nav.history': 'Historique', 'nav.contact': 'Contacter', 'nav.settings': 'Réglages',
+      'page.dashboard': 'Accueil', 'page.history': 'Historique', 'page.session': 'Ajouter une session', 'page.payment': 'Ajouter un paiement', 'page.contact': 'Contacter', 'page.settings': 'Réglages',
+      'button.login': 'Se connecter', 'button.registerAccount': 'Créer mon compte', 'button.saveSession': 'Enregistrer la session', 'button.savePayment': 'Enregistrer le paiement', 'button.addSession': 'Ajouter une session', 'button.addPayment': 'Ajouter un paiement', 'button.close': 'Fermer', 'button.view': 'Voir', 'button.collapse': 'Réduire', 'button.edit': 'Voir / Modifier', 'button.delete': 'Supprimer', 'button.remove': 'Retirer',
+      'empty.noData': 'Aucune donnée pour le moment.', 'empty.noSession': 'Aucune session prévue.', 'empty.noTask': 'Aucune tâche à afficher.', 'empty.noSessionTask': 'Aucune tâche prévue pour cette session.', 'empty.noLinkedTask': 'Aucune tâche associée à cette session.', 'empty.noDraftTask': 'Aucune tâche ponctuelle ajoutée pour cette session.', 'empty.noDefaultTask': 'Aucune tâche à chaque passage pour le moment.', 'empty.noRecurringTask': 'Aucune tâche récurrente pour le moment.', 'empty.noPunctualTask': 'Aucune tâche ponctuelle planifiée.',
+      'session.status.planned': 'prévue', 'session.status.workerDone': 'terminée par l’intervenante', 'payment.status.recorded': 'Montant enregistré',
+      'task.source.default': 'Base', 'task.source.recurring': 'Récurrente', 'task.source.punctual': 'Ponctuelle', 'task.source.manual': 'Ajoutée', 'task.default_aspirateur': 'Aspirateur', 'task.default_serpilliere': 'Serpillière', 'task.default_salle_de_bain': 'Salle de bain', 'task.default_cuisine': 'Cuisine', 'task.recurring_draps': 'Changer les draps',
+      'settings.account': 'Compte', 'settings.role': 'Rôle', 'settings.user': 'utilisateur', 'settings.admin': 'admin',
+      'summary.amountDue': 'Montant à payer', 'summary.due': 'À payer', 'summary.credit': 'Avance disponible', 'summary.creditShort': 'Avance', 'summary.upToDate': 'Solde à jour', 'summary.status': 'Statut', 'summary.none': 'Aucune', 'summary.noneMasculine': 'Aucun', 'summary.ok': 'OK',
+      'tasks.planned': 'Tâches prévues', 'tasks.done': 'terminée(s)', 'tasks.everyVisit': 'À chaque passage', 'tasks.everySessions': 'Toutes les {count} sessions', 'tasks.preview': 'Aperçu des tâches prévues', 'tasks.hidePreview': 'Masquer l’aperçu des tâches',
+      'toast.connected': '✅ Connecté.', 'toast.accountCreated': '✅ Compte créé.', 'toast.languageSaved': '✅ Langue enregistrée.', 'toast.configDone': '✅ Configuration terminée.', 'toast.configSkipped': 'Configuration passée.'
+    },
+    en: { 'nav.home': 'Home', 'nav.history': 'History', 'nav.contact': 'Contact', 'nav.settings': 'Settings', 'page.dashboard': 'Home', 'page.history': 'History', 'page.session': 'Add a session', 'page.payment': 'Add a payment', 'page.contact': 'Contact', 'page.settings': 'Settings', 'button.login': 'Sign in', 'button.registerAccount': 'Create my account', 'button.saveSession': 'Save session', 'button.savePayment': 'Save payment', 'button.addSession': 'Add a session', 'button.addPayment': 'Add a payment', 'button.close': 'Close', 'button.view': 'View', 'button.collapse': 'Collapse', 'button.edit': 'View / Edit', 'button.delete': 'Delete', 'button.remove': 'Remove', 'empty.noData': 'No data yet.', 'empty.noSession': 'No session scheduled.', 'empty.noTask': 'No task to show.', 'empty.noSessionTask': 'No task planned for this session.', 'empty.noLinkedTask': 'No task linked to this session.', 'payment.status.recorded': 'Recorded amount', 'task.source.default': 'Base', 'task.source.recurring': 'Recurring', 'task.source.punctual': 'One-off', 'task.source.manual': 'Added', 'task.default_aspirateur': 'Vacuuming', 'task.default_serpilliere': 'Mopping', 'task.default_salle_de_bain': 'Bathroom', 'task.default_cuisine': 'Kitchen', 'task.recurring_draps': 'Change sheets', 'summary.amountDue': 'Amount due', 'summary.due': 'Due', 'summary.credit': 'Available credit', 'summary.creditShort': 'Credit', 'summary.upToDate': 'Balance up to date', 'summary.status': 'Status', 'summary.none': 'None', 'summary.noneMasculine': 'None', 'tasks.planned': 'Planned tasks', 'tasks.done': 'done', 'tasks.preview': 'Preview planned tasks', 'tasks.hidePreview': 'Hide task preview', 'toast.languageSaved': '✅ Language saved.' },
+    es: { 'nav.home': 'Inicio', 'nav.history': 'Historial', 'nav.contact': 'Contactar', 'nav.settings': 'Ajustes', 'page.dashboard': 'Inicio', 'page.history': 'Historial', 'page.session': 'Añadir una sesión', 'page.payment': 'Añadir un pago', 'page.contact': 'Contactar', 'page.settings': 'Ajustes', 'button.login': 'Iniciar sesión', 'button.registerAccount': 'Crear mi cuenta', 'button.saveSession': 'Guardar la sesión', 'button.savePayment': 'Guardar el pago', 'button.addSession': 'Añadir una sesión', 'button.addPayment': 'Añadir un pago', 'button.close': 'Cerrar', 'button.view': 'Ver', 'button.collapse': 'Reducir', 'button.edit': 'Ver / Editar', 'button.delete': 'Eliminar', 'button.remove': 'Quitar', 'empty.noData': 'No hay datos por ahora.', 'empty.noSession': 'No hay sesión prevista.', 'payment.status.recorded': 'Importe registrado', 'task.source.default': 'Base', 'task.source.recurring': 'Recurrente', 'task.source.punctual': 'Puntual', 'task.source.manual': 'Añadida', 'task.default_aspirateur': 'Aspiradora', 'task.default_serpilliere': 'Fregar el suelo', 'task.default_salle_de_bain': 'Baño', 'task.default_cuisine': 'Cocina', 'task.recurring_draps': 'Cambiar las sábanas', 'summary.amountDue': 'Importe por pagar', 'summary.due': 'Por pagar', 'summary.credit': 'Crédito disponible', 'summary.creditShort': 'Crédito', 'summary.status': 'Estado', 'tasks.planned': 'Tareas previstas', 'tasks.done': 'terminada(s)', 'tasks.preview': 'Vista previa de tareas previstas', 'tasks.hidePreview': 'Ocultar la vista previa', 'toast.languageSaved': '✅ Idioma guardado.' },
+    pt: { 'nav.home': 'Início', 'nav.history': 'Histórico', 'nav.contact': 'Contactar', 'nav.settings': 'Definições', 'page.dashboard': 'Início', 'page.history': 'Histórico', 'page.session': 'Adicionar uma sessão', 'page.payment': 'Adicionar um pagamento', 'page.contact': 'Contactar', 'page.settings': 'Definições', 'button.login': 'Entrar', 'button.registerAccount': 'Criar a minha conta', 'button.saveSession': 'Guardar a sessão', 'button.savePayment': 'Guardar o pagamento', 'button.addSession': 'Adicionar uma sessão', 'button.addPayment': 'Adicionar um pagamento', 'button.close': 'Fechar', 'button.view': 'Ver', 'button.collapse': 'Recolher', 'button.edit': 'Ver / Editar', 'button.delete': 'Eliminar', 'button.remove': 'Remover', 'empty.noData': 'Ainda não há dados.', 'empty.noSession': 'Nenhuma sessão prevista.', 'payment.status.recorded': 'Valor registado', 'task.source.default': 'Base', 'task.source.recurring': 'Recorrente', 'task.source.punctual': 'Pontual', 'task.source.manual': 'Adicionada', 'task.default_aspirateur': 'Aspirar', 'task.default_serpilliere': 'Passar a esfregona', 'task.default_salle_de_bain': 'Casa de banho', 'task.default_cuisine': 'Cozinha', 'task.recurring_draps': 'Trocar os lençóis', 'summary.amountDue': 'Valor a pagar', 'summary.due': 'A pagar', 'summary.credit': 'Crédito disponível', 'summary.creditShort': 'Crédito', 'summary.status': 'Estado', 'tasks.planned': 'Tarefas previstas', 'tasks.done': 'concluída(s)', 'tasks.preview': 'Pré-visualização das tarefas previstas', 'tasks.hidePreview': 'Ocultar pré-visualização', 'toast.languageSaved': '✅ Idioma guardado.' },
+    ar: { 'nav.home': 'الرئيسية', 'nav.history': 'السجل', 'nav.contact': 'تواصل', 'nav.settings': 'الإعدادات', 'page.dashboard': 'الرئيسية', 'page.history': 'السجل', 'page.session': 'إضافة جلسة', 'page.payment': 'إضافة دفعة', 'page.contact': 'تواصل', 'page.settings': 'الإعدادات', 'button.login': 'تسجيل الدخول', 'button.registerAccount': 'إنشاء حسابي', 'button.saveSession': 'حفظ الجلسة', 'button.savePayment': 'حفظ الدفعة', 'button.addSession': 'إضافة جلسة', 'button.addPayment': 'إضافة دفعة', 'button.close': 'إغلاق', 'button.view': 'عرض', 'button.collapse': 'طي', 'button.edit': 'عرض / تعديل', 'button.delete': 'حذف', 'button.remove': 'إزالة', 'empty.noData': 'لا توجد بيانات حالياً.', 'empty.noSession': 'لا توجد جلسة مجدولة.', 'payment.status.recorded': 'المبلغ مسجل', 'task.source.default': 'أساسية', 'task.source.recurring': 'متكررة', 'task.source.punctual': 'خاصة', 'task.source.manual': 'مضافة', 'task.default_aspirateur': 'كنس بالمكنسة', 'task.default_serpilliere': 'مسح الأرضية', 'task.default_salle_de_bain': 'الحمام', 'task.default_cuisine': 'المطبخ', 'task.recurring_draps': 'تغيير الشراشف', 'summary.amountDue': 'المبلغ المطلوب', 'summary.due': 'مستحق', 'summary.credit': 'رصيد متاح', 'summary.creditShort': 'رصيد', 'summary.status': 'الحالة', 'tasks.planned': 'المهام المخططة', 'tasks.done': 'منجزة', 'tasks.preview': 'معاينة المهام المخططة', 'tasks.hidePreview': 'إخفاء المعاينة', 'toast.languageSaved': '✅ تم حفظ اللغة.' }
+  };
+
+  function normalizeLanguage(language) { const normalized = String(language || '').toLowerCase(); return SUPPORTED_LANGUAGES.includes(normalized) ? normalized : 'fr'; }
+  function currentLanguage() { return normalizeLanguage(state?.settings?.language || state?.settings?.translationLanguage || 'fr'); }
+  function t(key, params = {}) { const lang = currentLanguage(); const text = I18N[lang]?.[key] ?? I18N.fr[key] ?? key; return Object.entries(params).reduce((value, [name, replacement]) => value.replaceAll('{' + name + '}', String(replacement)), text); }
+  function applyDocumentLanguage() { const lang = currentLanguage(); document.documentElement.lang = lang; document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr'; }
+  function taskDisplayLabel(task) { const source = String(task?.source || ''); const id = String(task?.id || ''); if (source === 'manual') return String(task?.originalText || task?.label || ''); return t('task.' + id) || String(task?.label || ''); }
+
   const defaultState = {
     settings: {
       homeName: '',
@@ -797,6 +819,7 @@
       defaultDuration: 2,
       contactPhone: '',
       contactName: '',
+      language: 'fr',
       translationLanguage: 'fr',
       translationPromptTemplate: 'Prépare un message simple, poli et naturel à ma femme de ménage {prenom} en {langue} : {message}',
       setupCompleted: false,
@@ -881,7 +904,10 @@
     return value
       .map((task) => ({
         id: String(task?.id || crypto.randomUUID()),
-        label: String(task?.label || '').trim(),
+        label: String(task?.label || task?.originalText || '').trim(),
+        originalText: String(task?.originalText || task?.label || '').trim(),
+        originalLanguage: normalizeLanguage(task?.originalLanguage || 'fr'),
+        translations: task?.translations && typeof task.translations === 'object' && !Array.isArray(task.translations) ? task.translations : {},
         source: String(task?.source || 'manual'),
         done: Boolean(task?.done)
       }))
@@ -913,7 +939,8 @@
           defaultDuration: Number(parsed?.settings?.defaultDuration ?? defaultState.settings.defaultDuration),
           contactPhone: String(parsed?.settings?.contactPhone ?? defaultState.settings.contactPhone),
           contactName: String(parsed?.settings?.contactName ?? defaultState.settings.contactName),
-          translationLanguage: String(parsed?.settings?.translationLanguage ?? defaultState.settings.translationLanguage),
+          language: normalizeLanguage(parsed?.settings?.language ?? parsed?.settings?.translationLanguage ?? defaultState.settings.language),
+          translationLanguage: normalizeLanguage(parsed?.settings?.translationLanguage ?? parsed?.settings?.language ?? defaultState.settings.translationLanguage),
           translationPromptTemplate: String(parsed?.settings?.translationPromptTemplate ?? defaultState.settings.translationPromptTemplate),
           setupCompleted: Boolean(parsed?.settings?.setupCompleted ?? defaultState.settings.setupCompleted),
           defaultTasks: normalizeTaskSettings(parsed?.settings?.defaultTasks, defaultState.settings.defaultTasks),
@@ -1219,7 +1246,8 @@
       defaultDuration: Number(remoteSettings.defaultDuration ?? state.settings.defaultDuration),
       contactPhone: String(remoteSettings.contactPhone ?? state.settings.contactPhone ?? ''),
       contactName: String(remoteSettings.contactName ?? state.settings.contactName ?? ''),
-      translationLanguage: String(remoteSettings.translationLanguage ?? state.settings.translationLanguage ?? 'fr'),
+      language: normalizeLanguage(remoteSettings.language ?? remoteSettings.translationLanguage ?? state.settings.language ?? 'fr'),
+      translationLanguage: normalizeLanguage(remoteSettings.translationLanguage ?? remoteSettings.language ?? state.settings.translationLanguage ?? 'fr'),
       translationPromptTemplate: String(remoteSettings.translationPromptTemplate ?? state.settings.translationPromptTemplate ?? defaultState.settings.translationPromptTemplate),
       defaultTasks: normalizeTaskSettings(remoteSettings.defaultTasks, state.settings.defaultTasks || defaultState.settings.defaultTasks),
       recurringTasks: normalizeRecurringTaskSettings(remoteSettings.recurringTasks, state.settings.recurringTasks || defaultState.settings.recurringTasks),
@@ -1294,7 +1322,7 @@
         ? 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm'
         : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400';
     }
-    if (els.workerAuthSubmitBtn) els.workerAuthSubmitBtn.textContent = register ? 'Créer mon compte intervenante' : 'Se connecter';
+    if (els.workerAuthSubmitBtn) els.workerAuthSubmitBtn.textContent = register ? 'Créer mon compte intervenante' : t('button.login');
   }
 
   function renderAuthMode() {
@@ -1310,7 +1338,7 @@
         ? 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm'
         : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400';
     }
-    if (els.authSubmitBtn) els.authSubmitBtn.textContent = register ? 'Créer mon compte' : 'Se connecter';
+    if (els.authSubmitBtn) els.authSubmitBtn.textContent = register ? t('button.registerAccount') : t('button.login');
     if (els.authHintText) {
       els.authHintText.textContent = register
         ? 'Créez votre compte pour commencer.'
@@ -1360,7 +1388,8 @@
   function collectSetupValues() {
     state.settings.contactName = (els.setupContactNameInput?.value || '').trim();
     state.settings.contactPhone = (els.setupContactPhoneInput?.value || '').trim();
-    state.settings.translationLanguage = els.setupLanguageSelect?.value || 'fr';
+    state.settings.language = normalizeLanguage(els.setupLanguageSelect?.value || 'fr');
+    state.settings.translationLanguage = state.settings.language;
     state.settings.hourlyRate = Number(els.setupHourlyRateInput?.value || state.settings.hourlyRate || defaultState.settings.hourlyRate);
     state.settings.defaultDuration = Number(els.setupDefaultDurationInput?.value || state.settings.defaultDuration || defaultState.settings.defaultDuration);
     saveState();
@@ -1384,7 +1413,7 @@
     renderShellVisibility();
     await pullOnly(false);
     renderFull();
-    showToast(skipped ? 'Configuration passée.' : '✅ Configuration terminée.');
+    showToast(skipped ? t('toast.configSkipped') : t('toast.configDone'));
   }
 
   async function nextSetupStep() {
@@ -1475,7 +1504,7 @@
         renderFull();
       }
 
-      showToast(action === 'register' ? '✅ Compte créé.' : '✅ Connecté.');
+      showToast(action === 'register' ? t('toast.accountCreated') : t('toast.connected'));
     } catch (error) {
       alert(firebaseErrorMessage(error));
     } finally {
@@ -2036,8 +2065,8 @@
     }
     if (els.workerTasksList) {
       els.workerTasksList.innerHTML = tasks.length
-        ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
-        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
+        ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(taskDisplayLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">' + esc(t('empty.noSessionTask')) + '</div>';
     }
     if (els.workerCommentInput) els.workerCommentInput.value = next.intervenanteComment || '';
     if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = false;
@@ -2095,16 +2124,22 @@
         + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400');
     });
 
+    const pageTitles = { dashboard: 'page.dashboard', history: 'page.history', session: 'page.session', payment: 'page.payment', contact: 'page.contact', settings: 'page.settings' };
+    const titleEl = pageEl?.querySelector('h2');
+    if (titleEl && pageTitles[page]) titleEl.textContent = t(pageTitles[page]);
+    const navKeys = { dashboard: 'nav.home', history: 'nav.history', contact: 'nav.contact', settings: 'nav.settings' };
+    document.querySelectorAll('.nav-btn').forEach((btn) => { const label = btn.querySelector('span:last-child'); if (label && navKeys[btn.dataset.page]) label.textContent = t(navKeys[btn.dataset.page]); });
+
     if (page === 'session') applySessionDefaults(true);
 
     saveState();
   }
 
   function taskSourceLabel(source) {
-    if (source === 'recurring') return 'Récurrente';
-    if (source === 'punctual') return 'Ponctuelle';
-    if (source === 'manual') return 'Ajoutée';
-    return 'Base';
+    if (source === 'recurring') return t('task.source.recurring');
+    if (source === 'punctual') return t('task.source.punctual');
+    if (source === 'manual') return t('task.source.manual');
+    return t('task.source.default');
   }
 
   function sessionNumberForNewSession() {
@@ -2126,6 +2161,9 @@
       tasks.push({
         id: String(task.id),
         label: task.label,
+        originalText: task.originalText || task.label,
+        originalLanguage: task.originalLanguage || 'fr',
+        translations: task.translations || {},
         source: 'default',
         done: false
       });
@@ -2136,6 +2174,9 @@
         tasks.push({
           id: String(task.id),
           label: task.label,
+          originalText: task.originalText || task.label,
+          originalLanguage: task.originalLanguage || 'fr',
+          translations: task.translations || {},
           source: 'recurring',
           done: false
         });
@@ -2147,6 +2188,9 @@
         tasks.push({
           id: String(task.id),
           label: task.label,
+          originalText: task.originalText || task.label,
+          originalLanguage: task.originalLanguage || currentLanguage(),
+          translations: task.translations || {},
           source: 'punctual',
           done: false
         });
@@ -2157,6 +2201,9 @@
       tasks.push({
         id: String(task.id || crypto.randomUUID()),
         label: task.label,
+        originalText: task.originalText || task.label,
+        originalLanguage: task.originalLanguage || currentLanguage(),
+        translations: task.translations || {},
         source: 'manual',
         done: false
       });
@@ -2178,7 +2225,7 @@
       els.taskSettingsContent.classList.toggle('hidden', !state.ui.taskSettingsExpanded);
     }
     if (els.toggleTaskSettingsBtn) {
-      els.toggleTaskSettingsBtn.textContent = state.ui.taskSettingsExpanded ? 'Réduire' : 'Voir / Modifier';
+      els.toggleTaskSettingsBtn.textContent = state.ui.taskSettingsExpanded ? t('button.collapse') : t('button.edit');
     }
 
     if (els.defaultTasksList) {
@@ -2191,7 +2238,7 @@
     if (els.recurringTasksList) {
       const tasks = normalizeRecurringTaskSettings(state.settings.recurringTasks);
       els.recurringTasksList.innerHTML = tasks.length
-        ? tasks.map((task) => taskSettingItemHtml(task, 'recurring', 'Toutes les ' + task.everySessions + ' sessions')).join('')
+        ? tasks.map((task) => taskSettingItemHtml(task, 'recurring', t('tasks.everySessions', { count: task.everySessions }))).join('')
         : emptyTaskSettingHtml('Aucune tâche récurrente pour le moment.');
     }
 
@@ -2214,8 +2261,8 @@
 
   function taskSettingItemHtml(task, kind, meta) {
     return '<div class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950">'
-      + '<div class="min-w-0"><p class="break-words text-sm font-medium">' + esc(task.label) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + esc(meta) + '</p></div>'
-      + '<button type="button" data-task-kind="' + esc(kind) + '" data-task-id="' + esc(task.id) + '" class="remove-task-btn shrink-0 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300">Supprimer</button>'
+      + '<div class="min-w-0"><p class="break-words text-sm font-medium">' + esc(taskDisplayLabel(task)) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + esc(meta) + '</p></div>'
+      + '<button type="button" data-task-kind="' + esc(kind) + '" data-task-id="' + esc(task.id) + '" class="remove-task-btn shrink-0 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300">' + esc(t('button.delete')) + '</button>'
       + '</div>';
   }
 
@@ -2246,18 +2293,18 @@
     const doneCount = tasks.filter((task) => task.done).length;
     return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3">'
       + '<div class="flex items-center justify-between gap-3">'
-      + '<div><p class="text-sm font-medium">Tâches prévues : ' + tasks.length + '</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">' + doneCount + ' terminée(s) / ' + tasks.length + '</p></div>'
-      + (showToggle ? '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '" data-entry-id="' + esc(entryId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>' : '')
+      + '<div><p class="text-sm font-medium">' + esc(t('tasks.planned')) + ' : ' + tasks.length + '</p><p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">' + doneCount + ' ' + esc(t('tasks.done')) + ' / ' + tasks.length + '</p></div>'
+      + (showToggle ? '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '" data-entry-id="' + esc(entryId) + '">' + (expanded ? t('button.collapse') : t('button.view')) + '</button>' : '')
       + '</div>'
       + '<div id="' + esc(listId) + '" class="' + (expanded ? '' : 'hidden ') + 'space-y-2 mt-3">'
-      + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+      + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(taskDisplayLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
       + '</div></div>';
   }
 
   function renderSessionTasks(entry) {
     const tasks = normalizeSessionTasks(entry.tasks);
     if (!tasks.length) {
-      return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche associée à cette session.</div>';
+      return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">' + esc(t('empty.noLinkedTask')) + '</div>';
     }
 
     return compactTaskListHtml(tasks, entry.id, Boolean(state.ui.historyTaskListsExpanded?.[entry.id]), 'history-tasks-' + entry.id);
@@ -2286,8 +2333,8 @@
     state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks || []);
     if (els.sessionPunctualTasksList) {
       els.sessionPunctualTasksList.innerHTML = state.ui.sessionDraftTasks.length
-        ? state.ui.sessionDraftTasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(task.label) + '</span><button type="button" data-draft-task-id="' + esc(task.id) + '" class="remove-session-draft-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
-        : '<p class="text-sm text-slate-500 dark:text-slate-400">Aucune tâche ponctuelle ajoutée pour cette session.</p>';
+        ? state.ui.sessionDraftTasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(taskDisplayLabel(task)) + '</span><button type="button" data-draft-task-id="' + esc(task.id) + '" class="remove-session-draft-task-btn text-sm text-red-600 dark:text-red-400 font-medium">' + esc(t('button.delete')) + '</button></div>').join('')
+        : '<p class="text-sm text-slate-500 dark:text-slate-400">' + esc(t('empty.noDraftTask')) + '</p>';
     }
 
     document.querySelectorAll('.remove-session-draft-task-btn').forEach((btn) => {
@@ -2306,12 +2353,12 @@
     const tasks = generateTasksForSession(date, state.ui.sessionDraftTasks || []);
 
     els.sessionTaskPreviewBox.classList.toggle('hidden', !state.ui.sessionTaskPreviewVisible);
-    if (els.previewSessionTasksBtn) els.previewSessionTasksBtn.textContent = state.ui.sessionTaskPreviewVisible ? 'Masquer l’aperçu des tâches' : 'Aperçu des tâches prévues';
+    if (els.previewSessionTasksBtn) els.previewSessionTasksBtn.textContent = state.ui.sessionTaskPreviewVisible ? t('tasks.hidePreview') : t('tasks.preview');
     if (!state.ui.sessionTaskPreviewVisible) return;
 
     els.sessionTaskPreviewBox.innerHTML = tasks.length
-      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">Aperçu des tâches prévues (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="flex items-start justify-between gap-3 text-sm"><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span><button type="button" class="remove-session-preview-task-btn shrink-0 text-sm text-red-600 dark:text-red-400 font-medium" data-task-id="' + esc(task.id) + '">Retirer</button></div>').join('') + '</div></div>'
-      : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
+      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">' + esc(t('tasks.preview')) + ' (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="flex items-start justify-between gap-3 text-sm"><span class="min-w-0"><span>' + esc(taskDisplayLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span><button type="button" class="remove-session-preview-task-btn shrink-0 text-sm text-red-600 dark:text-red-400 font-medium" data-task-id="' + esc(task.id) + '">' + esc(t('button.remove')) + '</button></div>').join('') + '</div></div>'
+      : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">' + esc(t('empty.noSessionTask')) + '</div>';
 
     document.querySelectorAll('.remove-session-preview-task-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -2370,13 +2417,13 @@
       els.nextSessionSummary.textContent = formatDate(next.date) + ' · ' + next.duration + 'h · ' + euro(next.amount) + ' · ' + tasks.length + ' tâche(s) prévue(s)';
     }
     if (els.toggleNextSessionTasksBtn) {
-      els.toggleNextSessionTasksBtn.textContent = state.ui.nextSessionTasksExpanded ? 'Réduire' : 'Voir';
+      els.toggleNextSessionTasksBtn.textContent = state.ui.nextSessionTasksExpanded ? t('button.collapse') : t('button.view');
     }
     if (els.nextSessionTasksWrap) {
       els.nextSessionTasksWrap.classList.toggle('hidden', !state.ui.nextSessionTasksExpanded);
       els.nextSessionTasksWrap.innerHTML = tasks.length
         ? compactTaskListHtml(tasks, next.id, true, 'next-session-tasks-list', false)
-        : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue.</div>';
+        : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">' + esc(t('empty.noSessionTask')) + '</div>';
     }
   }
 
@@ -2389,7 +2436,7 @@
     if (els.defaultDurationInput) els.defaultDurationInput.value = state.settings.defaultDuration;
     if (els.contactPhoneInput) els.contactPhoneInput.value = state.settings.contactPhone;
     if (els.contactNameInput) els.contactNameInput.value = state.settings.contactName;
-    if (els.translationLanguageSelect) els.translationLanguageSelect.value = state.settings.translationLanguage;
+    if (els.translationLanguageSelect) els.translationLanguageSelect.value = currentLanguage();
     if (els.translationPromptTemplateInput) els.translationPromptTemplateInput.value = state.settings.translationPromptTemplate;
     if (els.sessionDateInput && !els.sessionDateInput.value) els.sessionDateInput.value = todayISO();
     if (els.paymentDateInput && !els.paymentDateInput.value) els.paymentDateInput.value = todayISO();
@@ -2400,10 +2447,15 @@
     renderSessionTaskPreview();
 
     const user = state.auth.user || {};
-    if (els.accountEmailText) els.accountEmailText.textContent = 'Compte : ' + (user.email || '—');
-    if (els.accountRoleText) els.accountRoleText.textContent = 'Rôle : ' + (user.role === 'admin' ? 'admin' : 'utilisateur');
+    if (els.accountEmailText) els.accountEmailText.textContent = t('settings.account') + ' : ' + (user.email || '—');
+    if (els.accountRoleText) els.accountRoleText.textContent = t('settings.role') + ' : ' + (user.role === 'admin' ? t('settings.admin') : t('settings.user'));
     if (els.workerAccessCodeDisplay) els.workerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
     if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.textContent = state.settings.intervenanteAccessCode ? 'Renouveler le code intervenante' : 'Générer un code intervenante';
+    if (els.saveSessionBtn) els.saveSessionBtn.textContent = t('button.saveSession');
+    if (els.savePaymentBtn) els.savePaymentBtn.textContent = t('button.savePayment');
+    if (els.addSessionQuick) els.addSessionQuick.querySelector('.block.font-medium').textContent = t('button.addSession');
+    if (els.addPaymentQuick) els.addPaymentQuick.querySelector('.block.font-medium').textContent = t('button.addPayment');
+    if (els.closeAddMenu) els.closeAddMenu.textContent = t('button.close');
     if (els.adminSyncCard) els.adminSyncCard.classList.toggle('hidden', !isAdmin());
   }
 
@@ -2413,17 +2465,17 @@
     if (els.balanceDisplay) els.balanceDisplay.textContent = euro(Math.abs(totals.balance));
 
     if (totals.balance > 0) {
-      if (els.balanceLabel) els.balanceLabel.textContent = 'Montant à payer';
-      if (els.summaryDueLabel) els.summaryDueLabel.textContent = 'À payer';
+      if (els.balanceLabel) els.balanceLabel.textContent = t('summary.amountDue');
+      if (els.summaryDueLabel) els.summaryDueLabel.textContent = t('summary.due');
       if (els.summaryDue) els.summaryDue.textContent = euro(totals.balance);
     } else if (totals.balance < 0) {
-      if (els.balanceLabel) els.balanceLabel.textContent = 'Avance disponible';
-      if (els.summaryDueLabel) els.summaryDueLabel.textContent = 'Avance';
+      if (els.balanceLabel) els.balanceLabel.textContent = t('summary.credit');
+      if (els.summaryDueLabel) els.summaryDueLabel.textContent = t('summary.creditShort');
       if (els.summaryDue) els.summaryDue.textContent = euro(Math.abs(totals.balance));
     } else {
-      if (els.balanceLabel) els.balanceLabel.textContent = 'Solde à jour';
-      if (els.summaryDueLabel) els.summaryDueLabel.textContent = 'Statut';
-      if (els.summaryDue) els.summaryDue.textContent = 'OK';
+      if (els.balanceLabel) els.balanceLabel.textContent = t('summary.upToDate');
+      if (els.summaryDueLabel) els.summaryDueLabel.textContent = t('summary.status');
+      if (els.summaryDue) els.summaryDue.textContent = t('summary.ok');
     }
 
     if (els.summarySessions) els.summarySessions.textContent = String(totals.sessionsCount);
@@ -2435,13 +2487,13 @@
     if (els.lastSessionDisplay) {
       els.lastSessionDisplay.textContent = lastSession
         ? formatDate(lastSession.date) + ' · ' + lastSession.duration + 'h'
-        : 'Aucune';
+        : t('summary.none');
     }
 
     if (els.lastPaymentDisplay) {
       els.lastPaymentDisplay.textContent = lastPayment
         ? formatDate(lastPayment.date) + ' · ' + euro(lastPayment.amount)
-        : 'Aucun';
+        : t('summary.noneMasculine');
     }
 
     renderNextSession(sorted);
@@ -2451,7 +2503,7 @@
     if (!els.historyList) return;
 
     if (!sorted.length) {
-      els.historyList.innerHTML = '<div class="p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune donnée pour le moment.</div>';
+      els.historyList.innerHTML = '<div class="p-6 text-center text-sm text-slate-500 dark:text-slate-400">' + esc(t('empty.noData')) + '</div>';
       return;
     }
 
@@ -2461,7 +2513,7 @@
       const title = isSession ? 'Session' : 'Paiement';
       const detail = isSession
         ? esc(String(entry.duration)) + ' h · ' + euro(entry.rate) + '/h'
-        : 'Montant enregistré';
+        : t('payment.status.recorded');
       const prefix = isSession ? '+' : '-';
 
       return '<div class="p-4 flex items-start gap-3">'
@@ -2475,7 +2527,7 @@
         + '</div>'
         + (isSession ? renderSessionTasks(entry) : '')
         + '<div class="mt-3 flex justify-end">'
-        + '<button data-id="' + esc(entry.id) + '" class="delete-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button>'
+        + '<button data-id="' + esc(entry.id) + '" class="delete-btn text-sm text-red-600 dark:text-red-400 font-medium">' + esc(t('button.delete')) + '</button>'
         + '</div></div></div>';
     }).join('');
 
@@ -2493,7 +2545,7 @@
         if (!target) return;
         const willOpen = target.classList.contains('hidden');
         target.classList.toggle('hidden', !willOpen);
-        btn.textContent = willOpen ? 'Réduire' : 'Voir';
+        btn.textContent = willOpen ? t('button.collapse') : t('button.view');
         state.ui.historyTaskListsExpanded = state.ui.historyTaskListsExpanded || {};
         const entryId = btn.dataset.entryId;
         if (entryId) state.ui.historyTaskListsExpanded[entryId] = willOpen;
@@ -2545,6 +2597,7 @@
   }
 
   function renderLight() {
+    applyDocumentLanguage();
     hydrateEntriesWithSessionTasks();
     saveState();
     renderSettings();
@@ -2562,6 +2615,7 @@
   }
 
   function renderFull(sorted) {
+    applyDocumentLanguage();
     hydrateEntriesWithSessionTasks();
     const s = sorted || sortedEntries();
     saveState();
@@ -2808,9 +2862,12 @@
 
   if (els.translationLanguageSelect) {
     els.translationLanguageSelect.addEventListener('change', () => {
-      state.settings.translationLanguage = els.translationLanguageSelect.value;
+      state.settings.language = normalizeLanguage(els.translationLanguageSelect.value);
+      state.settings.translationLanguage = state.settings.language;
+      applyDocumentLanguage();
       saveState();
-      saveUserSettings().catch(console.error);
+      renderFull();
+      saveUserSettings().then(() => showToast(t('toast.languageSaved'))).catch(console.error);
     });
   }
 
@@ -2930,7 +2987,7 @@
   if (els.previewSessionTasksBtn) {
     els.previewSessionTasksBtn.addEventListener('click', () => {
       state.ui.sessionTaskPreviewVisible = !state.ui.sessionTaskPreviewVisible;
-      if (els.previewSessionTasksBtn) els.previewSessionTasksBtn.textContent = state.ui.sessionTaskPreviewVisible ? 'Masquer l’aperçu des tâches' : 'Aperçu des tâches prévues';
+      if (els.previewSessionTasksBtn) els.previewSessionTasksBtn.textContent = state.ui.sessionTaskPreviewVisible ? t('tasks.hidePreview') : t('tasks.preview');
       saveState();
       renderSessionTaskPreview();
     });
