@@ -47,7 +47,7 @@
       <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
       <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
       <h1 class="text-3xl font-semibold tracking-tight">Espace intervenante</h1>
-      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos foyers avec les codes fournis par les clients.</p>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.</p>
     </div>
 
     <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
@@ -89,14 +89,15 @@
       </section>
 
       <section id="page-sessions" class="page space-y-4">
+        <div id="sessionGroups" class="space-y-4"></div>
         <section id="sessionDetailCard" class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4"></section>
       </section>
 
       <section id="page-homes" class="page space-y-4">
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
-            <h2 class="text-xl font-semibold tracking-tight">Mes foyers</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Liste des foyers liés à votre compte intervenante.</p>
+            <h2 class="text-xl font-semibold tracking-tight">Mes domiciles</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Liste des domiciles liés à votre compte intervenante.</p>
           </div>
           <div id="homesList" class="space-y-2"></div>
         </section>
@@ -105,27 +106,27 @@
       <section id="page-settings" class="page space-y-4 pb-4">
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
-            <h2 class="text-xl font-semibold tracking-tight">Ajouter un foyer</h2>
+            <h2 class="text-xl font-semibold tracking-tight">Ajouter un domicile</h2>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Saisissez le code court généré côté client. Exemple : A7K92P</p>
           </div>
           <div>
-            <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code foyer</label>
+            <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code domicile</label>
             <input id="homeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
           </div>
-          <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce foyer</button>
+          <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce domicile</button>
           <p id="addHomeMessage" class="hidden text-sm"></p>
         </section>
 
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
-            <h2 class="text-xl font-semibold tracking-tight">Réglages du foyer</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Choisissez le foyer à consulter par défaut.</p>
+            <h2 class="text-xl font-semibold tracking-tight">Mes informations</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Choisissez le domicile à consulter par défaut.</p>
           </div>
           <div>
-            <label for="homeSelect" class="block text-sm font-medium mb-1">Foyer actif</label>
+            <label for="homeSelect" class="block text-sm font-medium mb-1">Domicile actif</label>
             <select id="homeSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500"></select>
           </div>
-          <div id="activeHomeInfo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun foyer sélectionné.</div>
+          <div id="activeHomeInfo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile sélectionné.</div>
         </section>
 
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
@@ -156,7 +157,7 @@
         <div class="grid grid-cols-4 items-end text-[11px]">
           <button data-page="home" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-900 dark:text-white"><span class="text-xl leading-none">🏠</span><span>Accueil</span></button>
           <button data-page="sessions" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🧽</span><span>Sessions</span></button>
-          <button data-page="homes" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🏘️</span><span>Foyers</span></button>
+          <button data-page="homes" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🏘️</span><span>Domiciles</span></button>
           <button data-page="settings" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">⚙️</span><span>Réglages</span></button>
         </div>
       </div>
@@ -187,7 +188,7 @@
 
     const state = {
       authMode: 'login', currentUser: null, workerProfile: null,
-      homeLinks: [], homeLabels: [], allUpcomingSessions: [],
+      homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [],
       currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
       currentSession: null, currentHomeSettings: null, currentPage: 'home'
     };
@@ -236,6 +237,10 @@
       return value.map((task) => ({ id: String(task?.id || crypto.randomUUID()), label: String(task?.label || task?.title || '').trim(), source: String(task?.source || 'manual'), done: Boolean(task?.done) })).filter((task) => task.label);
     }
     function taskSourceLabel(source) { if (source === 'recurring') return 'Récurrente'; if (source === 'punctual') return 'Ponctuelle'; if (source === 'manual') return 'Ajoutée'; return 'Base'; }
+    function euro(value) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
+    function normalizePhone(value) { let phone = String(value || '').replace(/[\s.\-()]/g, '').trim(); if (phone.startsWith('+')) phone = phone.slice(1); if (phone.startsWith('00')) phone = phone.slice(2); if (phone.startsWith('0')) phone = '33' + phone.slice(1); phone = phone.replace(/[^\d]/g, ''); return phone.length >= 8 ? phone : ''; }
+    function homeInfoFromData(homeId, data = {}) { const settings = data.settings || {}; return { homeId: String(homeId), label: String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Domicile ' + String(homeId).slice(0, 6))), address: String(settings.address || data.address || ''), phone: String(settings.phone || data.phone || ''), accessNotes: String(settings.accessNotes || data.accessNotes || '') }; }
+    function paymentInfoHtml(session) { const amount = Number(session.amount || session.expectedAmount || 0); const paid = Number(session.paidAmount || session.paymentAmount || session.amountPaid || 0); const status = String(session.paymentStatus || session.paidStatus || session.payment?.status || '').trim(); const sessionPaid = Number(session.payment?.amount || 0); const paidValue = paid || sessionPaid; if (!paidValue && !status) return '<p>Paiement non renseigné</p>'; const balance = paidValue - amount; return '<p>Payé : ' + euro(paidValue) + '</p><p>Statut paiement : ' + esc(status || 'non précisé') + '</p>' + (amount ? '<p>' + (balance >= 0 ? 'Solde positif : ' + euro(balance) : 'Reste à payer : ' + euro(Math.abs(balance))) + '</p>' : ''); }
 
     function showAuth() { els.authScreen.classList.remove('hidden-view'); els.appShell.classList.add('hidden-view'); els.bottomNav.classList.add('hidden-view'); }
     function showApp() { els.authScreen.classList.add('hidden-view'); els.appShell.classList.remove('hidden-view'); els.bottomNav.classList.remove('hidden-view'); }
@@ -290,7 +295,7 @@
       try {
         const access = await resolveWorkerAccessCode(code); const homeId = String(access.homeId || ''); if (!homeId) throw new Error('Code invalide.');
         await setDoc(workerHomeLinkRef(state.currentUser.uid, homeId), { homeId, code, role: 'intervenante', active: true, addedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
-        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); els.homeCodeInput.value = ''; showToast('✅ Foyer ajouté.'); await loadWorkerHomes(); setCurrentPage('home');
+        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); els.homeCodeInput.value = ''; showToast('✅ Domicile ajouté.'); await loadWorkerHomes(); setCurrentPage('home');
       } catch (error) { console.error(error); showToast(firebaseErrorMessage(error) || 'Code invalide.'); }
       finally { els.addHomeBtn.disabled = false; els.addHomeBtn.classList.remove('opacity-60'); }
     }
@@ -300,15 +305,16 @@
       const snapshot = await getDocs(collection(db, 'users', state.currentUser.uid, 'workerHomes'));
       return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() || {}) })).filter((link) => link.active !== false && link.homeId);
     }
-    async function homeLabel(homeId) {
-      try { const snap = await getDoc(doc(db, 'users', String(homeId))); const home = snap.exists() ? snap.data() : {}; const settings = home.settings || {}; return settings.homeName || settings.contactName || home.email || ('Foyer ' + String(homeId).slice(0, 6)); }
-      catch { return 'Foyer ' + String(homeId).slice(0, 6); }
+    async function fetchHomeInfo(homeId) {
+      try { const snap = await getDoc(doc(db, 'users', String(homeId))); return homeInfoFromData(homeId, snap.exists() ? snap.data() : {}); }
+      catch { return homeInfoFromData(homeId, {}); }
     }
     async function fetchWorkerEntries(homeId) {
       const snapshot = await getDocs(collection(db, 'users', homeId, 'entries'));
-      return snapshot.docs.map((d) => { const entry = d.data() || {}; const type = String(entry.type || 'payment'); return { id: String(entry.id || d.id), type, date: toISODateOnly(entry.date), duration: type === 'session' ? Number(entry.duration || 0) : undefined, amount: Number(entry.amount || 0), tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : [], status: type === 'session' ? String(entry.status || '') : undefined, intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined, intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined, createdAt: String(entry.createdAt || nowISO()) }; });
+      return snapshot.docs.map((d) => { const entry = d.data() || {}; const type = String(entry.type || 'payment'); return { id: String(entry.id || d.id), type, date: toISODateOnly(entry.date), duration: type === 'session' ? Number(entry.duration || 0) : undefined, amount: Number(entry.amount || 0), rate: type === 'session' ? Number(entry.rate || 0) : undefined, paidAmount: type === 'session' ? Number(entry.paidAmount || entry.paymentAmount || entry.amountPaid || entry.payment?.amount || 0) : undefined, paymentStatus: type === 'session' ? String(entry.paymentStatus || entry.paidStatus || entry.payment?.status || '') : undefined, tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : [], status: type === 'session' ? String(entry.status || '') : undefined, intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined, intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined, createdAt: String(entry.createdAt || nowISO()) }; });
     }
     function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && e.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date))); }
+    function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || e.status === 'terminee_intervenante')).sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date))); }
 
     async function loadWorkerHomes() {
       if (!state.currentUser) return;
@@ -316,13 +322,17 @@
         state.homeLinks = await fetchWorkerHomeLinks();
         state.homeLabels = [];
         state.allUpcomingSessions = [];
+        state.allSessions = [];
         for (const link of state.homeLinks) {
-          const homeId = String(link.homeId); const label = await homeLabel(homeId); state.homeLabels.push({ homeId, label });
+          const homeId = String(link.homeId);
+          const homeInfo = await fetchHomeInfo(homeId); const label = homeInfo.label; state.homeLabels.push(homeInfo);
           const homeSnapshot = await getDoc(doc(db, 'users', homeId)); const home = homeSnapshot.exists() ? homeSnapshot.data() : {}; const settings = home.settings || {};
           const entries = (await fetchWorkerEntries(homeId)).map((entry) => entry.type !== 'session' ? entry : { ...entry, tasks: normalizeSessionTasks(entry.tasks.length ? entry.tasks : settings.sessionTasks?.[entry.id] || []) });
-          nextSessionsForEntries(entries).slice(0, 5).forEach((session) => state.allUpcomingSessions.push({ ...session, homeId, homeLabel: label, homeSettings: settings }));
+          entries.filter((entry) => entry.type === 'session').forEach((session) => state.allSessions.push({ ...session, homeId, homeLabel: label, homeInfo, homeSettings: settings }));
+          nextSessionsForEntries(entries).forEach((session) => state.allUpcomingSessions.push({ ...session, homeId, homeLabel: label, homeInfo, homeSettings: settings }));
         }
         state.allUpcomingSessions.sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
+        state.allSessions.sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
         if (!state.currentHomeId && state.homeLabels.length) state.currentHomeId = state.homeLabels[0].homeId;
         if (state.currentHomeId && !state.homeLabels.some((h) => h.homeId === state.currentHomeId) && state.homeLabels.length) state.currentHomeId = state.homeLabels[0].homeId;
         localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || '');
@@ -333,33 +343,57 @@
     function renderAll() { renderHome(); renderHomes(); renderSettings(); renderSessionDetail(); }
     function renderHome() {
       const count = state.homeLabels.length;
-      els.homeSummary.textContent = count ? count + ' foyer' + (count > 1 ? 's' : '') + ' lié' + (count > 1 ? 's' : '') + ' · ' + state.allUpcomingSessions.length + ' session(s) à venir' : 'Aucun foyer lié pour le moment.';
-      els.upcomingSessionsList.innerHTML = state.allUpcomingSessions.length ? state.allUpcomingSessions.slice(0, 10).map((s) => sessionCardHtml(s)).join('') : '<div class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune session à venir. Ajoutez un foyer depuis les réglages.</div>';
+      els.homeSummary.textContent = count ? count + ' domicile' + (count > 1 ? 's' : '') + ' lié' + (count > 1 ? 's' : '') + ' · ' + state.allUpcomingSessions.length + ' session(s) à venir' : 'Aucun domicile lié pour le moment.';
+      els.upcomingSessionsList.innerHTML = state.allUpcomingSessions.length ? state.allUpcomingSessions.slice(0, 10).map((s) => sessionCardHtml(s)).join('') : '<div class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune session à venir. Ajoutez un domicile depuis les réglages.</div>';
+      renderSessionsPage();
       bindOpenSessionButtons();
     }
     function sessionCardHtml(session) {
       const tasks = normalizeSessionTasks(session.tasks); const done = tasks.filter((t) => t.done).length;
-      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatDate(session.date)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p></div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">Voir</button></div></article>';
+      const taskLabels = tasks.length ? tasks.map((task) => esc(task.label)).join(', ') : 'Aucune tâche prévue';
+      const paymentSummary = (Number(session.paidAmount || 0) || session.paymentStatus) ? ('Paiement : ' + (Number(session.paidAmount || 0) ? euro(session.paidAmount) : 'montant non précisé') + ' · ' + esc(session.paymentStatus || 'statut non précisé')) : 'Paiement non renseigné';
+      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatDate(session.date)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(session.amount) + ' · Statut : ' + esc(session.status || 'prévue') + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p></div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">Voir</button></div></article>';
     }
     function renderHomes() {
-      els.homesList.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Foyer lié</span></div>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun foyer ajouté pour le moment.</div>';
+      els.homesList.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => {
+        const phone = normalizePhone(home.phone);
+        const hasInfo = Boolean(home.address || home.phone || home.accessNotes);
+        return '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm space-y-2"><div><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Domicile lié</span></div>'
+          + (hasInfo ? '<div class="space-y-1 text-slate-600 dark:text-slate-300">' + (home.address ? '<p>📍 ' + esc(home.address) + '</p>' : '') + (home.phone ? '<p>☎️ ' + esc(home.phone) + '</p>' : '') + (home.accessNotes ? '<p class="whitespace-pre-wrap">📝 ' + esc(home.accessNotes) + '</p>' : '') + '</div>' : '<p class="text-slate-500 dark:text-slate-400">Informations du domicile non renseignées.</p>')
+          + (phone ? '<div class="grid grid-cols-2 gap-2 pt-1"><a class="rounded-2xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-center font-medium" href="tel:+' + esc(phone) + '">Appeler</a><a class="rounded-2xl bg-green-600 text-white px-3 py-2 text-center font-medium" target="_blank" rel="noopener" href="https://wa.me/' + esc(phone) + '">WhatsApp</a></div>' : '')
+          + '</div>';
+      }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile ajouté pour le moment.</div>';
     }
+
+    function sessionListHtml(title, sessions, emptyText) {
+      return '<section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-3"><h2 class="text-xl font-semibold tracking-tight">' + esc(title) + '</h2>' + (sessions.length ? sessions.map((session) => sessionCardHtml(session)).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">' + esc(emptyText) + '</div>') + '</section>';
+    }
+
+    function renderSessionsPage() {
+      const today = todayISO();
+      const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
+      const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)));
+      const groups = byId('sessionGroups');
+      if (groups) groups.innerHTML = sessionListHtml('À venir', upcoming, 'Aucune session à venir.') + sessionListHtml('Historique', history, 'Aucune session passée.');
+      bindOpenSessionButtons();
+    }
+
     function renderSettings() {
-      els.homeSelect.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.currentHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('') : '<option value="">Aucun foyer ajouté</option>';
+      els.homeSelect.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.currentHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('') : '<option value="">Aucun domicile ajouté</option>';
       els.homeSelect.disabled = !state.homeLabels.length;
       const active = state.homeLabels.find((h) => h.homeId === state.currentHomeId);
-      els.activeHomeInfo.textContent = active ? 'Foyer actif : ' + active.label : 'Aucun foyer sélectionné.';
+      els.activeHomeInfo.textContent = active ? 'Domicile actif : ' + active.label : 'Aucun domicile sélectionné.';
       els.accountText.textContent = state.currentUser?.email || 'Compte intervenante';
       const lang = state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; els.languageSelect.value = lang;
     }
     function renderSessionDetail() {
-      const s = state.currentSession || state.allUpcomingSessions[0];
+      const s = state.currentSession || state.allUpcomingSessions[0] || state.allSessions[0];
       if (!s) { els.sessionDetailCard.innerHTML = '<div class="text-center py-6 text-sm text-slate-500 dark:text-slate-400">Aucune session sélectionnée.</div>'; return; }
       state.currentSession = s; const tasks = normalizeSessionTasks(s.tasks); const done = tasks.filter((t) => t.done).length;
-      els.sessionDetailCard.innerHTML = '<div><p class="text-sm font-medium text-apple-600 dark:text-apple-500">' + esc(s.homeLabel || 'Foyer') + '</p><h2 class="text-xl font-semibold tracking-tight mt-1">' + esc(formatDate(s.date)) + ' · ' + esc(s.duration || 0) + 'h</h2><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p></div><div class="space-y-2">' + (tasks.length ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue.</div>') + '</div><div><label for="commentInput" class="block text-sm font-medium mb-1">Commentaire optionnel</label><textarea id="commentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le client">' + esc(s.intervenanteComment || '') + '</textarea></div><button id="finishSessionBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Terminer la session</button>';
+      els.sessionDetailCard.innerHTML = '<div><p class="text-sm font-medium text-apple-600 dark:text-apple-500">' + esc(s.homeLabel || 'Domicile') + '</p><h2 class="text-xl font-semibold tracking-tight mt-1">' + esc(formatDate(s.date)) + ' · ' + esc(s.duration || 0) + 'h</h2><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(s.amount) + ' · Statut : ' + esc(s.status || 'prévue') + '</p><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p></div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(s) + '</div><div class="space-y-2">' + (tasks.length ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue.</div>') + '</div><div><label for="commentInput" class="block text-sm font-medium mb-1">Commentaire optionnel</label><textarea id="commentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le client">' + esc(s.intervenanteComment || '') + '</textarea></div><button id="finishSessionBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Terminer la session</button>';
       const finishBtn = byId('finishSessionBtn'); if (finishBtn) finishBtn.addEventListener('click', finishWorkerSession);
     }
-    function bindOpenSessionButtons() { document.querySelectorAll('.open-session-btn').forEach((btn) => btn.addEventListener('click', () => { const found = state.allUpcomingSessions.find((s) => s.homeId === btn.dataset.homeId && s.id === btn.dataset.sessionId); if (found) { state.currentSession = found; renderSessionDetail(); setCurrentPage('sessions'); } })); }
+    function bindOpenSessionButtons() { document.querySelectorAll('.open-session-btn').forEach((btn) => btn.addEventListener('click', () => { const found = state.allSessions.find((s) => s.homeId === btn.dataset.homeId && s.id === btn.dataset.sessionId); if (found) { state.currentSession = found; renderSessionDetail(); setCurrentPage('sessions'); } })); }
 
     async function finishWorkerSession() {
       const s = state.currentSession; if (!s?.homeId || !s?.id) return;
@@ -377,7 +411,7 @@
       state.currentPage = page;
       document.querySelectorAll('.page').forEach((el) => el.classList.remove('active'));
       const pageEl = byId('page-' + page); if (pageEl) pageEl.classList.add('active');
-      const titles = { home: 'Accueil', sessions: 'Session', homes: 'Foyers', settings: 'Réglages' }; els.pageTitle.textContent = titles[page] || 'Accueil';
+      const titles = { home: 'Accueil', sessions: 'Sessions', homes: 'Domiciles', settings: 'Réglages' }; els.pageTitle.textContent = titles[page] || 'Accueil';
       document.querySelectorAll('.nav-btn').forEach((btn) => { const active = btn.dataset.page === page; btn.className = 'nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-[11px] ' + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'); });
     }
 
@@ -390,7 +424,7 @@
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
       els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
       els.addHomeBtn.addEventListener('click', addWorkerHomeWithCode);
-      els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Foyer actif modifié.'); });
+      els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Domicile actif modifié.'); });
       els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); });
       document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
     }

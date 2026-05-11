@@ -256,7 +256,7 @@
       <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
       <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
       <h1 class="text-3xl font-semibold tracking-tight">Compte intervenante</h1>
-      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos foyers avec les codes fournis par les clients.</p>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.</p>
     </div>
 
     <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
@@ -281,7 +281,7 @@
   <div id="workerShell" class="hidden min-h-screen max-w-md mx-auto px-4 py-5 safe-bottom">
     <header class="mb-5 flex items-start justify-between gap-3">
       <div>
-        <p id="workerHomeName" class="text-sm text-slate-500 dark:text-slate-400">Foyer</p>
+        <p id="workerHomeName" class="text-sm text-slate-500 dark:text-slate-400">Domicile</p>
         <h1 class="text-2xl font-semibold tracking-tight">Accès intervenante</h1>
       </div>
       <button id="workerChangeModeBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Changer</button>
@@ -301,7 +301,7 @@
 
         <div>
           <label for="workerCommentInput" class="block text-sm font-medium mb-1">Commentaire optionnel</label>
-          <textarea id="workerCommentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le foyer"></textarea>
+          <textarea id="workerCommentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le domicile"></textarea>
         </div>
 
         <button id="workerFinishSessionBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Terminer la session</button>
@@ -309,18 +309,18 @@
 
       <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
         <div>
-          <h2 class="text-xl font-semibold tracking-tight">Mes foyers</h2>
-          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Ajoutez un foyer avec le code fourni par le client, puis choisissez celui à afficher.</p>
+          <h2 class="text-xl font-semibold tracking-tight">Mes domiciles</h2>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Ajoutez un domicile avec le code fourni par le client, puis choisissez celui à afficher.</p>
         </div>
         <div>
-          <label for="workerHomeSelect" class="block text-sm font-medium mb-1">Foyer actif</label>
+          <label for="workerHomeSelect" class="block text-sm font-medium mb-1">Domicile actif</label>
           <select id="workerHomeSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500"></select>
         </div>
         <div>
-          <label for="workerAddHomeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout foyer</label>
+          <label for="workerAddHomeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout domicile</label>
           <input id="workerAddHomeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : A7K92P" />
         </div>
-        <button id="workerAddHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce foyer</button>
+        <button id="workerAddHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce domicile</button>
         <div id="workerHomesList" class="space-y-2"></div>
       </section>
     </main>
@@ -540,12 +540,25 @@
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <h3 class="font-semibold">Réglages du foyer</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Ce nom sera visible côté client et côté intervenante.</p>
+                <h3 class="font-semibold">Mes informations</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Ces informations seront visibles côté client et côté intervenante.</p>
                 <div>
-                  <label for="homeNameInput" class="block text-sm font-medium mb-1">Nom du foyer</label>
+                  <label for="homeNameInput" class="block text-sm font-medium mb-1">Nom du domicile</label>
                   <input id="homeNameInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Maison Yohann" />
                 </div>
+                <div>
+                  <label for="homeAddressInput" class="block text-sm font-medium mb-1">Adresse du domicile</label>
+                  <input id="homeAddressInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 12 rue des Lilas, 75000 Paris" />
+                </div>
+                <div>
+                  <label for="homePhoneInput" class="block text-sm font-medium mb-1">Numéro de téléphone du client</label>
+                  <input id="homePhoneInput" type="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
+                </div>
+                <div>
+                  <label for="homeAccessNotesInput" class="block text-sm font-medium mb-1">Informations d’accès et consignes</label>
+                  <textarea id="homeAccessNotesInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Étage, digicode, instructions d’entrée, consignes particulières…"></textarea>
+                </div>
+                <button id="saveHomeInfoBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Enregistrer</button>
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
@@ -629,7 +642,7 @@
                   <div class="min-w-0">
                     <div class="flex items-center gap-2">
                       <span class="flex h-9 w-9 items-center justify-center rounded-2xl bg-apple-100 text-lg dark:bg-apple-950/60">🧹</span>
-                      <h3 class="font-semibold">Tâches du foyer</h3>
+                      <h3 class="font-semibold">Tâches du domicile</h3>
                     </div>
                     <p id="taskSettingsSummary" class="text-sm text-slate-500 dark:text-slate-400 mt-2">Configurez les tâches qui s’ajoutent automatiquement aux sessions.</p>
                   </div>
@@ -777,6 +790,9 @@
   const defaultState = {
     settings: {
       homeName: '',
+      address: '',
+      phone: '',
+      accessNotes: '',
       hourlyRate: 15,
       defaultDuration: 2,
       contactPhone: '',
@@ -812,6 +828,7 @@
       nextSessionTasksExpanded: false,
       historyTaskListsExpanded: {},
       sessionTaskPreviewVisible: false,
+      sessionRemovedTaskIds: [],
       accessMode: 'client',
       workerHomeId: '',
       workerHomeIds: [],
@@ -889,6 +906,9 @@
       return {
         settings: {
           homeName: String(parsed?.settings?.homeName ?? ''),
+          address: String(parsed?.settings?.address ?? ''),
+          phone: String(parsed?.settings?.phone ?? ''),
+          accessNotes: String(parsed?.settings?.accessNotes ?? ''),
           hourlyRate: Number(parsed?.settings?.hourlyRate ?? defaultState.settings.hourlyRate),
           defaultDuration: Number(parsed?.settings?.defaultDuration ?? defaultState.settings.defaultDuration),
           contactPhone: String(parsed?.settings?.contactPhone ?? defaultState.settings.contactPhone),
@@ -920,6 +940,7 @@
               .map(([entryId, expanded]) => [String(entryId), Boolean(expanded)])
           ),
           sessionTaskPreviewVisible: Boolean(parsed?.ui?.sessionTaskPreviewVisible ?? defaultState.ui.sessionTaskPreviewVisible),
+          sessionRemovedTaskIds: Array.isArray(parsed?.ui?.sessionRemovedTaskIds) ? parsed.ui.sessionRemovedTaskIds.map(String) : [],
           accessMode: parsed?.ui?.accessMode === 'intervenante' ? 'intervenante' : 'client',
           workerHomeId: String(parsed?.ui?.workerHomeId ?? ''),
           workerHomeIds: Array.isArray(parsed?.ui?.workerHomeIds) ? parsed.ui.workerHomeIds.map(String) : [],
@@ -995,6 +1016,10 @@
     historyList: byId('historyList'),
     refreshBtn: byId('refreshBtn'),
     homeNameInput: byId('homeNameInput'),
+    homeAddressInput: byId('homeAddressInput'),
+    homePhoneInput: byId('homePhoneInput'),
+    homeAccessNotesInput: byId('homeAccessNotesInput'),
+    saveHomeInfoBtn: byId('saveHomeInfoBtn'),
     hourlyRateInput: byId('hourlyRateInput'),
     defaultDurationInput: byId('defaultDurationInput'),
     contactPhoneInput: byId('contactPhoneInput'),
@@ -1186,7 +1211,10 @@
 
     state.settings = {
       ...state.settings,
-      homeName: String(remoteSettings.homeName ?? state.settings.homeName ?? ''),
+      homeName: String(remoteSettings.homeName ?? remoteSettings.householdName ?? remoteSettings.domicileName ?? state.settings.homeName ?? ''),
+      address: String(remoteSettings.address ?? state.settings.address ?? ''),
+      phone: String(remoteSettings.phone ?? state.settings.phone ?? ''),
+      accessNotes: String(remoteSettings.accessNotes ?? state.settings.accessNotes ?? ''),
       hourlyRate: Number(remoteSettings.hourlyRate ?? state.settings.hourlyRate),
       defaultDuration: Number(remoteSettings.defaultDuration ?? state.settings.defaultDuration),
       contactPhone: String(remoteSettings.contactPhone ?? state.settings.contactPhone ?? ''),
@@ -1865,7 +1893,7 @@
       state.ui.workerHomeId = homeId;
       if (els.workerAddHomeCodeInput) els.workerAddHomeCodeInput.value = '';
       saveState();
-      showToast('✅ Foyer ajouté.');
+      showToast('✅ Domicile ajouté.');
       await loadWorkerHomes();
     } catch (error) {
       console.error(error);
@@ -1894,24 +1922,24 @@
         const settings = home.settings || {};
         homeLabels.push({
           homeId: String(link.homeId),
-          label: settings.homeName || settings.contactName || home.email || ('Foyer ' + String(link.homeId).slice(0, 6))
+          label: settings.homeName || settings.contactName || home.email || ('Domicile ' + String(link.homeId).slice(0, 6))
         });
       } catch (error) {
-        homeLabels.push({ homeId: String(link.homeId), label: 'Foyer ' + String(link.homeId).slice(0, 6) });
+        homeLabels.push({ homeId: String(link.homeId), label: 'Domicile ' + String(link.homeId).slice(0, 6) });
       }
     }
 
     if (els.workerHomeSelect) {
       els.workerHomeSelect.innerHTML = homeLabels.length
         ? homeLabels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.ui.currentWorkerHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('')
-        : '<option value="">Aucun foyer ajouté</option>';
+        : '<option value="">Aucun domicile ajouté</option>';
       els.workerHomeSelect.disabled = !homeLabels.length;
     }
 
     if (els.workerHomesList) {
       els.workerHomesList.innerHTML = homeLabels.length
-        ? homeLabels.map((home) => '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Foyer lié</span></div>').join('')
-        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun foyer ajouté pour le moment.</div>';
+        ? homeLabels.map((home) => '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Domicile lié</span></div>').join('')
+        : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile ajouté pour le moment.</div>';
     }
 
     saveState();
@@ -1923,8 +1951,8 @@
       const links = await fetchWorkerHomeLinks();
       await renderWorkerHomesSettings(links);
       if (!links.length) {
-        if (els.workerHomeName) els.workerHomeName.textContent = 'Aucun foyer';
-        if (els.workerSessionSummary) els.workerSessionSummary.textContent = 'Ajoutez un foyer avec le code fourni par un client.';
+        if (els.workerHomeName) els.workerHomeName.textContent = 'Aucun domicile';
+        if (els.workerSessionSummary) els.workerSessionSummary.textContent = 'Ajoutez un domicile avec le code fourni par un client.';
         if (els.workerTasksList) els.workerTasksList.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche à afficher.</div>';
         if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = true;
         return;
@@ -1987,7 +2015,7 @@
   }
 
   function renderWorkerView(home, remoteSettings, entries) {
-    const homeName = remoteSettings.homeName || home.homeName || home.email || 'Foyer Clean’ App';
+    const homeName = remoteSettings.homeName || home.homeName || home.email || 'Domicile Clean’ App';
     const next = nextWorkerSession(entries);
     if (els.workerHomeName) els.workerHomeName.textContent = homeName;
 
@@ -2096,7 +2124,7 @@
 
     normalizeTaskSettings(state.settings.defaultTasks).forEach((task) => {
       tasks.push({
-        id: crypto.randomUUID(),
+        id: String(task.id),
         label: task.label,
         source: 'default',
         done: false
@@ -2106,7 +2134,7 @@
     normalizeRecurringTaskSettings(state.settings.recurringTasks).forEach((task) => {
       if (sessionNumber % task.everySessions === 0) {
         tasks.push({
-          id: crypto.randomUUID(),
+          id: String(task.id),
           label: task.label,
           source: 'recurring',
           done: false
@@ -2117,7 +2145,7 @@
     normalizePunctualTaskSettings(state.settings.punctualTasks).forEach((task) => {
       if (toISODateOnly(task.date) === sessionDate) {
         tasks.push({
-          id: crypto.randomUUID(),
+          id: String(task.id),
           label: task.label,
           source: 'punctual',
           done: false
@@ -2127,14 +2155,15 @@
 
     normalizeSessionTasks(extraTasks).forEach((task) => {
       tasks.push({
-        id: crypto.randomUUID(),
+        id: String(task.id || crypto.randomUUID()),
         label: task.label,
         source: 'manual',
         done: false
       });
     });
 
-    return tasks;
+    const removed = new Set((state.ui.sessionRemovedTaskIds || []).map(String));
+    return tasks.filter((task) => !removed.has(String(task.id)));
   }
 
   function renderTaskSettings() {
@@ -2281,8 +2310,16 @@
     if (!state.ui.sessionTaskPreviewVisible) return;
 
     els.sessionTaskPreviewBox.innerHTML = tasks.length
-      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">Aperçu des tâches prévues (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="text-sm"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></div>').join('') + '</div></div>'
+      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">Aperçu des tâches prévues (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="flex items-start justify-between gap-3 text-sm"><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span><button type="button" class="remove-session-preview-task-btn shrink-0 text-sm text-red-600 dark:text-red-400 font-medium" data-task-id="' + esc(task.id) + '">Retirer</button></div>').join('') + '</div></div>'
       : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
+
+    document.querySelectorAll('.remove-session-preview-task-btn').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.ui.sessionRemovedTaskIds = Array.from(new Set([...(state.ui.sessionRemovedTaskIds || []).map(String), String(btn.dataset.taskId || '')])).filter(Boolean);
+        saveState();
+        renderSessionTaskPreview();
+      });
+    });
   }
 
   function applySessionDefaults(force = false) {
@@ -2345,6 +2382,9 @@
 
   function renderSettings() {
     if (els.homeNameInput) els.homeNameInput.value = state.settings.homeName || '';
+    if (els.homeAddressInput) els.homeAddressInput.value = state.settings.address || '';
+    if (els.homePhoneInput) els.homePhoneInput.value = state.settings.phone || '';
+    if (els.homeAccessNotesInput) els.homeAccessNotesInput.value = state.settings.accessNotes || '';
     if (els.hourlyRateInput) els.hourlyRateInput.value = state.settings.hourlyRate;
     if (els.defaultDurationInput) els.defaultDurationInput.value = state.settings.defaultDuration;
     if (els.contactPhoneInput) els.contactPhoneInput.value = state.settings.contactPhone;
@@ -2708,19 +2748,26 @@
         els.sessionRateInput.value = state.settings.hourlyRate;
         els.sessionRateInput.dataset.userEdited = '';
       }
+      state.ui.sessionRemovedTaskIds = [];
       showToast('✅ Session ajoutée.');
       setCurrentPage('history');
     });
   }
 
-  if (els.homeNameInput) {
-    els.homeNameInput.addEventListener('change', () => {
-      state.settings.homeName = els.homeNameInput.value.trim();
-      saveState();
-      saveUserSettings().catch(console.error);
-      showToast('✅ Nom du foyer enregistré.');
-    });
+  function saveHomeInformation() {
+    state.settings.homeName = (els.homeNameInput?.value || '').trim();
+    state.settings.address = (els.homeAddressInput?.value || '').trim();
+    state.settings.phone = (els.homePhoneInput?.value || '').trim();
+    state.settings.accessNotes = (els.homeAccessNotesInput?.value || '').trim();
+    saveState();
+    saveUserSettings().catch(console.error);
+    showToast('✅ Informations du domicile enregistrées.');
   }
+
+  if (els.saveHomeInfoBtn) els.saveHomeInfoBtn.addEventListener('click', saveHomeInformation);
+  [els.homeNameInput, els.homeAddressInput, els.homePhoneInput, els.homeAccessNotesInput].filter(Boolean).forEach((input) => {
+    input.addEventListener('change', saveHomeInformation);
+  });
 
   if (els.hourlyRateInput) {
     els.hourlyRateInput.addEventListener('change', () => {
@@ -2890,7 +2937,7 @@
   }
 
   if (els.sessionDateInput) {
-    els.sessionDateInput.addEventListener('change', renderSessionTaskPreview);
+    els.sessionDateInput.addEventListener('change', () => { state.ui.sessionRemovedTaskIds = []; saveState(); renderSessionTaskPreview(); });
   }
 
   if (els.syncNowBtn) els.syncNowBtn.addEventListener('click', () => syncBidirectional(true));
@@ -2938,6 +2985,7 @@
 
       addSession(date, duration, rate, state.ui.sessionDraftTasks || []);
       state.ui.sessionDraftTasks = [];
+      state.ui.sessionRemovedTaskIds = [];
       state.ui.sessionTaskPreviewVisible = false;
 
       if (els.sessionDateInput) els.sessionDateInput.value = todayISO();
@@ -2945,6 +2993,7 @@
         els.sessionRateInput.value = state.settings.hourlyRate;
         els.sessionRateInput.dataset.userEdited = '';
       }
+      state.ui.sessionRemovedTaskIds = [];
       if (state.ui.selectedDurationMode === 'custom' && els.customDurationInput) {
         els.customDurationInput.value = '';
       }
