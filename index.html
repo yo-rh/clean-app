@@ -140,6 +140,13 @@
 
   <div id="toast"></div>
 
+  <div id="authLoadingScreen" class="min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center text-center">
+    <div>
+      <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
+      <p class="text-sm text-slate-500 dark:text-slate-400">Chargement de votre espace…</p>
+    </div>
+  </div>
+
   <div id="authScreen" class="hidden min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
     <div class="mb-8 text-center">
       <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
@@ -929,12 +936,14 @@
   }
 
   let state = loadState();
+  let authLoading = true;
 
   function byId(id) {
     return document.getElementById(id);
   }
 
   const els = {
+    authLoadingScreen: byId('authLoadingScreen'),
     authScreen: byId('authScreen'),
     setupScreen: byId('setupScreen'),
     appShell: byId('appShell'),
@@ -1373,9 +1382,20 @@
   }
 
   function renderShellVisibility() {
+    if (authLoading) {
+      if (els.authLoadingScreen) els.authLoadingScreen.classList.remove('hidden');
+      if (els.authScreen) els.authScreen.classList.add('hidden');
+      if (els.workerAccessScreen) els.workerAccessScreen.classList.add('hidden');
+      if (els.workerShell) els.workerShell.classList.add('hidden');
+      if (els.setupScreen) els.setupScreen.classList.add('hidden');
+      if (els.appShell) els.appShell.classList.add('hidden');
+      return;
+    }
+
     const logged = isLoggedIn();
     const workerMode = state.ui.accessMode === 'intervenante' || isWorkerUser();
     const setup = !workerMode && needsSetup();
+    if (els.authLoadingScreen) els.authLoadingScreen.classList.add('hidden');
     if (els.authScreen) els.authScreen.classList.toggle('hidden', workerMode || logged);
     if (els.workerAccessScreen) els.workerAccessScreen.classList.toggle('hidden', !(workerMode && !logged));
     if (els.workerShell) els.workerShell.classList.toggle('hidden', !(workerMode && logged));
@@ -3055,6 +3075,7 @@
         state.auth = { token: '', user: null };
         state.entries = [];
         saveState();
+        authLoading = false;
         renderShellVisibility();
         renderFull();
         return;
@@ -3066,6 +3087,7 @@
       state.auth.user = userProfile;
       if (userProfile.role === 'intervenante') state.ui.accessMode = 'intervenante';
       saveState();
+      authLoading = false;
       renderShellVisibility();
 
       if (userProfile.role === 'intervenante') {
@@ -3082,6 +3104,8 @@
       }
     } catch (error) {
       console.error(error);
+      authLoading = false;
+      renderShellVisibility();
       setSyncStatus(firebaseErrorMessage(error), true);
     }
   });
