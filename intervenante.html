@@ -185,6 +185,7 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
@@ -200,12 +201,14 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
+    const functions = getFunctions(app, "europe-west1");
+    const translateTaskCallable = httpsCallable(functions, "translateTask");
 
     const state = {
       authMode: 'login', currentUser: null, workerProfile: null,
       homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [], allPayments: [],
       currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
-      currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: ''
+      currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: '', pendingTaskTranslations: new Set()
     };
 
     const byId = (id) => document.getElementById(id);
@@ -254,13 +257,46 @@
     function clearAuthError() { els.authError.textContent = ''; els.authError.classList.add('hidden'); }
 
     function stableTaskId(label, index) { return 'task-' + index + '-' + String(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32); }
+    function cleanTaskText(value) {
+      const text = String(value || '').trim();
+      if (!text || /^[0-9a-f]{8,}$/i.test(text) || /^task-[a-z0-9-]*$/i.test(text)) return '';
+      return text;
+    }
+    function normalizeTranslations(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+      return Object.fromEntries(Object.entries(value).map(([language, text]) => [String(language), cleanTaskText(text)]).filter(([, text]) => text));
+    }
     function normalizeSessionTasks(value) {
       if (!Array.isArray(value)) return [];
       return value.map((task, index) => {
-        if (typeof task === 'string') { const label = task.trim(); return { id: stableTaskId(label, index), label, source: 'manual', done: false }; }
-        const label = String(task?.label || task?.title || task?.name || '').trim();
-        return { id: String(task?.id || stableTaskId(label, index)), label, source: String(task?.source || 'manual'), done: Boolean(task?.done || task?.completed || task?.checked) };
-      }).filter((task) => task.label);
+        if (typeof task === 'string') {
+          const label = cleanTaskText(task);
+          return { id: stableTaskId(label, index), label, originalText: label, originalLanguage: 'fr', type: 'custom', source: 'manual', translations: {}, done: false };
+        }
+        const originalText = cleanTaskText(task?.originalText || task?.label || task?.title || task?.name || task?.text);
+        const label = cleanTaskText(task?.label || task?.title || task?.name || task?.text || originalText);
+        const type = String(task?.type || (task?.originalText || task?.source === 'manual' ? 'custom' : 'preset'));
+        return {
+          id: String(task?.id || stableTaskId(label || originalText, index)),
+          label,
+          labelKey: String(task?.labelKey || task?.i18nKey || ''),
+          i18nKey: String(task?.i18nKey || task?.labelKey || ''),
+          originalText,
+          originalLanguage: String(task?.originalLanguage || 'fr'),
+          type,
+          source: String(task?.source || (type === 'custom' ? 'manual' : 'default')),
+          translations: normalizeTranslations(task?.translations),
+          done: Boolean(task?.done || task?.completed || task?.checked)
+        };
+      }).filter((task) => getTaskLabel(task));
+    }
+    function currentLanguage() { return state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; }
+    function t(key) { return cleanTaskText(window.I18N?.[currentLanguage()]?.[key] || window.I18N?.fr?.[key] || ''); }
+    function getTaskLabel(task) {
+      if (!task) return '';
+      if (task.type !== 'custom' && task.source !== 'manual') return t(task.labelKey || task.i18nKey) || cleanTaskText(task.label || task.title || task.name || task.text);
+      const language = currentLanguage();
+      return cleanTaskText(task.translations?.[language]) || cleanTaskText(task.originalText) || cleanTaskText(task.label || task.title || task.name || task.text);
     }
     function taskSourceLabel(source) { if (source === 'recurring') return 'Récurrente'; if (source === 'punctual') return 'Ponctuelle'; if (source === 'manual') return 'Ajoutée'; return 'Base'; }
     function euro(value) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
@@ -432,6 +468,91 @@
         };
       });
     }
+    async function translateTextWithGoogle(text, sourceLanguage, targetLanguage) {
+      const result = await translateTaskCallable({ text, sourceLanguage, targetLanguage });
+      return result.data.translatedText;
+    }
+
+    async function saveTaskTranslation(task, targetLanguage, translatedText) {
+      const homeId = String(task?.homeId || '');
+      const sessionId = String(task?.sessionId || '');
+      if (!homeId || !sessionId || !targetLanguage || !translatedText) return;
+
+      const sessionRef = doc(db, 'users', homeId, 'entries', sessionId);
+      const snapshot = await getDoc(sessionRef);
+      const sessionData = snapshot.exists() ? snapshot.data() || {} : {};
+      let tasks = normalizeSessionTasks(sessionData.tasks || []);
+      let saveToSessionEntry = tasks.length > 0;
+
+      if (!tasks.length) {
+        const homeSnapshot = await getDoc(doc(db, 'users', homeId));
+        const homeSettings = homeSnapshot.exists() ? homeSnapshot.data()?.settings || {} : {};
+        tasks = normalizeSessionTasks(homeSettings.sessionTasks?.[sessionId] || []);
+      }
+
+      const taskId = String(task.id || '');
+      const taskOriginalText = cleanTaskText(task.originalText || task.label);
+      const taskIndex = tasks.findIndex((candidate) => String(candidate.id || '') === taskId);
+      const fallbackIndex = taskIndex >= 0 ? taskIndex : tasks.findIndex((candidate) => cleanTaskText(candidate.originalText || candidate.label) === taskOriginalText);
+      if (fallbackIndex < 0) return;
+
+      const nextTasks = tasks.map((candidate, index) => index === fallbackIndex ? {
+        ...candidate,
+        translations: {
+          ...(candidate.translations || {}),
+          [targetLanguage]: translatedText
+        }
+      } : candidate);
+
+      if (saveToSessionEntry) {
+        await setDoc(sessionRef, { tasks: nextTasks, updatedAt: serverTimestamp() }, { merge: true });
+      } else {
+        await setDoc(doc(db, 'users', homeId), { settings: { sessionTasks: { [sessionId]: nextTasks } }, updatedAt: serverTimestamp() }, { merge: true });
+      }
+      refreshSessionInState(homeId, sessionId, (session) => ({ ...session, tasks: normalizeSessionTasks(session.tasks).map((candidate) => String(candidate.id || '') === String(nextTasks[fallbackIndex].id || '') ? nextTasks[fallbackIndex] : candidate) }));
+    }
+
+    async function translateCustomTaskIfNeeded(task, targetLanguage) {
+      if (!task) return task;
+      if (task.type !== 'custom' && !task.originalText) return task;
+      if (!targetLanguage) return task;
+
+      const sourceLanguage = task.originalLanguage || 'fr';
+      if (targetLanguage === sourceLanguage) return task;
+      if (task.translations && task.translations[targetLanguage]) return task;
+
+      try {
+        const text = cleanTaskText(task.originalText || task.label || task.title || task.name || task.text);
+        if (!text) return task;
+        const translatedText = await translateTextWithGoogle(text, sourceLanguage, targetLanguage);
+        task.translations = {
+          ...(task.translations || {}),
+          [targetLanguage]: translatedText
+        };
+        await saveTaskTranslation(task, targetLanguage, translatedText);
+        return task;
+      } catch (error) {
+        console.warn('Erreur traduction tâche :', error);
+        return task;
+      }
+    }
+
+    function scheduleMissingTaskTranslations(session) {
+      const language = currentLanguage();
+      if (!session || !language) return;
+      normalizeSessionTasks(session.tasks).forEach((task) => {
+        const taskWithContext = { ...task, homeId: session.homeId, sessionId: session.id };
+        if (taskWithContext.type !== 'custom' && !taskWithContext.originalText) return;
+        if ((taskWithContext.originalLanguage || 'fr') === language || taskWithContext.translations?.[language]) return;
+        const key = [session.homeId, session.id, taskWithContext.id, language].join('::');
+        if (state.pendingTaskTranslations.has(key)) return;
+        state.pendingTaskTranslations.add(key);
+        translateCustomTaskIfNeeded(taskWithContext, language).then(() => {
+          rerenderCurrentLists();
+        }).finally(() => state.pendingTaskTranslations.delete(key));
+      });
+    }
+
     function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && e.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date))); }
     function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || e.status === 'terminee_intervenante')).sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date))); }
 
@@ -464,6 +585,7 @@
 
     function renderAll() { renderHome(); renderHomes(); renderSettings(); }
     function renderHome() {
+      state.allUpcomingSessions.forEach(scheduleMissingTaskTranslations);
       const count = state.homeLabels.length;
       els.homeSummary.textContent = count ? count + ' domicile' + (count > 1 ? 's' : '') + ' lié' + (count > 1 ? 's' : '') + ' · ' + state.allUpcomingSessions.length + ' session(s) à venir' : 'Aucun domicile lié pour le moment.';
       els.upcomingSessionsList.innerHTML = state.allUpcomingSessions.length ? state.allUpcomingSessions.slice(0, 10).map((s) => sessionCardHtml(s, 'home')).join('') : '<div class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune session à venir. Ajoutez un domicile depuis les réglages.</div>';
@@ -471,7 +593,7 @@
     }
     function taskChecklistHtml(session) {
       const tasks = normalizeSessionTasks(session.tasks);
-      return '<div class="space-y-2"><p class="font-medium text-sm">Tâches</p>' + (tasks.length ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + ' · ' + (task.done ? 'Terminée' : 'À faire') + '</span></span></label>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche renseignée pour cette session.</div>') + '</div>';
+      return '<div class="space-y-2"><p class="font-medium text-sm">Tâches</p>' + (tasks.length ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(getTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + ' · ' + (task.done ? 'Terminée' : 'À faire') + '</span></span></label>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche renseignée pour cette session.</div>') + '</div>';
     }
     function sessionDetailHtml(session) {
       const address = session.homeInfo?.address || '';
@@ -479,7 +601,7 @@
     }
     function sessionCardHtml(session, context = 'sessions') {
       const tasks = normalizeSessionTasks(session.tasks); const done = tasks.filter((t) => t.done).length;
-      const taskLabels = tasks.length ? tasks.map((task) => esc(task.label)).join(', ') : 'Aucune tâche prévue';
+      const taskLabels = tasks.length ? tasks.map((task) => esc(getTaskLabel(task))).join(', ') : 'Aucune tâche prévue';
       const paid = totalPaidForSession(session);
       const paymentSummary = paid || sessionPaymentStatus(session) ? 'Paiement : ' + (paid ? euro(paid) : 'montant non précisé') + ' · ' + esc(sessionPaymentStatus(session) || 'statut non précisé') : 'Paiement non renseigné';
       const expanded = state.expandedSessionKey === sessionKey(session);
@@ -506,6 +628,7 @@
     }
 
     function renderSessionsPage() {
+      state.allSessions.forEach(scheduleMissingTaskTranslations);
       const today = todayISO();
       const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
       const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)));
@@ -575,7 +698,7 @@
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
       els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Domicile actif modifié.'); });
-      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); });
+      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); rerenderCurrentLists(); });
       document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
     }
 
