@@ -196,6 +196,7 @@
     };
 
     const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
+    const BUILT_IN_TASK_IDS = new Set(['default_aspirateur', 'default_serpilliere', 'default_salle_de_bain', 'default_cuisine', 'recurring_draps']);
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
@@ -311,11 +312,19 @@
         };
       }).filter((task) => getTaskLabel(task));
     }
-    function getTaskLabel(task) {
+    function getTaskDisplayLabel(task, language = currentLanguage()) {
       if (!task) return '';
-      if (task.type !== 'custom' && task.source !== 'manual') return t(task.labelKey || task.i18nKey || task.label || task.title || task.name || task.text) || cleanTaskText(task.label || task.title || task.name || task.text);
-      const language = currentLanguage();
-      return cleanTaskText(task.translations?.[language]) || t(cleanTaskText(task.originalText) || cleanTaskText(task.label || task.title || task.name || task.text));
+      const lang = String(language || 'fr');
+      const sourceLanguage = String(task.originalLanguage || 'fr');
+      const translations = normalizeTranslations(task.translations);
+      if (lang !== sourceLanguage && translations[lang]) return translations[lang];
+      const fallback = cleanTaskText(task.originalText || task.label || task.title || task.name || task.text);
+      if (!fallback) return '';
+      if (task.type === 'custom' || task.source === 'manual') return fallback;
+      return t(task.labelKey || task.i18nKey || fallback) || fallback;
+    }
+    function getTaskLabel(task) {
+      return getTaskDisplayLabel(task, currentLanguage());
     }
     function taskSourceLabel(source) { if (source === 'recurring') return t('Récurrente'); if (source === 'punctual') return t('Ponctuelle'); if (source === 'manual') return t('Ajoutée'); return t('Base'); }
     function euro(value) { return new Intl.NumberFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(), { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
@@ -532,9 +541,14 @@
       refreshSessionInState(homeId, sessionId, (session) => ({ ...session, tasks: normalizeSessionTasks(session.tasks).map((candidate) => String(candidate.id || '') === String(nextTasks[fallbackIndex].id || '') ? nextTasks[fallbackIndex] : candidate) }));
     }
 
+    function isUserTaskTranslatable(task) {
+      if (!task || BUILT_IN_TASK_IDS.has(String(task.id || ''))) return false;
+      return Boolean(task.type === 'custom' || task.source === 'manual' || task.originalText);
+    }
+
     async function translateCustomTaskIfNeeded(task, targetLanguage) {
       if (!task) return task;
-      if (task.type !== 'custom' && !task.originalText) return task;
+      if (!isUserTaskTranslatable(task)) return task;
       if (!targetLanguage) return task;
 
       const sourceLanguage = task.originalLanguage || 'fr';
@@ -562,7 +576,7 @@
       if (!session || !language) return;
       normalizeSessionTasks(session.tasks).forEach((task) => {
         const taskWithContext = { ...task, homeId: session.homeId, sessionId: session.id };
-        if (taskWithContext.type !== 'custom' && !taskWithContext.originalText) return;
+        if (!isUserTaskTranslatable(taskWithContext)) return;
         if ((taskWithContext.originalLanguage || 'fr') === language || taskWithContext.translations?.[language]) return;
         const key = [session.homeId, session.id, taskWithContext.id, language].join('::');
         if (state.pendingTaskTranslations.has(key)) return;
@@ -648,10 +662,10 @@
     }
 
     function renderSessionsPage() {
-      state.allSessions.forEach(scheduleMissingTaskTranslations);
       const today = todayISO();
       const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
       const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)));
+      [...upcoming.slice(0, 10), ...history.slice(0, 10)].forEach(scheduleMissingTaskTranslations);
       const groups = byId('sessionGroups');
       if (groups) groups.innerHTML = dueSummaryHtml() + sessionListHtml('À venir', upcoming, 'Aucune session à venir.', 'sessions') + sessionListHtml('Historique', history, 'Aucune session passée.', 'sessions');
       byId('openPaymentHistoryBtn')?.addEventListener('click', openPaymentModal);
