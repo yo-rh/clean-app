@@ -22,7 +22,9 @@
     .hidden-view { display: none !important; }
     .page { display: none; }
     .page.active { display: block; }
-    .safe-bottom { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+    .safe-bottom { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+    .app-main, .page { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+    .scroll-safe-bottom { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
     input, select, textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; pointer-events: none; }
     #toast {
@@ -78,7 +80,7 @@
       <button id="refreshBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">↻</button>
     </header>
 
-    <main class="space-y-4">
+    <main class="app-main space-y-4">
       <section id="page-home" class="page active space-y-4">
         <section class="rounded-3xl bg-gradient-to-br from-apple-500 to-apple-700 text-white p-5 shadow-soft">
           <p class="text-white/75 text-sm">Votre planning</p>
@@ -103,7 +105,7 @@
         </section>
       </section>
 
-      <section id="page-settings" class="page space-y-4 pb-4">
+      <section id="page-settings" class="page space-y-4">
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">Ajouter un domicile</h2>
@@ -120,6 +122,22 @@
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
             <h2 class="text-xl font-semibold tracking-tight">Mes informations</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Renseignez les informations visibles par vos foyers liés.</p>
+          </div>
+          <div>
+            <label for="workerFirstNameInput" class="block text-sm font-medium mb-1">Prénom</label>
+            <input id="workerFirstNameInput" type="text" autocomplete="given-name" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Diana" />
+          </div>
+          <div>
+            <label for="workerPhoneInput" class="block text-sm font-medium mb-1">Téléphone</label>
+            <input id="workerPhoneInput" type="tel" autocomplete="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
+          </div>
+          <button id="saveWorkerInfoBtn" type="button" class="w-full rounded-2xl bg-apple-600 text-white px-4 py-3 font-medium">Enregistrer mes informations</button>
+        </section>
+
+        <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+          <div>
+            <h2 class="text-xl font-semibold tracking-tight">Domicile actif</h2>
             <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Choisissez le domicile à consulter par défaut.</p>
           </div>
           <div>
@@ -162,7 +180,7 @@
     </div>
   </nav>
 
-  <div id="paymentModal" class="hidden-view fixed inset-0 z-[80] bg-slate-950/50 px-4 py-6 backdrop-blur-sm">
+  <div id="paymentModal" class="hidden-view fixed inset-0 z-[80] bg-slate-950/50 px-4 py-6 pb-[calc(120px+env(safe-area-inset-bottom))] backdrop-blur-sm">
     <div class="mx-auto flex min-h-full max-w-md items-center">
       <section class="w-full rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
         <div class="flex items-start justify-between gap-3">
@@ -182,7 +200,7 @@
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
     const firebaseConfig = {
@@ -196,6 +214,7 @@
     };
 
     const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
+    const WORKER_PROFILES_COLLECTION = 'cleanerProfiles';
     const BUILT_IN_TASK_IDS = new Set(['default_aspirateur', 'default_serpilliere', 'default_salle_de_bain', 'default_cuisine', 'recurring_draps']);
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
@@ -204,7 +223,7 @@
     const translateTaskCallable = httpsCallable(functions, "translateTask");
 
     const state = {
-      authMode: 'login', currentUser: null, workerProfile: null,
+      authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '' }, workerProfileUnsubscribe: null,
       homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [], allPayments: [],
       currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
       currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: '', pendingTaskTranslations: new Set()
@@ -217,6 +236,7 @@
       authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
       homeSummary: byId('homeSummary'), upcomingSessionsList: byId('upcomingSessionsList'), sessionDetailCard: byId('sessionDetailCard'),
       homesList: byId('homesList'), homeCodeInput: byId('homeCodeInput'), addHomeBtn: byId('addHomeBtn'), addHomeMessage: byId('addHomeMessage'),
+      workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
       homeSelect: byId('homeSelect'), activeHomeInfo: byId('activeHomeInfo'), languageSelect: byId('languageSelect'), logoutBtn: byId('logoutBtn'), toast: byId('toast')
     };
 
@@ -429,6 +449,42 @@
       return { uid: firebaseUser.uid, email: firebaseUser.email || data.email || '', role: 'intervenante', settings: data.settings || {} };
     }
 
+    function workerProfileRef(uid = state.currentUser?.uid) { return doc(db, WORKER_PROFILES_COLLECTION, String(uid || '')); }
+    function normalizeWorkerInfo(data = {}) { return { firstName: String(data.firstName || '').trim(), phone: String(data.phone || '').trim() }; }
+    async function ensureWorkerProfileDocument(firebaseUser) {
+      if (!firebaseUser) return { firstName: '', phone: '' };
+      const ref = workerProfileRef(firebaseUser.uid);
+      const snapshot = await getDoc(ref);
+      if (!snapshot.exists()) {
+        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', firstName: '', phone: '', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        await setDoc(ref, profile, { merge: true });
+        return normalizeWorkerInfo(profile);
+      }
+      return normalizeWorkerInfo(snapshot.data() || {});
+    }
+    function stopWorkerProfileListener() { if (typeof state.workerProfileUnsubscribe === 'function') state.workerProfileUnsubscribe(); state.workerProfileUnsubscribe = null; }
+    function startWorkerProfileListener() {
+      stopWorkerProfileListener();
+      if (!state.currentUser) return;
+      state.workerProfileUnsubscribe = onSnapshot(workerProfileRef(state.currentUser.uid), (snapshot) => {
+        state.workerInfo = normalizeWorkerInfo(snapshot.exists() ? snapshot.data() : {});
+        renderSettings();
+      }, (error) => console.error('Profil intervenante non synchronisé :', error));
+    }
+    async function saveWorkerInfo() {
+      if (!state.currentUser) return;
+      const firstName = (els.workerFirstNameInput?.value || '').trim();
+      const phone = (els.workerPhoneInput?.value || '').trim();
+      els.saveWorkerInfoBtn.disabled = true; els.saveWorkerInfoBtn.classList.add('opacity-60');
+      try {
+        await setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName, phone, updatedAt: serverTimestamp() }, { merge: true });
+        state.workerInfo = { firstName, phone };
+        showToast('✅ Informations enregistrées.');
+        renderSettings();
+      } catch (error) { console.error(error); showToast(firebaseErrorMessage(error)); }
+      finally { els.saveWorkerInfoBtn.disabled = false; els.saveWorkerInfoBtn.classList.remove('opacity-60'); }
+    }
+
     async function submitAuth() {
       clearAuthError();
       const email = els.emailInput.value.trim(); const password = els.passwordInput.value;
@@ -439,7 +495,7 @@
         const credential = state.authMode === 'register' ? await createUserWithEmailAndPassword(auth, email, password) : await signInWithEmailAndPassword(auth, email, password);
         const profile = await ensureWorkerUserDocument(credential.user);
         if (profile.role !== 'intervenante') throw new Error('Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.');
-        state.currentUser = credential.user; state.workerProfile = profile; showApp(); await loadWorkerHomes(); showToast(state.authMode === 'register' ? '✅ Compte créé.' : '✅ Connectée.');
+        state.currentUser = credential.user; state.workerProfile = profile; state.workerInfo = await ensureWorkerProfileDocument(credential.user); startWorkerProfileListener(); showApp(); await loadWorkerHomes(); showToast(state.authMode === 'register' ? '✅ Compte créé.' : '✅ Connectée.');
       } catch (error) { console.error(error); showAuthError(firebaseErrorMessage(error)); }
       finally { els.authSubmitBtn.disabled = false; els.authSubmitBtn.classList.remove('opacity-60'); }
     }
@@ -460,6 +516,7 @@
       try {
         const access = await resolveWorkerAccessCode(code); const homeId = String(access.homeId || ''); if (!homeId) throw new Error('Code invalide.');
         await setDoc(workerHomeLinkRef(state.currentUser.uid, homeId), { homeId, code, role: 'intervenante', active: true, addedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+        await setDoc(doc(db, 'users', homeId), { settings: { workerUid: state.currentUser.uid }, updatedAt: serverTimestamp() }, { merge: true });
         state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); els.homeCodeInput.value = ''; showToast('✅ Domicile ajouté.'); await loadWorkerHomes(); setCurrentPage('home');
       } catch (error) { console.error(error); showToast(firebaseErrorMessage(error) || 'Code invalide.'); }
       finally { els.addHomeBtn.disabled = false; els.addHomeBtn.classList.remove('opacity-60'); }
@@ -678,6 +735,8 @@
       const active = state.homeLabels.find((h) => h.homeId === state.currentHomeId);
       els.activeHomeInfo.textContent = active ? t('Domicile actif') + ' : ' + active.label : t('Aucun domicile sélectionné.');
       els.accountText.textContent = state.currentUser?.email || 'Compte intervenante';
+      if (els.workerFirstNameInput && document.activeElement !== els.workerFirstNameInput) els.workerFirstNameInput.value = state.workerInfo?.firstName || '';
+      if (els.workerPhoneInput && document.activeElement !== els.workerPhoneInput) els.workerPhoneInput.value = state.workerInfo?.phone || '';
       const lang = state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; els.languageSelect.value = lang;
     }
     function findSession(homeId, sessionId) { return state.allSessions.find((s) => s.homeId === homeId && s.id === sessionId) || state.allUpcomingSessions.find((s) => s.homeId === homeId && s.id === sessionId); }
@@ -724,11 +783,12 @@
       els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
       els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
       els.authSubmitBtn.addEventListener('click', submitAuth); els.passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
-      els.logoutBtn.addEventListener('click', async () => { await signOut(auth); state.currentUser = null; state.workerProfile = null; showAuth(); showToast('Déconnectée.'); });
+      els.logoutBtn.addEventListener('click', async () => { stopWorkerProfileListener(); await signOut(auth); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '' }; showAuth(); showToast('Déconnectée.'); });
       els.refreshBtn.addEventListener('click', loadWorkerHomes);
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
       els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
       els.addHomeBtn.addEventListener('click', addWorkerHomeWithCode);
+      els.saveWorkerInfoBtn.addEventListener('click', saveWorkerInfo);
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
       els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Domicile actif modifié.'); });
@@ -770,11 +830,11 @@
 
     bindEvents(); renderAuthMode(); showAuth(); applyTranslations();
     onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser) { state.currentUser = null; state.workerProfile = null; showAuth(); return; }
+      if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '' }; showAuth(); return; }
       try {
         const profile = await ensureWorkerUserDocument(firebaseUser);
         if (profile.role !== 'intervenante') { state.currentUser = firebaseUser; state.workerProfile = profile; showAuth(); showAuthError('Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.'); return; }
-        state.currentUser = firebaseUser; state.workerProfile = profile; showApp(); await loadWorkerHomes(); setCurrentPage('home');
+        state.currentUser = firebaseUser; state.workerProfile = profile; state.workerInfo = await ensureWorkerProfileDocument(firebaseUser); startWorkerProfileListener(); showApp(); await loadWorkerHomes(); setCurrentPage('home');
       } catch (error) { console.error(error); showAuth(); showAuthError(firebaseErrorMessage(error)); }
     });
   </script>
