@@ -586,9 +586,10 @@
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <h3 class="font-semibold">IA</h3>
+                <h3 class="font-semibold">Langue</h3>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Choisissez la langue de l’application client.</p>
                 <div>
-                  <label for="translationLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
+                  <label for="translationLanguageSelect" class="block text-sm font-medium mb-1">Langue de l’application</label>
                   <select id="translationLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
                     <option value="fr">Français</option>
                     <option value="es">Espagnol</option>
@@ -597,29 +598,9 @@
                     <option value="ar">Arabe</option>
                   </select>
                 </div>
-                <div>
-                  <label for="translationPromptTemplateInput" class="block text-sm font-medium mb-1">Prompt de traduction</label>
-                  <textarea id="translationPromptTemplateInput" rows="5" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Utilisez {prenom}, {langue}, {message}"></textarea>
-                  <p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Variables : {prenom}, {langue}, {message}</p>
-                </div>
               </div>
 
-              <div id="adminSyncCard" class="hidden rounded-2xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 space-y-3">
-                <h3 class="font-semibold">Admin</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Cette section est visible uniquement pour le compte administrateur.</p>
-                <div>
-                  <label for="syncUrlInput" class="block text-sm font-medium mb-1">Synchronisation Firebase</label>
-                  <input id="syncUrlInput" type="url" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="https://script.google.com/macros/s/.../exec" />
-                </div>
-                <div class="grid grid-cols-2 gap-3">
-                  <button id="syncNowBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Sync</button>
-                  <button id="pullNowBtn" type="button" class="w-full rounded-2xl border border-slate-300 dark:border-slate-700 px-4 py-3 font-medium">Récupérer</button>
-                </div>
-                <div class="rounded-2xl border border-slate-200 dark:border-slate-800 px-4 py-3 text-sm bg-white/60 dark:bg-slate-900/60">
-                  <p class="font-medium mb-1">Statut</p>
-                  <p id="syncStatusText" class="text-slate-500 dark:text-slate-400">Aucune synchronisation pour le moment.</p>
-                </div>
-              </div>
+              <div id="adminSyncCard" class="hidden"></div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <h3 class="font-semibold">Général</h3>
@@ -1105,6 +1086,98 @@
     toast: byId('toast')
   };
 
+  const UI_TRANSLATIONS = {
+    es: {
+      "Chargement de votre espace…":"Cargando tu espacio…","Bienvenue sur":"Bienvenido a","Gérez votre employée de maison en toute simplicité.":"Gestiona tu servicio doméstico con total sencillez.","Connexion":"Iniciar sesión","Créer":"Crear","Mot de passe":"Contraseña","Minimum 6 caractères":"Mínimo 6 caracteres","Se connecter":"Iniciar sesión","Créer un compte":"Crear una cuenta","Espace intervenante":"Espacio de trabajadora","Accès intervenante":"Acceso de trabajadora","Première configuration":"Primera configuración","Bienvenue 👋":"Bienvenido 👋","Quelques réglages rapides pour personnaliser votre application.":"Algunos ajustes rápidos para personalizar tu aplicación.","Passer":"Saltar","Retour":"Atrás","Continuer":"Continuar","Comment s’appelle votre intervenante ?":"¿Cómo se llama tu trabajadora?","Ce prénom sera utilisé dans les réglages et les messages de traduction.":"Este nombre se usará en los ajustes y mensajes de traducción.","Prénom":"Nombre","Quel est son numéro WhatsApp ?":"¿Cuál es su número de WhatsApp?","Il servira à préparer rapidement vos messages.":"Servirá para preparar rápidamente tus mensajes.","Téléphone":"Teléfono","Quelle langue utiliser pour les traductions ?":"¿Qué idioma usar para las traducciones?","Vous pourrez modifier ce choix plus tard depuis les réglages.":"Podrás cambiar esta opción más tarde desde los ajustes.","Langue":"Idioma","Français":"Francés","Espagnol":"Español","Anglais":"Inglés","Portugais":"Portugués","Arabe":"Árabe","Quel est le tarif habituel ?":"¿Cuál es la tarifa habitual?","Il sera repris automatiquement lors de l’ajout d’une session.":"Se usará automáticamente al añadir una sesión.","Taux horaire (€ / h)":"Tarifa por hora (€ / h)","Quelle est la durée habituelle d’un passage ?":"¿Cuál es la duración habitual de una visita?","Ce réglage servira pour les ajouts rapides.":"Este ajuste se usará para los añadidos rápidos.","Durée par défaut (heures)":"Duración predeterminada (horas)","Compte intervenante":"Cuenta de trabajadora","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Inicia sesión y añade domicilios con los códigos proporcionados por los clientes.","Compte client":"Cuenta de cliente","Votre prochaine session":"Tu próxima sesión","Prochaine session":"Próxima sesión","Tâches à réaliser":"Tareas a realizar","Commentaire optionnel":"Comentario opcional","Ajouter une remarque pour le domicile":"Añadir una nota para el domicilio","Terminer la session":"Terminar la sesión","Mes domiciles":"Mis domicilios","Ajoutez un domicile avec le code fourni par le client, puis choisissez celui à afficher.":"Añade un domicilio con el código del cliente y elige cuál mostrar.","Domicile actif":"Domicilio activo","Code d’ajout domicile":"Código para añadir domicilio","Ajouter ce domicile":"Añadir este domicilio","Gestion simple et synchronisée":"Gestión sencilla y sincronizada","Log out":"Cerrar sesión","Solde actuel":"Saldo actual","À payer":"Por pagar","Sessions":"Sesiones","Paiements":"Pagos","Ajouter session aujourd'hui":"Añadir sesión hoy","Résumé rapide":"Resumen rápido","Vue d'ensemble":"Vista general","Dernière session":"Última sesión","Dernier paiement":"Último pago","Aucune":"Ninguna","Aucun":"Ninguno","Ajouter une session":"Añadir una sesión","Enregistrer des heures":"Registrar horas","Date":"Fecha","Durée":"Duración","Autre":"Otra","Autre durée (heures)":"Otra duración (horas)","Taux horaire appliqué (€ / h)":"Tarifa aplicada (€ / h)","Montant calculé":"Importe calculado","Tâche ponctuelle pour cette session":"Tarea puntual para esta sesión","Ajoutez une tâche uniquement pour ce passage.":"Añade una tarea solo para esta visita.","Ajouter":"Añadir","Aperçu des tâches prévues":"Vista previa de tareas previstas","Enregistrer la session":"Guardar la sesión","Ajouter un paiement":"Añadir un pago","Le paiement sera déduit du solde total.":"El pago se descontará del saldo total.","Montant payé (€)":"Importe pagado (€)","Enregistrer le paiement":"Guardar el pago","Historique":"Historial","Sessions et paiements de votre compte.":"Sesiones y pagos de tu cuenta.","Contacter":"Contactar","Préparer un message":"Preparar un mensaje","Message à traduire / envoyer":"Mensaje para traducir / enviar","Traduire":"Traducir","Traduction en cours...":"Traducción en curso...","Message prêt à envoyer":"Mensaje listo para enviar","La version finale apparaîtra ici...":"La versión final aparecerá aquí...","Paramétrage":"Ajustes","Compte":"Cuenta","Mes informations":"Mi información","Ces informations seront visibles côté client et côté intervenante.":"Esta información será visible para el cliente y la trabajadora.","Nom du domicile":"Nombre del domicilio","Adresse du domicile":"Dirección del domicilio","Numéro de téléphone du client":"Número de teléfono del cliente","Informations d’accès et consignes":"Información de acceso e instrucciones","Enregistrer":"Guardar","Contact":"Contacto","Prénom de la femme de ménage":"Nombre de la empleada de hogar","Contact WhatsApp":"Contacto WhatsApp","Code d’accès":"Código de acceso","Générer un code intervenante":"Generar un código de trabajadora","Langue de l’application":"Idioma de la aplicación","Choisissez la langue de l’application client.":"Elige el idioma de la aplicación cliente.","Général":"General","Tâches du domicile":"Tareas del domicilio","Configurez les tâches qui s’ajoutent automatiquement aux sessions.":"Configura las tareas que se añaden automáticamente a las sesiones.","Voir / Modifier":"Ver / Modificar","À chaque passage":"En cada visita","Récurrentes":"Recurrentes","Ponctuelles":"Puntuales","Supprimer":"Eliminar","Retirer":"Quitar","Voir":"Ver","Réduire":"Reducir","Fermer":"Cerrar","Déduire du solde":"Descontar del saldo","Accueil":"Inicio","Réglages":"Ajustes","Domiciles":"Domicilios","Aspirateur":"Aspiradora","Serpillière":"Fregar el suelo","Salle de bain":"Baño","Cuisine":"Cocina","Changer les draps":"Cambiar las sábanas","Base":"Base","Récurrente":"Recurrente","Ponctuelle":"Puntual","Ajoutée":"Añadida","Session":"Sesión","Paiement":"Pago","Montant enregistré":"Importe registrado","Aucune donnée pour le moment.":"No hay datos por ahora.","Aucune tâche prévue.":"No hay tareas previstas.","Aucune tâche prévue pour cette session.":"No hay tareas previstas para esta sesión.","Aucune tâche associée à cette session.":"No hay tareas asociadas a esta sesión.","Aucune tâche à afficher.":"No hay tareas para mostrar.","Aucune session prévue.":"No hay sesiones previstas.","Se déconnecter":"Cerrar sesión","Retour espace client":"Volver al espacio cliente","Rôle":"Rol","utilisateur":"usuario","Renouveler le code intervenante":"Renovar el código de trabajadora","Montant à payer":"Importe por pagar","Avance disponible":"Crédito disponible","Avance":"Crédito","Statut":"Estado","OK":"OK","Étape 1 sur 5":"Paso 1 de 5","Étape {current} sur {total}":"Paso {current} de {total}","Terminer":"Finalizar"},
+    en: {
+      "Chargement de votre espace…":"Loading your space…","Bienvenue sur":"Welcome to","Gérez votre employée de maison en toute simplicité.":"Manage your housekeeper with ease.","Connexion":"Sign in","Créer":"Create","Mot de passe":"Password","Minimum 6 caractères":"Minimum 6 characters","Se connecter":"Sign in","Créer un compte":"Create an account","Espace intervenante":"Worker area","Accès intervenante":"Worker access","Première configuration":"First setup","Bienvenue 👋":"Welcome 👋","Quelques réglages rapides pour personnaliser votre application.":"A few quick settings to personalize your app.","Passer":"Skip","Retour":"Back","Continuer":"Continue","Comment s’appelle votre intervenante ?":"What is your worker's name?","Ce prénom sera utilisé dans les réglages et les messages de traduction.":"This first name will be used in settings and translation messages.","Prénom":"First name","Quel est son numéro WhatsApp ?":"What is their WhatsApp number?","Il servira à préparer rapidement vos messages.":"It will help prepare your messages quickly.","Téléphone":"Phone","Quelle langue utiliser pour les traductions ?":"Which language should translations use?","Vous pourrez modifier ce choix plus tard depuis les réglages.":"You can change this later in settings.","Langue":"Language","Français":"French","Espagnol":"Spanish","Anglais":"English","Portugais":"Portuguese","Arabe":"Arabic","Quel est le tarif habituel ?":"What is the usual rate?","Il sera repris automatiquement lors de l’ajout d’une session.":"It will be reused automatically when adding a session.","Taux horaire (€ / h)":"Hourly rate (€ / h)","Quelle est la durée habituelle d’un passage ?":"What is the usual visit duration?","Ce réglage servira pour les ajouts rapides.":"This setting will be used for quick additions.","Durée par défaut (heures)":"Default duration (hours)","Compte intervenante":"Worker account","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Sign in, then add homes with the codes provided by clients.","Compte client":"Client account","Votre prochaine session":"Your next session","Prochaine session":"Next session","Tâches à réaliser":"Tasks to do","Commentaire optionnel":"Optional comment","Ajouter une remarque pour le domicile":"Add a note for the home","Terminer la session":"Finish session","Mes domiciles":"My homes","Ajoutez un domicile avec le code fourni par le client, puis choisissez celui à afficher.":"Add a home with the client-provided code, then choose which one to display.","Domicile actif":"Active home","Code d’ajout domicile":"Home add code","Ajouter ce domicile":"Add this home","Gestion simple et synchronisée":"Simple, synced management","Log out":"Log out","Solde actuel":"Current balance","À payer":"Due","Sessions":"Sessions","Paiements":"Payments","Ajouter session aujourd'hui":"Add today's session","Résumé rapide":"Quick summary","Vue d'ensemble":"Overview","Dernière session":"Last session","Dernier paiement":"Last payment","Aucune":"None","Aucun":"None","Ajouter une session":"Add a session","Enregistrer des heures":"Record hours","Date":"Date","Durée":"Duration","Autre":"Other","Autre durée (heures)":"Other duration (hours)","Taux horaire appliqué (€ / h)":"Applied hourly rate (€ / h)","Montant calculé":"Calculated amount","Tâche ponctuelle pour cette session":"One-off task for this session","Ajoutez une tâche uniquement pour ce passage.":"Add a task only for this visit.","Ajouter":"Add","Aperçu des tâches prévues":"Preview planned tasks","Enregistrer la session":"Save session","Ajouter un paiement":"Add a payment","Le paiement sera déduit du solde total.":"The payment will be deducted from the total balance.","Montant payé (€)":"Amount paid (€)","Enregistrer le paiement":"Save payment","Historique":"History","Sessions et paiements de votre compte.":"Sessions and payments for your account.","Contacter":"Contact","Préparer un message":"Prepare a message","Message à traduire / envoyer":"Message to translate / send","Traduire":"Translate","Traduction en cours...":"Translation in progress...","Message prêt à envoyer":"Message ready to send","La version finale apparaîtra ici...":"The final version will appear here...","Paramétrage":"Settings","Compte":"Account","Mes informations":"My information","Ces informations seront visibles côté client et côté intervenante.":"This information will be visible to the client and worker.","Nom du domicile":"Home name","Adresse du domicile":"Home address","Numéro de téléphone du client":"Client phone number","Informations d’accès et consignes":"Access information and instructions","Enregistrer":"Save","Contact":"Contact","Prénom de la femme de ménage":"Housekeeper first name","Contact WhatsApp":"WhatsApp contact","Code d’accès":"Access code","Générer un code intervenante":"Generate worker code","Langue de l’application":"Application language","Choisissez la langue de l’application client.":"Choose the client app language.","Général":"General","Tâches du domicile":"Home tasks","Configurez les tâches qui s’ajoutent automatiquement aux sessions.":"Configure tasks that are automatically added to sessions.","Voir / Modifier":"View / Edit","À chaque passage":"Every visit","Récurrentes":"Recurring","Ponctuelles":"One-off","Supprimer":"Delete","Retirer":"Remove","Voir":"View","Réduire":"Collapse","Fermer":"Close","Déduire du solde":"Deduct from balance","Accueil":"Home","Réglages":"Settings","Domiciles":"Homes","Aspirateur":"Vacuuming","Serpillière":"Mopping","Salle de bain":"Bathroom","Cuisine":"Kitchen","Changer les draps":"Change the sheets","Base":"Base","Récurrente":"Recurring","Ponctuelle":"One-off","Ajoutée":"Added","Session":"Session","Paiement":"Payment","Montant enregistré":"Recorded amount","Aucune donnée pour le moment.":"No data yet.","Aucune tâche prévue.":"No tasks planned.","Aucune tâche prévue pour cette session.":"No tasks planned for this session.","Aucune tâche associée à cette session.":"No tasks associated with this session.","Aucune tâche à afficher.":"No tasks to display.","Aucune session prévue.":"No session planned.","Se déconnecter":"Sign out","Retour espace client":"Back to client area","Rôle":"Role","utilisateur":"user","Renouveler le code intervenante":"Renew worker code","Montant à payer":"Amount due","Avance disponible":"Available credit","Avance":"Credit","Statut":"Status","OK":"OK","Étape 1 sur 5":"Step 1 of 5","Étape {current} sur {total}":"Step {current} of {total}","Terminer":"Finish"},
+    pt: {}, ar: {}
+  };
+  UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, "Langue":"Idioma", "Français":"Francês", "Espagnol":"Espanhol", "Anglais":"Inglês", "Portugais":"Português", "Arabe":"Árabe", "Accueil":"Início", "Réglages":"Definições", "Domiciles":"Domicílios", "Connexion":"Entrar", "Créer":"Criar", "Se connecter":"Entrar", "Se déconnecter":"Sair", "Ajouter":"Adicionar", "Supprimer":"Eliminar", "Voir":"Ver", "Fermer":"Fechar", "Session":"Sessão", "Paiement":"Pagamento", "Aspirateur":"Aspirador", "Serpillière":"Lavar o chão", "Salle de bain":"Casa de banho", "Cuisine":"Cozinha", "Changer les draps":"Trocar os lençóis" };
+  UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, "Langue":"اللغة", "Français":"الفرنسية", "Espagnol":"الإسبانية", "Anglais":"الإنجليزية", "Portugais":"البرتغالية", "Arabe":"العربية", "Accueil":"الرئيسية", "Réglages":"الإعدادات", "Domiciles":"المنازل", "Connexion":"تسجيل الدخول", "Créer":"إنشاء", "Se connecter":"تسجيل الدخول", "Se déconnecter":"تسجيل الخروج", "Ajouter":"إضافة", "Supprimer":"حذف", "Voir":"عرض", "Fermer":"إغلاق", "Session":"جلسة", "Paiement":"دفعة", "Aspirateur":"تنظيف بالمكنسة", "Serpillière":"مسح الأرض", "Salle de bain":"الحمام", "Cuisine":"المطبخ", "Changer les draps":"تغيير الملاءات" };
+
+  Object.assign(UI_TRANSLATIONS.en, {
+    "⚠️ Réglages sauvegardés localement.": "⚠️ Settings saved locally.", "Configuration passée.": "Setup skipped.", "✅ Configuration terminée.": "✅ Setup complete.", "Merci de renseigner votre email et votre mot de passe.": "Please enter your email and password.", "✅ Compte créé.": "✅ Account created.", "✅ Connecté.": "✅ Signed in.", "✅ Compte intervenante créé.": "✅ Worker account created.", "✅ Connectée.": "✅ Signed in.", "Déconnecté.": "Signed out.", "Merci de vous connecter avant de générer un code.": "Please sign in before generating a code.", "Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.": "Unable to save the code in Firebase. Check the connection or Firestore rules.", "✅ Code intervenante généré.": "✅ Worker code generated.", "Connectez-vous comme intervenante.": "Sign in as a worker.", "✅ Domicile ajouté.": "✅ Home added.", "Code invalide.": "Invalid code.", "Aucun domicile": "No home", "Ajoutez un domicile avec le code fourni par un client.": "Add a home with the code provided by a client.", "✅ Session terminée.": "✅ Session finished.", "⚠️ Session non enregistrée.": "⚠️ Session not saved.", "✅ Tâches enregistrées.": "✅ Tasks saved.", "⚠️ Tâches non synchronisées.": "⚠️ Tasks not synced.", "⚠️ Tâche non synchronisée.": "⚠️ Task not synced.", "⚠️ Non synchronisé.": "⚠️ Not synced.", "Supprimer cette session ?": "Delete this session?", "Supprimer ce paiement ?": "Delete this payment?", "🗑️ Entrée supprimée.": "🗑️ Entry deleted.", "⚠️ Suppression locale uniquement.": "⚠️ Local deletion only.", "✅ Session ajoutée.": "✅ Session added.", "✅ Informations du domicile enregistrées.": "✅ Home information saved.", "Merci de renseigner une durée valide et un taux horaire supérieur à 0.": "Please enter a valid duration and an hourly rate greater than 0.", "✅ Session enregistrée.": "✅ Session saved.", "Merci de renseigner un montant valide.": "Please enter a valid amount.", "✅ Paiement enregistré.": "✅ Payment saved.", "Préparation du prompt de traduction...": "Preparing the translation prompt...", "✅ Prompt ouvert dans ChatGPT.": "✅ Prompt opened in ChatGPT.", "Erreur de traduction.": "Translation error.", "Merci de renseigner un numéro WhatsApp valide dans les paramètres.": "Please enter a valid WhatsApp number in settings.", "Merci de rédiger un message avant d'ouvrir WhatsApp.": "Please write a message before opening WhatsApp.", "Rôle": "Role", "utilisateur": "user"
+  });
+  Object.assign(UI_TRANSLATIONS.es, {
+    "⚠️ Réglages sauvegardés localement.": "⚠️ Ajustes guardados localmente.", "Configuration passée.": "Configuración omitida.", "✅ Configuration terminée.": "✅ Configuración terminada.", "Merci de renseigner votre email et votre mot de passe.": "Introduce tu email y contraseña.", "✅ Compte créé.": "✅ Cuenta creada.", "✅ Connecté.": "✅ Conectado.", "✅ Compte intervenante créé.": "✅ Cuenta de trabajadora creada.", "✅ Connectée.": "✅ Conectada.", "Déconnecté.": "Sesión cerrada.", "Merci de vous connecter avant de générer un code.": "Inicia sesión antes de generar un código.", "Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.": "No se puede guardar el código en Firebase. Comprueba la conexión o las reglas de Firestore.", "✅ Code intervenante généré.": "✅ Código de trabajadora generado.", "Connectez-vous comme intervenante.": "Inicia sesión como trabajadora.", "✅ Domicile ajouté.": "✅ Domicilio añadido.", "Code invalide.": "Código inválido.", "Aucun domicile": "Ningún domicilio", "Ajoutez un domicile avec le code fourni par un client.": "Añade un domicilio con el código proporcionado por un cliente.", "✅ Session terminée.": "✅ Sesión terminada.", "⚠️ Session non enregistrée.": "⚠️ Sesión no guardada.", "✅ Tâches enregistrées.": "✅ Tareas guardadas.", "⚠️ Tâches non synchronisées.": "⚠️ Tareas no sincronizadas.", "⚠️ Tâche non synchronisée.": "⚠️ Tarea no sincronizada.", "⚠️ Non synchronisé.": "⚠️ No sincronizado.", "Supprimer cette session ?": "¿Eliminar esta sesión?", "Supprimer ce paiement ?": "¿Eliminar este pago?", "🗑️ Entrée supprimée.": "🗑️ Entrada eliminada.", "⚠️ Suppression locale uniquement.": "⚠️ Eliminación solo local.", "✅ Session ajoutée.": "✅ Sesión añadida.", "✅ Informations du domicile enregistrées.": "✅ Información del domicilio guardada.", "Merci de renseigner une durée valide et un taux horaire supérieur à 0.": "Introduce una duración válida y una tarifa por hora superior a 0.", "✅ Session enregistrée.": "✅ Sesión guardada.", "Merci de renseigner un montant valide.": "Introduce un importe válido.", "✅ Paiement enregistré.": "✅ Pago guardado.", "Préparation du prompt de traduction...": "Preparando el prompt de traducción...", "✅ Prompt ouvert dans ChatGPT.": "✅ Prompt abierto en ChatGPT.", "Erreur de traduction.": "Error de traducción.", "Merci de renseigner un numéro WhatsApp valide dans les paramètres.": "Introduce un número de WhatsApp válido en los ajustes.", "Merci de rédiger un message avant d'ouvrir WhatsApp.": "Escribe un mensaje antes de abrir WhatsApp."
+  });
+  UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.pt };
+  UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.ar };
+
+  Object.assign(UI_TRANSLATIONS.en, {"Créez votre compte pour commencer.": "Create your account to get started.", "Connexion impossible.": "Unable to sign in.", "Retour au mode client": "Back to client mode", "Domicile": "Home", "Changer": "Change", "Tâches à faire": "Tasks to do", "Supprimer cette entrée ?": "Delete this entry?", "Cette action est irréversible.": "This action cannot be undone.", "Annuler": "Cancel", "Choisissez une durée rapide ou saisissez une autre valeur.": "Choose a quick duration or enter another value.", "Historique complet": "Full history", "Actualiser": "Refresh", "Préparez un message et envoyez-le directement.": "Prepare a message and send it directly.", "Message en français": "Message in French", "Décaler": "Postpone", "Tâches": "Tasks", "WhatsApp": "WhatsApp", "Compte : —": "Account: —", "Rôle : —": "Role: —", "Générez un code à transmettre à votre intervenante.": "Generate a code to share with your worker.", "Liste fixe ajoutée automatiquement à toutes les sessions.": "Fixed list automatically added to all sessions.", "Nom de la tâche à chaque passage": "Task name for each visit", "Récurrentes": "Recurring", "Programmez les tâches qui reviennent toutes les X sessions.": "Schedule tasks that recur every X sessions.", "Tâche": "Task", "Ajouter la tâche récurrente": "Add recurring task", "Ponctuelles": "One-off", "Ajoutez une tâche exceptionnelle pour une date précise.": "Add an exceptional task for a specific date.", "Ajouter la tâche ponctuelle": "Add one-off task", "Tâches à réaliser": "Tasks to do"});
+  Object.assign(UI_TRANSLATIONS.es, {"Créez votre compte pour commencer.": "Crea tu cuenta para empezar.", "Connexion impossible.": "No se puede iniciar sesión.", "Retour au mode client": "Volver al modo cliente", "Domicile": "Domicilio", "Changer": "Cambiar", "Tâches à faire": "Tareas por hacer", "Supprimer cette entrée ?": "¿Eliminar esta entrada?", "Cette action est irréversible.": "Esta acción es irreversible.", "Annuler": "Cancelar", "Choisissez une durée rapide ou saisissez une autre valeur.": "Elige una duración rápida o introduce otro valor.", "Historique complet": "Historial completo", "Actualiser": "Actualizar", "Préparez un message et envoyez-le directement.": "Prepara un mensaje y envíalo directamente.", "Message en français": "Mensaje en francés", "Décaler": "Posponer", "Tâches": "Tareas", "WhatsApp": "WhatsApp", "Compte : —": "Cuenta: —", "Rôle : —": "Rol: —", "Générez un code à transmettre à votre intervenante.": "Genera un código para transmitir a tu trabajadora.", "Liste fixe ajoutée automatiquement à toutes les sessions.": "Lista fija añadida automáticamente a todas las sesiones.", "Nom de la tâche à chaque passage": "Nombre de la tarea en cada visita", "Récurrentes": "Recurrentes", "Programmez les tâches qui reviennent toutes les X sessions.": "Programa tareas que vuelven cada X sesiones.", "Tâche": "Tarea", "Ajouter la tâche récurrente": "Añadir tarea recurrente", "Ponctuelles": "Puntuales", "Ajoutez une tâche exceptionnelle pour une date précise.": "Añade una tarea excepcional para una fecha concreta.", "Ajouter la tâche ponctuelle": "Añadir tarea puntual", "Tâches à réaliser": "Tareas a realizar"});
+  UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.pt };
+  UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.ar };
+
+  function currentLanguage() { return state.settings?.translationLanguage || 'fr'; }
+  function t(text, replacements = {}) {
+    const source = String(text ?? '');
+    const lang = currentLanguage();
+    let translated = lang === 'fr' ? source : (UI_TRANSLATIONS[lang]?.[source] || UI_TRANSLATIONS.fr?.[source] || source);
+    if (translated === source && lang !== 'fr') {
+      translated = source
+        .replace(/tâche\(s\)/g, lang === 'en' ? 'task(s)' : lang === 'es' ? 'tarea(s)' : lang === 'pt' ? 'tarefa(s)' : 'مهام')
+        .replace(/terminée\(s\)/g, lang === 'en' ? 'done' : lang === 'es' ? 'terminada(s)' : lang === 'pt' ? 'concluída(s)' : 'مكتملة')
+        .replace(/prévue\(s\)/g, lang === 'en' ? 'planned' : lang === 'es' ? 'prevista(s)' : lang === 'pt' ? 'prevista(s)' : 'مجدولة')
+        .replace(/Étape (\d+) sur (\d+)/g, lang === 'en' ? 'Step $1 of $2' : lang === 'es' ? 'Paso $1 de $2' : lang === 'pt' ? 'Passo $1 de $2' : 'الخطوة $1 من $2');
+    }
+    Object.entries(replacements).forEach(([key, value]) => { translated = translated.replaceAll('{' + key + '}', String(value)); });
+    return translated;
+  }
+  const i18nTextSources = new WeakMap();
+  function translatePlainNodeText(text) {
+    const leading = text.match(/^\s*/)?.[0] || '';
+    const trailing = text.match(/\s*$/)?.[0] || '';
+    const trimmed = text.trim();
+    if (!trimmed) return text;
+    return leading + t(trimmed) + trailing;
+  }
+  function applyTranslations(root = document.body) {
+    if (!root) return;
+    document.documentElement.lang = currentLanguage();
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode(node) {
+        const parent = node.parentElement;
+        if (!parent || ['SCRIPT','STYLE','TEXTAREA','INPUT','OPTION'].includes(parent.tagName)) return NodeFilter.FILTER_REJECT;
+        return /[A-Za-zÀ-ÿ]/.test(node.nodeValue || '') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+      }
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach((node) => {
+      const source = i18nTextSources.get(node) || node.nodeValue || '';
+      if (!i18nTextSources.has(node)) i18nTextSources.set(node, source);
+      node.nodeValue = translatePlainNodeText(source);
+    });
+    root.querySelectorAll?.('[placeholder],[aria-label],option').forEach((el) => {
+      if (el.hasAttribute('placeholder')) {
+        const source = el.dataset.i18nPlaceholder || el.getAttribute('placeholder') || '';
+        el.dataset.i18nPlaceholder = source;
+        el.setAttribute('placeholder', t(source));
+      }
+      if (el.hasAttribute('aria-label')) {
+        const source = el.dataset.i18nAriaLabel || el.getAttribute('aria-label') || '';
+        el.dataset.i18nAriaLabel = source;
+        el.setAttribute('aria-label', t(source));
+      }
+      if (el.tagName === 'OPTION') {
+        const source = el.dataset.i18nText || el.textContent.trim();
+        el.dataset.i18nText = source;
+        el.textContent = t(source);
+      }
+    });
+  }
+  const nativeAlert = window.alert.bind(window);
+  window.alert = (message) => nativeAlert(t(message));
+
+  function localizedTaskLabel(task) {
+    const lang = currentLanguage();
+    const normalized = normalizeTranslations(task?.translations);
+    if (lang !== 'fr' && normalized[lang]) return normalized[lang];
+    return t(task?.label || task?.originalText || '');
+  }
+
   const durationButtons = Array.from(document.querySelectorAll('.duration-option'));
   const quickMessageButtons = Array.from(document.querySelectorAll('.quick-message-btn'));
 
@@ -1113,7 +1186,7 @@
   }
 
   function euro(value) {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Number(value || 0));
+    return new Intl.NumberFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(), { style: 'currency', currency: 'EUR' }).format(Number(value || 0));
   }
 
   function todayISO() {
@@ -1157,7 +1230,7 @@
     const iso = toISODateOnly(value);
     const d = new Date(`${iso}T12:00:00`);
     if (Number.isNaN(d.getTime())) return iso;
-    return new Intl.DateTimeFormat('fr-FR', {
+    return new Intl.DateTimeFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(), {
       day: '2-digit',
       month: 'short',
       year: 'numeric'
@@ -1186,7 +1259,7 @@
   let toastTimer = null;
   function showToast(msg) {
     if (!els.toast) return;
-    els.toast.textContent = msg;
+    els.toast.textContent = t(msg);
     els.toast.classList.add('show');
     if (toastTimer) clearTimeout(toastTimer);
     toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2400);
@@ -1364,13 +1437,13 @@
       step.classList.toggle('active', index === state.ui.setupStep);
     });
 
-    if (els.setupStepLabel) els.setupStepLabel.textContent = 'Étape ' + (state.ui.setupStep + 1) + ' sur ' + (maxStep + 1);
+    if (els.setupStepLabel) els.setupStepLabel.textContent = t('Étape {current} sur {total}', { current: state.ui.setupStep + 1, total: maxStep + 1 });
     if (els.setupProgressBar) els.setupProgressBar.style.width = (((state.ui.setupStep + 1) / (maxStep + 1)) * 100) + '%';
     if (els.setupBackBtn) {
       els.setupBackBtn.disabled = state.ui.setupStep === 0;
       els.setupBackBtn.classList.toggle('opacity-40', state.ui.setupStep === 0);
     }
-    if (els.setupNextBtn) els.setupNextBtn.textContent = state.ui.setupStep === maxStep ? 'Terminer' : 'Continuer';
+    if (els.setupNextBtn) els.setupNextBtn.textContent = t(state.ui.setupStep === maxStep ? 'Terminer' : 'Continuer');
 
     if (els.setupContactNameInput) els.setupContactNameInput.value = state.settings.contactName || '';
     if (els.setupContactPhoneInput) els.setupContactPhoneInput.value = state.settings.contactPhone || '';
@@ -1516,7 +1589,7 @@
 
       if (!email || !password) {
         if (els.workerAccessError) {
-          els.workerAccessError.textContent = 'Merci de renseigner votre email et votre mot de passe.';
+          els.workerAccessError.textContent = t('Merci de renseigner votre email et votre mot de passe.');
           els.workerAccessError.classList.remove('hidden');
         }
         return;
@@ -1973,8 +2046,8 @@
       const links = await fetchWorkerHomeLinks();
       await renderWorkerHomesSettings(links);
       if (!links.length) {
-        if (els.workerHomeName) els.workerHomeName.textContent = 'Aucun domicile';
-        if (els.workerSessionSummary) els.workerSessionSummary.textContent = 'Ajoutez un domicile avec le code fourni par un client.';
+        if (els.workerHomeName) els.workerHomeName.textContent = t('Aucun domicile');
+        if (els.workerSessionSummary) els.workerSessionSummary.textContent = t('Ajoutez un domicile avec le code fourni par un client.');
         if (els.workerTasksList) els.workerTasksList.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche à afficher.</div>';
         if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = true;
         return;
@@ -2058,7 +2131,7 @@
     }
     if (els.workerTasksList) {
       els.workerTasksList.innerHTML = tasks.length
-        ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+        ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(localizedTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
         : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
     }
     if (els.workerCommentInput) els.workerCommentInput.value = next.intervenanteComment || '';
@@ -2123,10 +2196,10 @@
   }
 
   function taskSourceLabel(source) {
-    if (source === 'recurring') return 'Récurrente';
-    if (source === 'punctual') return 'Ponctuelle';
-    if (source === 'manual') return 'Ajoutée';
-    return 'Base';
+    if (source === 'recurring') return t('Récurrente');
+    if (source === 'punctual') return t('Ponctuelle');
+    if (source === 'manual') return t('Ajoutée');
+    return t('Base');
   }
 
   function sessionNumberForNewSession() {
@@ -2240,7 +2313,7 @@
 
   function taskSettingItemHtml(task, kind, meta) {
     return '<div class="flex items-start justify-between gap-3 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950">'
-      + '<div class="min-w-0"><p class="break-words text-sm font-medium">' + esc(task.label) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + esc(meta) + '</p></div>'
+      + '<div class="min-w-0"><p class="break-words text-sm font-medium">' + esc(localizedTaskLabel(task)) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + esc(meta) + '</p></div>'
       + '<button type="button" data-task-kind="' + esc(kind) + '" data-task-id="' + esc(task.id) + '" class="remove-task-btn shrink-0 rounded-full bg-red-50 px-3 py-1.5 text-xs font-semibold text-red-600 dark:bg-red-950/40 dark:text-red-300">Supprimer</button>'
       + '</div>';
   }
@@ -2276,7 +2349,7 @@
       + (showToggle ? '<button type="button" class="toggle-task-list-btn text-sm font-medium text-apple-600 dark:text-apple-500" data-target="' + esc(listId) + '" data-entry-id="' + esc(entryId) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button>' : '')
       + '</div>'
       + '<div id="' + esc(listId) + '" class="' + (expanded ? '' : 'hidden ') + 'space-y-2 mt-3">'
-      + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
+      + tasks.map((task) => '<label class="flex items-start gap-3 text-sm"><input type="checkbox" class="task-done-checkbox mt-0.5 h-4 w-4" data-entry-id="' + esc(entryId) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through text-slate-400 dark:text-slate-500' : '') + '">' + esc(localizedTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('')
       + '</div></div>';
   }
 
@@ -2312,7 +2385,7 @@
     state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks || []);
     if (els.sessionPunctualTasksList) {
       els.sessionPunctualTasksList.innerHTML = state.ui.sessionDraftTasks.length
-        ? state.ui.sessionDraftTasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(task.label) + '</span><button type="button" data-draft-task-id="' + esc(task.id) + '" class="remove-session-draft-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
+        ? state.ui.sessionDraftTasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3"><span class="text-sm">' + esc(localizedTaskLabel(task)) + '</span><button type="button" data-draft-task-id="' + esc(task.id) + '" class="remove-session-draft-task-btn text-sm text-red-600 dark:text-red-400 font-medium">Supprimer</button></div>').join('')
         : '<p class="text-sm text-slate-500 dark:text-slate-400">Aucune tâche ponctuelle ajoutée pour cette session.</p>';
     }
 
@@ -2336,7 +2409,7 @@
     if (!state.ui.sessionTaskPreviewVisible) return;
 
     els.sessionTaskPreviewBox.innerHTML = tasks.length
-      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">Aperçu des tâches prévues (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="flex items-start justify-between gap-3 text-sm"><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span><button type="button" class="remove-session-preview-task-btn shrink-0 text-sm text-red-600 dark:text-red-400 font-medium" data-task-id="' + esc(task.id) + '">Retirer</button></div>').join('') + '</div></div>'
+      ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3"><p class="text-sm font-medium mb-2">Aperçu des tâches prévues (' + tasks.length + ')</p><div class="space-y-2">' + tasks.map((task) => '<div class="flex items-start justify-between gap-3 text-sm"><span class="min-w-0"><span>' + esc(localizedTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span><button type="button" class="remove-session-preview-task-btn shrink-0 text-sm text-red-600 dark:text-red-400 font-medium" data-task-id="' + esc(task.id) + '">Retirer</button></div>').join('') + '</div></div>'
       : '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue pour cette session.</div>';
 
     document.querySelectorAll('.remove-session-preview-task-btn').forEach((btn) => {
@@ -2426,11 +2499,11 @@
     renderSessionTaskPreview();
 
     const user = state.auth.user || {};
-    if (els.accountEmailText) els.accountEmailText.textContent = 'Compte : ' + (user.email || '—');
-    if (els.accountRoleText) els.accountRoleText.textContent = 'Rôle : ' + (user.role === 'admin' ? 'admin' : 'utilisateur');
+    if (els.accountEmailText) els.accountEmailText.textContent = t('Compte') + ' : ' + (user.email || '—');
+    if (els.accountRoleText) els.accountRoleText.textContent = t('Rôle') + ' : ' + (user.role === 'admin' ? 'admin' : t('utilisateur'));
     if (els.workerAccessCodeDisplay) els.workerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
-    if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.textContent = state.settings.intervenanteAccessCode ? 'Renouveler le code intervenante' : 'Générer un code intervenante';
-    if (els.adminSyncCard) els.adminSyncCard.classList.toggle('hidden', !isAdmin());
+    if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.textContent = state.settings.intervenanteAccessCode ? t('Renouveler le code intervenante') : t('Générer un code intervenante');
+    if (els.adminSyncCard) els.adminSyncCard.classList.add('hidden');
   }
 
   function renderSummary(sorted) {
@@ -2439,17 +2512,17 @@
     if (els.balanceDisplay) els.balanceDisplay.textContent = euro(Math.abs(totals.balance));
 
     if (totals.balance > 0) {
-      if (els.balanceLabel) els.balanceLabel.textContent = 'Montant à payer';
-      if (els.summaryDueLabel) els.summaryDueLabel.textContent = 'À payer';
+      if (els.balanceLabel) els.balanceLabel.textContent = t('Montant à payer');
+      if (els.summaryDueLabel) els.summaryDueLabel.textContent = t('À payer');
       if (els.summaryDue) els.summaryDue.textContent = euro(totals.balance);
     } else if (totals.balance < 0) {
-      if (els.balanceLabel) els.balanceLabel.textContent = 'Avance disponible';
-      if (els.summaryDueLabel) els.summaryDueLabel.textContent = 'Avance';
+      if (els.balanceLabel) els.balanceLabel.textContent = t('Avance disponible');
+      if (els.summaryDueLabel) els.summaryDueLabel.textContent = t('Avance');
       if (els.summaryDue) els.summaryDue.textContent = euro(Math.abs(totals.balance));
     } else {
-      if (els.balanceLabel) els.balanceLabel.textContent = 'Solde à jour';
-      if (els.summaryDueLabel) els.summaryDueLabel.textContent = 'Statut';
-      if (els.summaryDue) els.summaryDue.textContent = 'OK';
+      if (els.balanceLabel) els.balanceLabel.textContent = t('Solde à jour');
+      if (els.summaryDueLabel) els.summaryDueLabel.textContent = t('Statut');
+      if (els.summaryDue) els.summaryDue.textContent = t('OK');
     }
 
     if (els.summarySessions) els.summarySessions.textContent = String(totals.sessionsCount);
@@ -2461,13 +2534,13 @@
     if (els.lastSessionDisplay) {
       els.lastSessionDisplay.textContent = lastSession
         ? formatDate(lastSession.date) + ' · ' + lastSession.duration + 'h'
-        : 'Aucune';
+        : t('Aucune');
     }
 
     if (els.lastPaymentDisplay) {
       els.lastPaymentDisplay.textContent = lastPayment
         ? formatDate(lastPayment.date) + ' · ' + euro(lastPayment.amount)
-        : 'Aucun';
+        : t('Aucun');
     }
 
     renderNextSession(sorted);
@@ -2484,10 +2557,10 @@
     els.historyList.innerHTML = sorted.map((entry) => {
       const isSession = entry.type === 'session';
       const icon = isSession ? '🧽' : '💳';
-      const title = isSession ? 'Session' : 'Paiement';
+      const title = isSession ? t('Session') : t('Paiement');
       const detail = isSession
         ? esc(String(entry.duration)) + ' h · ' + euro(entry.rate) + '/h'
-        : 'Montant enregistré';
+        : t('Montant enregistré');
       const prefix = isSession ? '+' : '-';
 
       return '<div class="p-4 flex items-start gap-3">'
@@ -2577,6 +2650,7 @@
     renderSummary(sortedEntries());
     renderDurationSelection();
     setCurrentPage(state.ui.currentPage);
+    applyTranslations();
   }
 
   function hydrateEntriesWithSessionTasks() {
@@ -2596,6 +2670,7 @@
     renderHistory(s);
     renderDurationSelection();
     setCurrentPage(state.ui.currentPage);
+    applyTranslations();
   }
 
   function addSession(date, duration, rate, extraTasks = []) {
@@ -2653,7 +2728,7 @@
     const entry = state.entries.find((item) => item.id === id);
     if (!entry) return;
     _pendingDeleteId = id;
-    if (confirmText) confirmText.textContent = 'Supprimer ' + (entry.type === 'session' ? 'cette session' : 'ce paiement') + ' ?';
+    if (confirmText) confirmText.textContent = t(entry.type === 'session' ? 'Supprimer cette session ?' : 'Supprimer ce paiement ?');
     if (confirmModal) confirmModal.classList.remove('hidden');
   }
 
@@ -2836,6 +2911,8 @@
     els.translationLanguageSelect.addEventListener('change', () => {
       state.settings.translationLanguage = els.translationLanguageSelect.value;
       saveState();
+      renderFull();
+      applyTranslations();
       saveUserSettings().catch(console.error);
     });
   }
@@ -3062,7 +3139,7 @@
     els.translateMessageBtn.addEventListener('click', async () => {
       try {
         if (els.translateStatusText) {
-          els.translateStatusText.textContent = 'Préparation du prompt de traduction...';
+          els.translateStatusText.textContent = t('Préparation du prompt de traduction...');
           els.translateStatusText.classList.remove('hidden');
         }
         els.translateMessageBtn.disabled = true;
