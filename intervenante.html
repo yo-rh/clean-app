@@ -219,6 +219,29 @@
       homeSelect: byId('homeSelect'), activeHomeInfo: byId('activeHomeInfo'), languageSelect: byId('languageSelect'), logoutBtn: byId('logoutBtn'), toast: byId('toast')
     };
 
+    const UI_TRANSLATIONS = {
+      es: {"Espace intervenante":"Espacio de trabajadora","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Inicia sesión y añade domicilios con los códigos proporcionados por los clientes.","Connexion":"Iniciar sesión","Créer":"Crear","Mot de passe":"Contraseña","Minimum 6 caractères":"Mínimo 6 caracteres","Se connecter":"Iniciar sesión","Retour espace client":"Volver al espacio cliente","Compte intervenante":"Cuenta de trabajadora","Accueil":"Inicio","Votre planning":"Tu planificación","Prochaines sessions":"Próximas sesiones","Chargement…":"Cargando…","Mes domiciles":"Mis domicilios","Liste des domiciles liés à votre compte intervenante.":"Lista de domicilios vinculados a tu cuenta de trabajadora.","Ajouter un domicile":"Añadir un domicilio","Saisissez le code court généré côté client. Exemple : A7K92P":"Introduce el código corto generado por el cliente. Ejemplo: A7K92P","Code domicile":"Código de domicilio","Ajouter ce domicile":"Añadir este domicilio","Mes informations":"Mi información","Choisissez le domicile à consulter par défaut.":"Elige el domicilio que se consultará por defecto.","Domicile actif":"Domicilio activo","Aucun domicile sélectionné.":"No se ha seleccionado ningún domicilio.","Préférences":"Preferencias","Langue":"Idioma","Français":"Francés","Espagnol":"Español","Anglais":"Inglés","Portugais":"Portugués","Arabe":"Árabe","Se déconnecter":"Cerrar sesión","Sessions":"Sesiones","Domiciles":"Domicilios","Réglages":"Ajustes","Historique des paiements":"Historial de pagos","Paiements":"Pagos","Fermer":"Cerrar","Date":"Fecha","Durée":"Duración","Domicile":"Domicilio","Adresse":"Dirección","Montant prévu":"Importe previsto","Statut":"Estado","Paiement":"Pago","Notes":"Notas","Réduire":"Reducir","Voir":"Ver","Aucune tâche prévue":"No hay tareas previstas","Aucune tâche renseignée pour cette session.":"No hay tareas indicadas para esta sesión.","Domicile lié":"Domicilio vinculado","Informations du domicile non renseignées.":"Información del domicilio no indicada.","Appeler":"Llamar","Itinéraire":"Ruta","Aucun domicile ajouté pour le moment.":"No se ha añadido ningún domicilio por ahora.","Tâches":"Tareas","Tâches :":"Tareas:","Paiement non renseigné":"Pago no indicado","montant non précisé":"importe no indicado","statut non précisé":"estado no indicado","Paiement :":"Pago:","À faire":"Por hacer","Terminée":"Terminada","Aspirateur":"Aspiradora","Serpillière":"Fregar el suelo","Salle de bain":"Baño","Cuisine":"Cocina","Changer les draps":"Cambiar las sábanas","Déconnectée.":"Sesión cerrada.","Domicile actif modifié.":"Domicilio activo cambiado.","✅ Langue enregistrée.":"✅ Idioma guardado.","Récurrente":"Recurrente","Ponctuelle":"Puntual","Ajoutée":"Añadida","Base":"Base","prévue":"prevista","terminee_intervenante":"terminada","Créer mon compte intervenante":"Crear mi cuenta de trabajadora","Le mot de passe doit contenir au moins 6 caractères.":"La contraseña debe contener al menos 6 caracteres.","Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.":"Esta cuenta es de cliente. Usa otro email para el espacio de trabajadora.","Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.":"Has iniciado sesión con una cuenta de cliente. Inicia sesión con una cuenta de trabajadora o crea una con otro email.","Détail par domicile":"Detalle por domicilio","Aucun reste à payer par domicile.":"No queda nada por pagar por domicilio.","Montant dû total":"Importe total debido","Paiements à régulariser · détail disponible par domicile":"Pagos por regularizar · detalle disponible por domicilio","Aucun paiement enregistré pour le moment.":"No hay pagos registrados por ahora.","session du":"sesión del"},
+      en: {"Espace intervenante":"Worker area","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Sign in, then add homes with the codes provided by clients.","Connexion":"Sign in","Créer":"Create","Mot de passe":"Password","Minimum 6 caractères":"Minimum 6 characters","Se connecter":"Sign in","Retour espace client":"Back to client area","Compte intervenante":"Worker account","Accueil":"Home","Votre planning":"Your schedule","Prochaines sessions":"Upcoming sessions","Chargement…":"Loading…","Mes domiciles":"My homes","Liste des domiciles liés à votre compte intervenante.":"List of homes linked to your worker account.","Ajouter un domicile":"Add a home","Saisissez le code court généré côté client. Exemple : A7K92P":"Enter the short code generated on the client side. Example: A7K92P","Code domicile":"Home code","Ajouter ce domicile":"Add this home","Mes informations":"My information","Choisissez le domicile à consulter par défaut.":"Choose the default home to view.","Domicile actif":"Active home","Aucun domicile sélectionné.":"No home selected.","Préférences":"Preferences","Langue":"Language","Français":"French","Espagnol":"Spanish","Anglais":"English","Portugais":"Portuguese","Arabe":"Arabic","Se déconnecter":"Sign out","Sessions":"Sessions","Domiciles":"Homes","Réglages":"Settings","Historique des paiements":"Payment history","Paiements":"Payments","Fermer":"Close","Date":"Date","Durée":"Duration","Domicile":"Home","Adresse":"Address","Montant prévu":"Expected amount","Statut":"Status","Paiement":"Payment","Notes":"Notes","Réduire":"Collapse","Voir":"View","Aucune tâche prévue":"No tasks planned","Aucune tâche renseignée pour cette session.":"No task entered for this session.","Domicile lié":"Linked home","Informations du domicile non renseignées.":"Home information not provided.","Appeler":"Call","Itinéraire":"Directions","Aucun domicile ajouté pour le moment.":"No home added yet.","Tâches":"Tasks","Tâches :":"Tasks:","Paiement non renseigné":"Payment not provided","montant non précisé":"amount not specified","statut non précisé":"status not specified","Paiement :":"Payment:","À faire":"To do","Terminée":"Done","Aspirateur":"Vacuuming","Serpillière":"Mopping","Salle de bain":"Bathroom","Cuisine":"Kitchen","Changer les draps":"Change the sheets","Déconnectée.":"Signed out.","Domicile actif modifié.":"Active home changed.","✅ Langue enregistrée.":"✅ Language saved.","Récurrente":"Recurring","Ponctuelle":"One-off","Ajoutée":"Added","Base":"Base","prévue":"planned","terminee_intervenante":"completed","Créer mon compte intervenante":"Create my worker account","Le mot de passe doit contenir au moins 6 caractères.":"Password must contain at least 6 characters.","Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.":"This is a client account. Use another email for the worker area.","Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.":"You are signed in with a client account. Sign in with a worker account or create one with another email.","Détail par domicile":"Details by home","Aucun reste à payer par domicile.":"No remaining amount due by home.","Montant dû total":"Total amount due","Paiements à régulariser · détail disponible par domicile":"Payments to settle · details available by home","Aucun paiement enregistré pour le moment.":"No payment recorded yet.","session du":"session on"},
+      pt: {}, ar: {}
+    };
+    UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, "Langue":"Idioma", "Accueil":"Início", "Réglages":"Definições", "Domiciles":"Domicílios", "Connexion":"Entrar", "Créer":"Criar", "Se connecter":"Entrar", "Se déconnecter":"Sair", "Ajouter un domicile":"Adicionar domicílio", "Fermer":"Fechar", "Voir":"Ver", "Aspirateur":"Aspirador", "Serpillière":"Lavar o chão", "Salle de bain":"Casa de banho", "Cuisine":"Cozinha", "Changer les draps":"Trocar os lençóis" };
+    UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, "Langue":"اللغة", "Accueil":"الرئيسية", "Réglages":"الإعدادات", "Domiciles":"المنازل", "Connexion":"تسجيل الدخول", "Créer":"إنشاء", "Se connecter":"تسجيل الدخول", "Se déconnecter":"تسجيل الخروج", "Ajouter un domicile":"إضافة منزل", "Fermer":"إغلاق", "Voir":"عرض", "Aspirateur":"تنظيف بالمكنسة", "Serpillière":"مسح الأرض", "Salle de bain":"الحمام", "Cuisine":"المطبخ", "Changer les draps":"تغيير الملاءات" };
+    function currentLanguage() { return state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; }
+    function t(text) {
+      const source = String(text ?? ''); const lang = currentLanguage();
+      let translated = lang === 'fr' ? source : (UI_TRANSLATIONS[lang]?.[source] || source);
+      if (translated === source && lang !== 'fr') translated = source.replace(/tâche\(s\)/g, lang === 'es' ? 'tarea(s)' : lang === 'pt' ? 'tarefa(s)' : lang === 'ar' ? 'مهام' : 'task(s)').replace(/terminée\(s\)/g, lang === 'es' ? 'terminada(s)' : lang === 'pt' ? 'concluída(s)' : lang === 'ar' ? 'مكتملة' : 'done');
+      return translated;
+    }
+    const i18nTextSources = new WeakMap();
+    function applyTranslations(root = document.body) {
+      document.documentElement.lang = currentLanguage();
+      const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode(node) { const p = node.parentElement; if (!p || ['SCRIPT','STYLE','TEXTAREA','INPUT','OPTION'].includes(p.tagName)) return NodeFilter.FILTER_REJECT; return /[A-Za-zÀ-ÿ]/.test(node.nodeValue || '') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; }});
+      const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+      nodes.forEach((node) => { const source = i18nTextSources.get(node) || node.nodeValue || ''; if (!i18nTextSources.has(node)) i18nTextSources.set(node, source); const leading = source.match(/^\s*/)?.[0] || ''; const trailing = source.match(/\s*$/)?.[0] || ''; node.nodeValue = leading + t(source.trim()) + trailing; });
+      root.querySelectorAll?.('[placeholder],[aria-label],option').forEach((el) => { if (el.hasAttribute('aria-label')) { const source = el.dataset.i18nAriaLabel || el.getAttribute('aria-label') || ''; el.dataset.i18nAriaLabel = source; el.setAttribute('aria-label', t(source)); } if (el.hasAttribute('placeholder')) { const source = el.dataset.i18nPlaceholder || el.getAttribute('placeholder') || ''; el.dataset.i18nPlaceholder = source; el.setAttribute('placeholder', t(source)); } if (el.tagName === 'OPTION') { const source = el.dataset.i18nText || el.textContent.trim(); el.dataset.i18nText = source; el.textContent = t(source); } });
+    }
+
     function esc(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
     function nowISO() { return new Date().toISOString(); }
     function todayISO() { const now = new Date(); const offset = now.getTimezoneOffset() * 60000; return new Date(now - offset).toISOString().split('T')[0]; }
@@ -238,7 +261,7 @@
       const d = toDateObject(value); if (Number.isNaN(d.getTime())) return todayISO();
       return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     }
-    function formatDate(value) { const d = new Date(toISODateOnly(value) + 'T12:00:00'); return new Intl.DateTimeFormat('fr-FR',{ weekday:'short', day:'2-digit', month:'short', year:'numeric' }).format(d); }
+    function formatDate(value) { const d = new Date(toISODateOnly(value) + 'T12:00:00'); return new Intl.DateTimeFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(),{ weekday:'short', day:'2-digit', month:'short', year:'numeric' }).format(d); }
     function workerCodeValue(value) { return String(value || '').trim().replace(/\s+/g, '').toUpperCase(); }
     function firebaseErrorMessage(error) {
       const code = error?.code || '';
@@ -250,8 +273,8 @@
       return error?.message || 'Erreur Firebase.';
     }
     let toastTimer = null;
-    function showToast(msg) { if (!els.toast) return; els.toast.textContent = msg; els.toast.classList.add('show'); if (toastTimer) clearTimeout(toastTimer); toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2400); }
-    function showAuthError(message) { els.authError.textContent = message; els.authError.classList.remove('hidden'); }
+    function showToast(msg) { if (!els.toast) return; els.toast.textContent = t(msg); els.toast.classList.add('show'); if (toastTimer) clearTimeout(toastTimer); toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2400); }
+    function showAuthError(message) { els.authError.textContent = t(message); els.authError.classList.remove('hidden'); }
     function clearAuthError() { els.authError.textContent = ''; els.authError.classList.add('hidden'); }
 
     function stableTaskId(label, index) { return 'task-' + index + '-' + String(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32); }
@@ -288,16 +311,14 @@
         };
       }).filter((task) => getTaskLabel(task));
     }
-    function currentLanguage() { return state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; }
-    function t(key) { return cleanTaskText(window.I18N?.[currentLanguage()]?.[key] || window.I18N?.fr?.[key] || ''); }
     function getTaskLabel(task) {
       if (!task) return '';
-      if (task.type !== 'custom' && task.source !== 'manual') return t(task.labelKey || task.i18nKey) || cleanTaskText(task.label || task.title || task.name || task.text);
+      if (task.type !== 'custom' && task.source !== 'manual') return t(task.labelKey || task.i18nKey || task.label || task.title || task.name || task.text) || cleanTaskText(task.label || task.title || task.name || task.text);
       const language = currentLanguage();
-      return cleanTaskText(task.translations?.[language]) || cleanTaskText(task.originalText) || cleanTaskText(task.label || task.title || task.name || task.text);
+      return cleanTaskText(task.translations?.[language]) || t(cleanTaskText(task.originalText) || cleanTaskText(task.label || task.title || task.name || task.text));
     }
-    function taskSourceLabel(source) { if (source === 'recurring') return 'Récurrente'; if (source === 'punctual') return 'Ponctuelle'; if (source === 'manual') return 'Ajoutée'; return 'Base'; }
-    function euro(value) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
+    function taskSourceLabel(source) { if (source === 'recurring') return t('Récurrente'); if (source === 'punctual') return t('Ponctuelle'); if (source === 'manual') return t('Ajoutée'); return t('Base'); }
+    function euro(value) { return new Intl.NumberFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(), { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
     function normalizePhone(value) { let phone = String(value || '').replace(/[\s.\-()]/g, '').trim(); if (phone.startsWith('+')) phone = phone.slice(1); if (phone.startsWith('00')) phone = phone.slice(2); if (phone.startsWith('0')) phone = '33' + phone.slice(1); phone = phone.replace(/[^\d]/g, ''); return phone.length >= 8 ? phone : ''; }
     function homeInfoFromData(homeId, data = {}) { const settings = data.settings || {}; return { homeId: String(homeId), label: String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Domicile ' + String(homeId).slice(0, 6))), address: String(settings.address || data.address || ''), phone: String(settings.phone || data.phone || ''), accessNotes: String(settings.accessNotes || data.accessNotes || '') }; }
     function moneyValue(value) { return Number(Number(value || 0).toFixed(2)); }
@@ -380,9 +401,10 @@
     function showApp() { els.authScreen.classList.add('hidden-view'); els.appShell.classList.remove('hidden-view'); els.bottomNav.classList.remove('hidden-view'); }
     function renderAuthMode() {
       const register = state.authMode === 'register';
+      applyTranslations();
       els.loginTabBtn.className = register ? 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400' : 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm';
       els.registerTabBtn.className = register ? 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm' : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400';
-      els.authSubmitBtn.textContent = register ? 'Créer mon compte intervenante' : 'Se connecter';
+      els.authSubmitBtn.textContent = t(register ? 'Créer mon compte intervenante' : 'Se connecter');
     }
 
     async function ensureWorkerUserDocument(firebaseUser) {
@@ -581,7 +603,7 @@
       } catch (error) { console.error(error); showToast(firebaseErrorMessage(error)); }
     }
 
-    function renderAll() { renderHome(); renderHomes(); renderSettings(); }
+    function renderAll() { renderHome(); renderHomes(); renderSettings(); applyTranslations(); }
     function renderHome() {
       state.allUpcomingSessions.forEach(scheduleMissingTaskTranslations);
       const count = state.homeLabels.length;
@@ -595,15 +617,15 @@
     }
     function sessionDetailHtml(session) {
       const address = session.homeInfo?.address || '';
-      return '<div class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3"><div class="text-sm text-slate-600 dark:text-slate-300 space-y-1"><p><span class="font-medium">Date :</span> ' + esc(formatDate(session.date)) + '</p><p><span class="font-medium">Durée :</span> ' + esc(session.duration || 0) + 'h</p><p><span class="font-medium">Domicile :</span> ' + esc(session.homeLabel || 'Domicile') + '</p>' + (address ? '<p><span class="font-medium">Adresse :</span> ' + esc(address) + '</p>' : '') + '<p><span class="font-medium">Montant prévu :</span> ' + euro(sessionExpectedAmount(session)) + '</p><p><span class="font-medium">Statut :</span> ' + esc(session.status || 'prévue') + '</p></div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(session) + '</div>' + taskChecklistHtml(session) + (session.notes || session.intervenanteComment ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Notes</p>' + (session.notes ? '<p class="whitespace-pre-wrap">' + esc(session.notes) + '</p>' : '') + (session.intervenanteComment ? '<p class="whitespace-pre-wrap mt-1">' + esc(session.intervenanteComment) + '</p>' : '') + '</div>' : '') + '</div>';
+      return '<div class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3"><div class="text-sm text-slate-600 dark:text-slate-300 space-y-1"><p><span class="font-medium">Date :</span> ' + esc(formatDate(session.date)) + '</p><p><span class="font-medium">Durée :</span> ' + esc(session.duration || 0) + 'h</p><p><span class="font-medium">Domicile :</span> ' + esc(session.homeLabel || 'Domicile') + '</p>' + (address ? '<p><span class="font-medium">Adresse :</span> ' + esc(address) + '</p>' : '') + '<p><span class="font-medium">Montant prévu :</span> ' + euro(sessionExpectedAmount(session)) + '</p><p><span class="font-medium">Statut :</span> ' + esc(t(session.status || 'prévue')) + '</p></div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(session) + '</div>' + taskChecklistHtml(session) + (session.notes || session.intervenanteComment ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Notes</p>' + (session.notes ? '<p class="whitespace-pre-wrap">' + esc(session.notes) + '</p>' : '') + (session.intervenanteComment ? '<p class="whitespace-pre-wrap mt-1">' + esc(session.intervenanteComment) + '</p>' : '') + '</div>' : '') + '</div>';
     }
     function sessionCardHtml(session, context = 'sessions') {
       const tasks = normalizeSessionTasks(session.tasks); const done = tasks.filter((t) => t.done).length;
-      const taskLabels = tasks.length ? tasks.map((task) => esc(getTaskLabel(task))).join(', ') : 'Aucune tâche prévue';
+      const taskLabels = tasks.length ? tasks.map((task) => esc(getTaskLabel(task))).join(', ') : t('Aucune tâche prévue');
       const paid = totalPaidForSession(session);
-      const paymentSummary = paid || sessionPaymentStatus(session) ? 'Paiement : ' + (paid ? euro(paid) : 'montant non précisé') + ' · ' + esc(sessionPaymentStatus(session) || 'statut non précisé') : 'Paiement non renseigné';
+      const paymentSummary = paid || sessionPaymentStatus(session) ? t('Paiement :') + ' ' + (paid ? euro(paid) : t('montant non précisé')) + ' · ' + esc(t(sessionPaymentStatus(session) || 'statut non précisé')) : t('Paiement non renseigné');
       const expanded = state.expandedSessionKey === sessionKey(session);
-      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatDate(session.date)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(sessionExpectedAmount(session)) + ' · Statut : ' + esc(session.status || 'prévue') + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p></div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-context="' + esc(context) + '" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button></div>' + (expanded ? sessionDetailHtml(session) : '') + '</article>';
+      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatDate(session.date)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(sessionExpectedAmount(session)) + ' · Statut : ' + esc(t(session.status || 'prévue')) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p></div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-context="' + esc(context) + '" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button></div>' + (expanded ? sessionDetailHtml(session) : '') + '</article>';
     }
     function renderHomes() {
       const list = state.homeLabels.length ? state.homeLabels.map((home) => {
@@ -640,7 +662,7 @@
       els.homeSelect.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.currentHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('') : '<option value="">Aucun domicile ajouté</option>';
       els.homeSelect.disabled = !state.homeLabels.length;
       const active = state.homeLabels.find((h) => h.homeId === state.currentHomeId);
-      els.activeHomeInfo.textContent = active ? 'Domicile actif : ' + active.label : 'Aucun domicile sélectionné.';
+      els.activeHomeInfo.textContent = active ? t('Domicile actif') + ' : ' + active.label : t('Aucun domicile sélectionné.');
       els.accountText.textContent = state.currentUser?.email || 'Compte intervenante';
       const lang = state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; els.languageSelect.value = lang;
     }
@@ -651,7 +673,7 @@
         if (index >= 0) list[index] = updater(list[index]);
       });
     }
-    function rerenderCurrentLists() { renderHome(); if (state.currentPage === 'sessions') renderSessionsPage(); }
+    function rerenderCurrentLists() { renderHome(); if (state.currentPage === 'sessions') renderSessionsPage(); applyTranslations(); }
     function bindSessionControls() {
       document.querySelectorAll('.open-session-btn').forEach((btn) => btn.addEventListener('click', () => {
         const key = String(btn.dataset.homeId || '') + '::' + String(btn.dataset.sessionId || '');
@@ -680,7 +702,7 @@
       state.currentPage = page;
       document.querySelectorAll('.page').forEach((el) => el.classList.remove('active'));
       const pageEl = byId('page-' + page); if (pageEl) pageEl.classList.add('active');
-      const titles = { home: 'Accueil', sessions: 'Sessions', homes: 'Domiciles', settings: 'Réglages' }; els.pageTitle.textContent = titles[page] || 'Accueil';
+      const titles = { home: 'Accueil', sessions: 'Sessions', homes: 'Domiciles', settings: 'Réglages' }; els.pageTitle.textContent = t(titles[page] || 'Accueil');
       document.querySelectorAll('.nav-btn').forEach((btn) => { const active = btn.dataset.page === page; btn.className = 'nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-[11px] ' + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'); });
     }
 
@@ -696,7 +718,7 @@
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
       els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Domicile actif modifié.'); });
-      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); rerenderCurrentLists(); });
+      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); renderAll(); setCurrentPage(state.currentPage); applyTranslations(); });
       document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
     }
 
@@ -732,7 +754,7 @@
     }
     window.__cleanAppIntervenanteTests = { runSmokeTests, workerCodeValue, normalizeSessionTasks, dueSummary };
 
-    bindEvents(); renderAuthMode(); showAuth();
+    bindEvents(); renderAuthMode(); showAuth(); applyTranslations();
     onAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) { state.currentUser = null; state.workerProfile = null; showAuth(); return; }
       try {
