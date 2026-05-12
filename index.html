@@ -574,6 +574,17 @@
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <div class="flex items-start justify-between gap-3">
                   <div>
+                    <h3 class="font-semibold">Intervenante</h3>
+                    <p id="linkedWorkerStatus" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Aucune intervenante liée pour le moment.</p>
+                  </div>
+                </div>
+                <div id="linkedWorkerInfo" class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm space-y-2"></div>
+                <a id="linkedWorkerContactBtn" href="#" target="_blank" rel="noopener" class="hidden w-full rounded-2xl bg-green-600 text-white px-4 py-3 text-center font-medium">Contacter</a>
+              </div>
+
+              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
+                <div class="flex items-start justify-between gap-3">
+                  <div>
                     <h3 class="font-semibold">Accès intervenante</h3>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Générez un code à transmettre à votre intervenante.</p>
                   </div>
@@ -739,7 +750,8 @@
     collection,
     getDocs,
     deleteDoc,
-    serverTimestamp
+    serverTimestamp,
+    onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
@@ -766,6 +778,7 @@
 
   const STORAGE_KEY = 'cleanAppFirebaseV1';
   const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
+  const WORKER_PROFILES_COLLECTION = 'cleanerProfiles';
   const SUPPORTED_TASK_LANGUAGES = ['fr', 'es', 'en', 'pt', 'ar'];
   const BUILT_IN_TASK_IDS = new Set(['default_aspirateur', 'default_serpilliere', 'default_salle_de_bain', 'default_cuisine', 'recurring_draps']);
 
@@ -793,7 +806,8 @@
       ],
       punctualTasks: [],
       sessionTasks: {},
-      intervenanteAccessCode: ''
+      intervenanteAccessCode: '',
+      workerUid: ''
     },
     auth: {
       token: '',
@@ -817,7 +831,8 @@
       currentWorkerHomeId: '',
       workerCode: '',
       workerAuthMode: 'login',
-      workerSessionId: ''
+      workerSessionId: '',
+      linkedWorkerProfile: null
     },
     entries: []
   };
@@ -955,7 +970,8 @@
           recurringTasks: normalizeRecurringTaskSettings(parsed?.settings?.recurringTasks, defaultState.settings.recurringTasks),
           punctualTasks: normalizePunctualTaskSettings(parsed?.settings?.punctualTasks, defaultState.settings.punctualTasks),
           sessionTasks: normalizeSessionTaskMap(parsed?.settings?.sessionTasks, defaultState.settings.sessionTasks),
-          intervenanteAccessCode: String(parsed?.settings?.intervenanteAccessCode ?? '')
+          intervenanteAccessCode: String(parsed?.settings?.intervenanteAccessCode ?? ''),
+          workerUid: String(parsed?.settings?.workerUid ?? '')
         },
         auth: {
           token: String(parsed?.auth?.token ?? ''),
@@ -982,7 +998,8 @@
           currentWorkerHomeId: String(parsed?.ui?.currentWorkerHomeId ?? parsed?.ui?.workerHomeId ?? ''),
           workerCode: String(parsed?.ui?.workerCode ?? ''),
           workerAuthMode: parsed?.ui?.workerAuthMode === 'register' ? 'register' : 'login',
-          workerSessionId: String(parsed?.ui?.workerSessionId ?? '')
+          workerSessionId: String(parsed?.ui?.workerSessionId ?? ''),
+          linkedWorkerProfile: parsed?.ui?.linkedWorkerProfile && typeof parsed.ui.linkedWorkerProfile === 'object' ? parsed.ui.linkedWorkerProfile : null
         },
         entries: Array.isArray(parsed?.entries) ? parsed.entries : []
       };
@@ -1092,6 +1109,9 @@
     accountRoleText: byId('accountRoleText'),
     generateWorkerCodeBtn: byId('generateWorkerCodeBtn'),
     workerAccessCodeDisplay: byId('workerAccessCodeDisplay'),
+    linkedWorkerStatus: byId('linkedWorkerStatus'),
+    linkedWorkerInfo: byId('linkedWorkerInfo'),
+    linkedWorkerContactBtn: byId('linkedWorkerContactBtn'),
     defaultTaskInput: byId('defaultTaskInput'),
     addDefaultTaskBtn: byId('addDefaultTaskBtn'),
     defaultTasksList: byId('defaultTasksList'),
@@ -1437,6 +1457,7 @@
       punctualTasks: normalizePunctualTaskSettings(remoteSettings.punctualTasks, state.settings.punctualTasks || defaultState.settings.punctualTasks),
       sessionTasks: normalizeSessionTaskMap(remoteSettings.sessionTasks, state.settings.sessionTasks || defaultState.settings.sessionTasks),
       intervenanteAccessCode: String(remoteSettings.intervenanteAccessCode ?? state.settings.intervenanteAccessCode ?? ''),
+      workerUid: String(remoteSettings.workerUid ?? state.settings.workerUid ?? ''),
       setupCompleted: hasSetupFlag
         ? Boolean(remoteSettings.setupCompleted ?? data.setupCompleted)
         : Boolean(remoteSettings.contactName || remoteSettings.contactPhone || remoteSettings.hourlyRate || remoteSettings.defaultDuration || state.entries.length > 0)
@@ -1470,6 +1491,96 @@
     settingsSaveTimer = setTimeout(() => {
       saveUserSettings().catch((error) => console.error(error));
     }, 600);
+  }
+
+  let linkedWorkerUnsubscribe = null;
+  let linkedWorkerUid = '';
+  function normalizeWorkerProfile(data = {}) {
+    return {
+      firstName: String(data.firstName || '').trim(),
+      phone: String(data.phone || '').trim()
+    };
+  }
+  function stopLinkedWorkerListener() {
+    if (typeof linkedWorkerUnsubscribe === 'function') linkedWorkerUnsubscribe();
+    linkedWorkerUnsubscribe = null;
+    linkedWorkerUid = '';
+  }
+  function startLinkedWorkerListener() {
+    const workerUid = String(state.settings.workerUid || '').trim();
+    if (!isLoggedIn() || isWorkerUser() || !workerUid) {
+      stopLinkedWorkerListener();
+      state.ui.linkedWorkerProfile = null;
+      renderLinkedWorkerCard();
+      return;
+    }
+    if (linkedWorkerUnsubscribe && linkedWorkerUid === workerUid) return;
+    stopLinkedWorkerListener();
+    linkedWorkerUid = workerUid;
+    linkedWorkerUnsubscribe = onSnapshot(doc(db, WORKER_PROFILES_COLLECTION, workerUid), (snapshot) => {
+      state.ui.linkedWorkerProfile = snapshot.exists() ? normalizeWorkerProfile(snapshot.data() || {}) : null;
+      saveState();
+      renderLinkedWorkerCard();
+    }, (error) => {
+      console.error('Profil intervenante non synchronisé :', error);
+      state.ui.linkedWorkerProfile = null;
+      renderLinkedWorkerCard();
+    });
+  }
+  function renderLinkedWorkerCard() {
+    if (!els.linkedWorkerStatus || !els.linkedWorkerInfo || !els.linkedWorkerContactBtn) return;
+    const workerUid = String(state.settings.workerUid || '').trim();
+    const profile = state.ui.linkedWorkerProfile || null;
+    const firstName = String(profile?.firstName || '').trim();
+    const phone = String(profile?.phone || '').trim();
+    els.linkedWorkerInfo.classList.add('hidden');
+    els.linkedWorkerContactBtn.classList.add('hidden');
+    els.linkedWorkerContactBtn.removeAttribute('href');
+    if (!workerUid) {
+      els.linkedWorkerStatus.textContent = 'Aucune intervenante liée pour le moment.';
+      els.linkedWorkerInfo.innerHTML = '';
+      return;
+    }
+    if (!firstName && !phone) {
+      els.linkedWorkerStatus.textContent = 'Informations intervenante non renseignées.';
+      els.linkedWorkerInfo.innerHTML = '';
+      return;
+    }
+    els.linkedWorkerStatus.textContent = 'Informations de votre intervenante liée.';
+    els.linkedWorkerInfo.classList.remove('hidden');
+    els.linkedWorkerInfo.innerHTML = '<p><span class="text-slate-500 dark:text-slate-400">Prénom</span><span class="block font-medium">' + esc(firstName || 'Non renseigné') + '</span></p><p><span class="text-slate-500 dark:text-slate-400">Téléphone</span><span class="block font-medium">' + esc(phone || 'Non renseigné') + '</span></p>';
+    const normalizedPhone = normalizePhone(phone);
+    if (normalizedPhone) {
+      els.linkedWorkerContactBtn.href = 'https://wa.me/' + normalizedPhone;
+      els.linkedWorkerContactBtn.classList.remove('hidden');
+    }
+  }
+
+  let homeSettingsUnsubscribe = null;
+  let homeSettingsUid = '';
+  function stopHomeSettingsListener() {
+    if (typeof homeSettingsUnsubscribe === 'function') homeSettingsUnsubscribe();
+    homeSettingsUnsubscribe = null;
+    homeSettingsUid = '';
+  }
+  function startHomeSettingsListener() {
+    const uid = currentUid();
+    if (!isLoggedIn() || isWorkerUser() || !uid) {
+      stopHomeSettingsListener();
+      return;
+    }
+    if (homeSettingsUnsubscribe && homeSettingsUid === uid) return;
+    stopHomeSettingsListener();
+    homeSettingsUid = uid;
+    homeSettingsUnsubscribe = onSnapshot(doc(db, 'users', uid), (snapshot) => {
+      const remoteWorkerUid = String((snapshot.exists() ? snapshot.data()?.settings?.workerUid : '') || '');
+      if (remoteWorkerUid === String(state.settings.workerUid || '')) return;
+      state.settings.workerUid = remoteWorkerUid;
+      state.ui.linkedWorkerProfile = null;
+      saveState();
+      renderLinkedWorkerCard();
+      startLinkedWorkerListener();
+    }, (error) => console.error('Lien intervenante non synchronisé :', error));
   }
 
   function isLoggedIn() {
@@ -2095,10 +2206,12 @@
         homeId,
         code,
         role: 'intervenante',
+        workerUid,
         active: true,
         addedAt: serverTimestamp(),
         updatedAt: serverTimestamp()
       }, { merge: true });
+      await setDoc(doc(db, 'users', homeId), { settings: { workerUid }, updatedAt: serverTimestamp() }, { merge: true });
 
       state.ui.currentWorkerHomeId = homeId;
       state.ui.workerHomeId = homeId;
@@ -2656,6 +2769,7 @@
     if (els.accountRoleText) els.accountRoleText.textContent = t('Rôle') + ' : ' + (user.role === 'admin' ? 'admin' : t('utilisateur'));
     if (els.workerAccessCodeDisplay) els.workerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
     if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.textContent = state.settings.intervenanteAccessCode ? t('Renouveler le code intervenante') : t('Générer un code intervenante');
+    renderLinkedWorkerCard();
     if (els.adminSyncCard) els.adminSyncCard.classList.add('hidden');
   }
 
@@ -2819,6 +2933,8 @@
     const s = sorted || sortedEntries();
     saveState();
     renderSettings();
+    startHomeSettingsListener();
+    startLinkedWorkerListener();
     renderSummary(s);
     renderHistory(s);
     renderDurationSelection();
@@ -3406,6 +3522,8 @@
   onAuthStateChanged(auth, async (firebaseUser) => {
     try {
       if (!firebaseUser) {
+        stopHomeSettingsListener();
+        stopLinkedWorkerListener();
         state.auth = { token: '', user: null };
         state.entries = [];
         saveState();
@@ -3425,11 +3543,15 @@
       renderShellVisibility();
 
       if (userProfile.role === 'intervenante') {
+        stopHomeSettingsListener();
+        stopLinkedWorkerListener();
         await loadWorkerHomes();
         return;
       }
 
       await pullOnly(false);
+      startHomeSettingsListener();
+      startLinkedWorkerListener();
 
       if (needsSetup()) {
         renderSetup();
