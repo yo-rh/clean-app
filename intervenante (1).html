@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Clean' App — Intervenante</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.08)' },
+          colors: { apple: { 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af' } }
+        }
+      }
+    };
+  </script>
+  <style>
+    html { -webkit-tap-highlight-color: transparent; height: 100%; }
+    body { min-height: 100%; overflow-x: hidden; }
+    .hidden-view { display: none !important; }
+    .page { display: none; }
+    .page.active { display: block; }
+    .safe-bottom { padding-bottom: max(8.5rem, calc(env(safe-area-inset-bottom) + 7.5rem)); }
+    input, select, textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; pointer-events: none; }
+    #toast {
+      position: fixed; bottom: 6.5rem; left: 50%; transform: translateX(-50%) translateY(8px);
+      background: rgba(15,23,42,.92); color: white; padding: .55rem 1.2rem; border-radius: 99px;
+      font-size: .85rem; font-weight: 500; white-space: nowrap; z-index: 9999; pointer-events: none;
+      opacity: 0; transition: opacity .25s ease, transform .25s ease; backdrop-filter: blur(12px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.25);
+    }
+    #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  </style>
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Clean' App" />
+  <meta name="theme-color" content="#2563eb" />
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
+  <div id="toast"></div>
+
+  <section id="authScreen" class="min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
+    <div class="mb-8 text-center">
+      <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
+      <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
+      <h1 class="text-3xl font-semibold tracking-tight">Espace intervenante</h1>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.</p>
+    </div>
+
+    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+      <div class="grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 dark:bg-slate-950 p-1">
+        <button id="loginTabBtn" type="button" class="rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm">Connexion</button>
+        <button id="registerTabBtn" type="button" class="rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">Créer</button>
+      </div>
+      <div>
+        <label for="emailInput" class="block text-sm font-medium mb-1">Email</label>
+        <input id="emailInput" type="email" autocomplete="email" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="intervenante@mail.com" />
+      </div>
+      <div>
+        <label for="passwordInput" class="block text-sm font-medium mb-1">Mot de passe</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Minimum 6 caractères" />
+      </div>
+      <p id="authError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300"></p>
+      <button id="authSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
+      <a href="./index.html" class="block w-full text-center rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour espace client</a>
+    </section>
+  </section>
+
+  <section id="appShell" class="hidden-view min-h-screen max-w-md mx-auto px-4 py-5 safe-bottom">
+    <header class="mb-5 flex items-start justify-between gap-3">
+      <div>
+        <p id="accountText" class="text-sm text-slate-500 dark:text-slate-400">Compte intervenante</p>
+        <h1 id="pageTitle" class="text-2xl font-semibold tracking-tight">Accueil</h1>
+      </div>
+      <button id="refreshBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm font-medium text-slate-500 dark:text-slate-400">↻</button>
+    </header>
+
+    <main class="space-y-4">
+      <section id="page-home" class="page active space-y-4">
+        <section class="rounded-3xl bg-gradient-to-br from-apple-500 to-apple-700 text-white p-5 shadow-soft">
+          <p class="text-white/75 text-sm">Votre planning</p>
+          <h2 class="text-2xl font-semibold tracking-tight mt-1">Prochaines sessions</h2>
+          <p id="homeSummary" class="mt-2 text-sm text-white/80">Chargement…</p>
+        </section>
+        <div id="upcomingSessionsList" class="space-y-3"></div>
+      </section>
+
+      <section id="page-sessions" class="page space-y-4">
+        <div id="sessionGroups" class="space-y-4"></div>
+        <section id="sessionDetailCard" class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4"></section>
+      </section>
+
+      <section id="page-homes" class="page space-y-4">
+        <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+          <div>
+            <h2 class="text-xl font-semibold tracking-tight">Mes domiciles</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Liste des domiciles liés à votre compte intervenante.</p>
+          </div>
+          <div id="homesList" class="space-y-2"></div>
+        </section>
+      </section>
+
+      <section id="page-settings" class="page space-y-4 pb-4">
+        <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+          <div>
+            <h2 class="text-xl font-semibold tracking-tight">Ajouter un domicile</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Saisissez le code court généré côté client. Exemple : A7K92P</p>
+          </div>
+          <div>
+            <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code domicile</label>
+            <input id="homeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
+          </div>
+          <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce domicile</button>
+          <p id="addHomeMessage" class="hidden text-sm"></p>
+        </section>
+
+        <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+          <div>
+            <h2 class="text-xl font-semibold tracking-tight">Mes informations</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Choisissez le domicile à consulter par défaut.</p>
+          </div>
+          <div>
+            <label for="homeSelect" class="block text-sm font-medium mb-1">Domicile actif</label>
+            <select id="homeSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500"></select>
+          </div>
+          <div id="activeHomeInfo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile sélectionné.</div>
+        </section>
+
+        <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+          <div>
+            <h2 class="text-xl font-semibold tracking-tight">Préférences</h2>
+          </div>
+          <div>
+            <label for="languageSelect" class="block text-sm font-medium mb-1">Langue</label>
+            <select id="languageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
+              <option value="fr">Français</option>
+              <option value="es">Espagnol</option>
+              <option value="en">Anglais</option>
+              <option value="pt">Portugais</option>
+              <option value="ar">Arabe</option>
+              <option value="it">Italien</option>
+              <option value="ro">Roumain</option>
+            </select>
+          </div>
+          <button id="logoutBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Se déconnecter</button>
+        </section>
+      </section>
+    </main>
+  </section>
+
+  <nav id="bottomNav" class="hidden-view bottom-nav">
+    <div class="max-w-md mx-auto px-4 pb-[max(.75rem,env(safe-area-inset-bottom))]">
+      <div class="pointer-events-auto rounded-[28px] border border-slate-200/80 dark:border-slate-800/80 bg-white/85 dark:bg-slate-950/85 backdrop-blur-xl shadow-soft px-2 py-2">
+        <div class="grid grid-cols-4 items-end text-[11px]">
+          <button data-page="home" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-900 dark:text-white"><span class="text-xl leading-none">🏠</span><span>Accueil</span></button>
+          <button data-page="sessions" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🧽</span><span>Sessions</span></button>
+          <button data-page="homes" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🏘️</span><span>Domiciles</span></button>
+          <button data-page="settings" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">⚙️</span><span>Réglages</span></button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <script type="module">
+    'use strict';
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
+      authDomain: "clean-app-5de06.firebaseapp.com",
+      projectId: "clean-app-5de06",
+      storageBucket: "clean-app-5de06.firebasestorage.app",
+      messagingSenderId: "82379739846",
+      appId: "1:82379739846:web:8ad0fce19cc89958d97dc7",
+      measurementId: "G-VLH9KQB80W"
+    };
+
+    const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const state = {
+      authMode: 'login', currentUser: null, workerProfile: null,
+      homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [],
+      currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
+      currentSession: null, currentHomeSettings: null, currentPage: 'home'
+    };
+
+    const byId = (id) => document.getElementById(id);
+    const els = {
+      authScreen: byId('authScreen'), appShell: byId('appShell'), bottomNav: byId('bottomNav'),
+      loginTabBtn: byId('loginTabBtn'), registerTabBtn: byId('registerTabBtn'), emailInput: byId('emailInput'), passwordInput: byId('passwordInput'),
+      authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
+      homeSummary: byId('homeSummary'), upcomingSessionsList: byId('upcomingSessionsList'), sessionDetailCard: byId('sessionDetailCard'),
+      homesList: byId('homesList'), homeCodeInput: byId('homeCodeInput'), addHomeBtn: byId('addHomeBtn'), addHomeMessage: byId('addHomeMessage'),
+      homeSelect: byId('homeSelect'), activeHomeInfo: byId('activeHomeInfo'), languageSelect: byId('languageSelect'), logoutBtn: byId('logoutBtn'), toast: byId('toast')
+    };
+
+    function esc(str) { return String(str ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#039;'); }
+    function nowISO() { return new Date().toISOString(); }
+    function todayISO() { const now = new Date(); const offset = now.getTimezoneOffset() * 60000; return new Date(now - offset).toISOString().split('T')[0]; }
+    function toISODateOnly(value) {
+      if (!value) return todayISO();
+      if (typeof value === 'string') {
+        const t = value.trim();
+        if (/^\d{4}-\d{2}-\d{2}$/.test(t)) return t;
+        const iso = t.match(/^(\d{4}-\d{2}-\d{2})T/); if (iso) return iso[1];
+      }
+      const d = new Date(value); if (Number.isNaN(d.getTime())) return todayISO();
+      return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    }
+    function formatDate(value) { const d = new Date(toISODateOnly(value) + 'T12:00:00'); return new Intl.DateTimeFormat('fr-FR',{ weekday:'short', day:'2-digit', month:'short', year:'numeric' }).format(d); }
+    function workerCodeValue(value) { return String(value || '').trim().replace(/\s+/g, '').toUpperCase(); }
+    function firebaseErrorMessage(error) {
+      const code = error?.code || '';
+      if (code.includes('auth/email-already-in-use')) return 'Un compte existe déjà avec cet email.';
+      if (code.includes('auth/invalid-email')) return 'Adresse email invalide.';
+      if (code.includes('auth/weak-password')) return 'Le mot de passe doit contenir au moins 6 caractères.';
+      if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password') || code.includes('auth/user-not-found')) return 'Email ou mot de passe incorrect.';
+      if (code.includes('permission-denied')) return 'Accès refusé par les règles Firestore.';
+      return error?.message || 'Erreur Firebase.';
+    }
+    let toastTimer = null;
+    function showToast(msg) { if (!els.toast) return; els.toast.textContent = msg; els.toast.classList.add('show'); if (toastTimer) clearTimeout(toastTimer); toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2400); }
+    function showAuthError(message) { els.authError.textContent = message; els.authError.classList.remove('hidden'); }
+    function clearAuthError() { els.authError.textContent = ''; els.authError.classList.add('hidden'); }
+
+    function normalizeSessionTasks(value) {
+      if (!Array.isArray(value)) return [];
+      return value.map((task) => ({ id: String(task?.id || crypto.randomUUID()), label: String(task?.label || task?.title || '').trim(), source: String(task?.source || 'manual'), done: Boolean(task?.done) })).filter((task) => task.label);
+    }
+    function taskSourceLabel(source) { if (source === 'recurring') return 'Récurrente'; if (source === 'punctual') return 'Ponctuelle'; if (source === 'manual') return 'Ajoutée'; return 'Base'; }
+    function euro(value) { return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
+    function normalizePhone(value) { let phone = String(value || '').replace(/[\s.\-()]/g, '').trim(); if (phone.startsWith('+')) phone = phone.slice(1); if (phone.startsWith('00')) phone = phone.slice(2); if (phone.startsWith('0')) phone = '33' + phone.slice(1); phone = phone.replace(/[^\d]/g, ''); return phone.length >= 8 ? phone : ''; }
+    function homeInfoFromData(homeId, data = {}) { const settings = data.settings || {}; return { homeId: String(homeId), label: String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Domicile ' + String(homeId).slice(0, 6))), address: String(settings.address || data.address || ''), phone: String(settings.phone || data.phone || ''), accessNotes: String(settings.accessNotes || data.accessNotes || '') }; }
+    function paymentInfoHtml(session) { const amount = Number(session.amount || session.expectedAmount || 0); const paid = Number(session.paidAmount || session.paymentAmount || session.amountPaid || 0); const status = String(session.paymentStatus || session.paidStatus || session.payment?.status || '').trim(); const sessionPaid = Number(session.payment?.amount || 0); const paidValue = paid || sessionPaid; if (!paidValue && !status) return '<p>Paiement non renseigné</p>'; const balance = paidValue - amount; return '<p>Payé : ' + euro(paidValue) + '</p><p>Statut paiement : ' + esc(status || 'non précisé') + '</p>' + (amount ? '<p>' + (balance >= 0 ? 'Solde positif : ' + euro(balance) : 'Reste à payer : ' + euro(Math.abs(balance))) + '</p>' : ''); }
+
+    function showAuth() { els.authScreen.classList.remove('hidden-view'); els.appShell.classList.add('hidden-view'); els.bottomNav.classList.add('hidden-view'); }
+    function showApp() { els.authScreen.classList.add('hidden-view'); els.appShell.classList.remove('hidden-view'); els.bottomNav.classList.remove('hidden-view'); }
+    function renderAuthMode() {
+      const register = state.authMode === 'register';
+      els.loginTabBtn.className = register ? 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400' : 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm';
+      els.registerTabBtn.className = register ? 'rounded-xl px-4 py-2 text-sm font-medium bg-white dark:bg-slate-800 shadow-sm' : 'rounded-xl px-4 py-2 text-sm font-medium text-slate-500 dark:text-slate-400';
+      els.authSubmitBtn.textContent = register ? 'Créer mon compte intervenante' : 'Se connecter';
+    }
+
+    async function ensureWorkerUserDocument(firebaseUser) {
+      const ref = doc(db, 'users', firebaseUser.uid);
+      const snapshot = await getDoc(ref);
+      if (!snapshot.exists()) {
+        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', role: 'intervenante', settings: { setupCompleted: true, language: 'fr' }, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        await setDoc(ref, profile, { merge: true });
+        return profile;
+      }
+      const data = snapshot.data() || {};
+      if (data.role !== 'intervenante') return { uid: firebaseUser.uid, email: firebaseUser.email || data.email || '', role: data.role || 'user', settings: data.settings || {} };
+      return { uid: firebaseUser.uid, email: firebaseUser.email || data.email || '', role: 'intervenante', settings: data.settings || {} };
+    }
+
+    async function submitAuth() {
+      clearAuthError();
+      const email = els.emailInput.value.trim(); const password = els.passwordInput.value;
+      if (!email || !password) { showAuthError('Merci de renseigner votre email et votre mot de passe.'); return; }
+      if (state.authMode === 'register' && password.length < 6) { showAuthError('Le mot de passe doit contenir au moins 6 caractères.'); return; }
+      els.authSubmitBtn.disabled = true; els.authSubmitBtn.classList.add('opacity-60');
+      try {
+        const credential = state.authMode === 'register' ? await createUserWithEmailAndPassword(auth, email, password) : await signInWithEmailAndPassword(auth, email, password);
+        const profile = await ensureWorkerUserDocument(credential.user);
+        if (profile.role !== 'intervenante') throw new Error('Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.');
+        state.currentUser = credential.user; state.workerProfile = profile; showApp(); await loadWorkerHomes(); showToast(state.authMode === 'register' ? '✅ Compte créé.' : '✅ Connectée.');
+      } catch (error) { console.error(error); showAuthError(firebaseErrorMessage(error)); }
+      finally { els.authSubmitBtn.disabled = false; els.authSubmitBtn.classList.remove('opacity-60'); }
+    }
+
+    function isValidWorkerAccess(access, code) { return Boolean(access && access.active === true && access.role === 'intervenante' && access.homeId && String(access.code || '') === code); }
+    function workerHomeLinkRef(workerUid, homeId) { return doc(db, 'users', workerUid, 'workerHomes', homeId); }
+    async function resolveWorkerAccessCode(code) {
+      const cleanedCode = workerCodeValue(code); if (!cleanedCode) throw new Error('Code invalide.');
+      const snapshot = await getDoc(doc(db, WORKER_CODES_COLLECTION, cleanedCode));
+      const access = snapshot.exists() ? snapshot.data() : null;
+      if (isValidWorkerAccess(access, cleanedCode)) return access;
+      throw new Error('Code invalide ou inactif.');
+    }
+    async function addWorkerHomeWithCode() {
+      if (!state.currentUser) { showToast('Connectez-vous comme intervenante.'); return; }
+      const code = workerCodeValue(els.homeCodeInput.value); if (!code) return;
+      els.addHomeBtn.disabled = true; els.addHomeBtn.classList.add('opacity-60');
+      try {
+        const access = await resolveWorkerAccessCode(code); const homeId = String(access.homeId || ''); if (!homeId) throw new Error('Code invalide.');
+        await setDoc(workerHomeLinkRef(state.currentUser.uid, homeId), { homeId, code, role: 'intervenante', active: true, addedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
+        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); els.homeCodeInput.value = ''; showToast('✅ Domicile ajouté.'); await loadWorkerHomes(); setCurrentPage('home');
+      } catch (error) { console.error(error); showToast(firebaseErrorMessage(error) || 'Code invalide.'); }
+      finally { els.addHomeBtn.disabled = false; els.addHomeBtn.classList.remove('opacity-60'); }
+    }
+
+    async function fetchWorkerHomeLinks() {
+      if (!state.currentUser) return [];
+      const snapshot = await getDocs(collection(db, 'users', state.currentUser.uid, 'workerHomes'));
+      return snapshot.docs.map((d) => ({ id: d.id, ...(d.data() || {}) })).filter((link) => link.active !== false && link.homeId);
+    }
+    async function fetchHomeInfo(homeId) {
+      try { const snap = await getDoc(doc(db, 'users', String(homeId))); return homeInfoFromData(homeId, snap.exists() ? snap.data() : {}); }
+      catch { return homeInfoFromData(homeId, {}); }
+    }
+    async function fetchWorkerEntries(homeId) {
+      const snapshot = await getDocs(collection(db, 'users', homeId, 'entries'));
+      return snapshot.docs.map((d) => { const entry = d.data() || {}; const type = String(entry.type || 'payment'); return { id: String(entry.id || d.id), type, date: toISODateOnly(entry.date), duration: type === 'session' ? Number(entry.duration || 0) : undefined, amount: Number(entry.amount || 0), rate: type === 'session' ? Number(entry.rate || 0) : undefined, paidAmount: type === 'session' ? Number(entry.paidAmount || entry.paymentAmount || entry.amountPaid || entry.payment?.amount || 0) : undefined, paymentStatus: type === 'session' ? String(entry.paymentStatus || entry.paidStatus || entry.payment?.status || '') : undefined, tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : [], status: type === 'session' ? String(entry.status || '') : undefined, intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined, intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined, createdAt: String(entry.createdAt || nowISO()) }; });
+    }
+    function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && e.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date))); }
+    function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || e.status === 'terminee_intervenante')).sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date))); }
+
+    async function loadWorkerHomes() {
+      if (!state.currentUser) return;
+      try {
+        state.homeLinks = await fetchWorkerHomeLinks();
+        state.homeLabels = [];
+        state.allUpcomingSessions = [];
+        state.allSessions = [];
+        for (const link of state.homeLinks) {
+          const homeId = String(link.homeId);
+          const homeInfo = await fetchHomeInfo(homeId); const label = homeInfo.label; state.homeLabels.push(homeInfo);
+          const homeSnapshot = await getDoc(doc(db, 'users', homeId)); const home = homeSnapshot.exists() ? homeSnapshot.data() : {}; const settings = home.settings || {};
+          const entries = (await fetchWorkerEntries(homeId)).map((entry) => entry.type !== 'session' ? entry : { ...entry, tasks: normalizeSessionTasks(entry.tasks.length ? entry.tasks : settings.sessionTasks?.[entry.id] || []) });
+          entries.filter((entry) => entry.type === 'session').forEach((session) => state.allSessions.push({ ...session, homeId, homeLabel: label, homeInfo, homeSettings: settings }));
+          nextSessionsForEntries(entries).forEach((session) => state.allUpcomingSessions.push({ ...session, homeId, homeLabel: label, homeInfo, homeSettings: settings }));
+        }
+        state.allUpcomingSessions.sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
+        state.allSessions.sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
+        if (!state.currentHomeId && state.homeLabels.length) state.currentHomeId = state.homeLabels[0].homeId;
+        if (state.currentHomeId && !state.homeLabels.some((h) => h.homeId === state.currentHomeId) && state.homeLabels.length) state.currentHomeId = state.homeLabels[0].homeId;
+        localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || '');
+        renderAll();
+      } catch (error) { console.error(error); showToast(firebaseErrorMessage(error)); }
+    }
+
+    function renderAll() { renderHome(); renderHomes(); renderSettings(); renderSessionDetail(); }
+    function renderHome() {
+      const count = state.homeLabels.length;
+      els.homeSummary.textContent = count ? count + ' domicile' + (count > 1 ? 's' : '') + ' lié' + (count > 1 ? 's' : '') + ' · ' + state.allUpcomingSessions.length + ' session(s) à venir' : 'Aucun domicile lié pour le moment.';
+      els.upcomingSessionsList.innerHTML = state.allUpcomingSessions.length ? state.allUpcomingSessions.slice(0, 10).map((s) => sessionCardHtml(s)).join('') : '<div class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune session à venir. Ajoutez un domicile depuis les réglages.</div>';
+      renderSessionsPage();
+      bindOpenSessionButtons();
+    }
+    function sessionCardHtml(session) {
+      const tasks = normalizeSessionTasks(session.tasks); const done = tasks.filter((t) => t.done).length;
+      const taskLabels = tasks.length ? tasks.map((task) => esc(task.label)).join(', ') : 'Aucune tâche prévue';
+      const paymentSummary = (Number(session.paidAmount || 0) || session.paymentStatus) ? ('Paiement : ' + (Number(session.paidAmount || 0) ? euro(session.paidAmount) : 'montant non précisé') + ' · ' + esc(session.paymentStatus || 'statut non précisé')) : 'Paiement non renseigné';
+      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatDate(session.date)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(session.amount) + ' · Statut : ' + esc(session.status || 'prévue') + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p></div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">Voir</button></div></article>';
+    }
+    function renderHomes() {
+      els.homesList.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => {
+        const phone = normalizePhone(home.phone);
+        const hasInfo = Boolean(home.address || home.phone || home.accessNotes);
+        return '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm space-y-2"><div><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Domicile lié</span></div>'
+          + (hasInfo ? '<div class="space-y-1 text-slate-600 dark:text-slate-300">' + (home.address ? '<p>📍 ' + esc(home.address) + '</p>' : '') + (home.phone ? '<p>☎️ ' + esc(home.phone) + '</p>' : '') + (home.accessNotes ? '<p class="whitespace-pre-wrap">📝 ' + esc(home.accessNotes) + '</p>' : '') + '</div>' : '<p class="text-slate-500 dark:text-slate-400">Informations du domicile non renseignées.</p>')
+          + (phone ? '<div class="grid grid-cols-2 gap-2 pt-1"><a class="rounded-2xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-center font-medium" href="tel:+' + esc(phone) + '">Appeler</a><a class="rounded-2xl bg-green-600 text-white px-3 py-2 text-center font-medium" target="_blank" rel="noopener" href="https://wa.me/' + esc(phone) + '">WhatsApp</a></div>' : '')
+          + '</div>';
+      }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile ajouté pour le moment.</div>';
+    }
+
+    function sessionListHtml(title, sessions, emptyText) {
+      return '<section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-3"><h2 class="text-xl font-semibold tracking-tight">' + esc(title) + '</h2>' + (sessions.length ? sessions.map((session) => sessionCardHtml(session)).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">' + esc(emptyText) + '</div>') + '</section>';
+    }
+
+    function renderSessionsPage() {
+      const today = todayISO();
+      const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
+      const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)));
+      const groups = byId('sessionGroups');
+      if (groups) groups.innerHTML = sessionListHtml('À venir', upcoming, 'Aucune session à venir.') + sessionListHtml('Historique', history, 'Aucune session passée.');
+      bindOpenSessionButtons();
+    }
+
+    function renderSettings() {
+      els.homeSelect.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.currentHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('') : '<option value="">Aucun domicile ajouté</option>';
+      els.homeSelect.disabled = !state.homeLabels.length;
+      const active = state.homeLabels.find((h) => h.homeId === state.currentHomeId);
+      els.activeHomeInfo.textContent = active ? 'Domicile actif : ' + active.label : 'Aucun domicile sélectionné.';
+      els.accountText.textContent = state.currentUser?.email || 'Compte intervenante';
+      const lang = state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; els.languageSelect.value = lang;
+    }
+    function renderSessionDetail() {
+      const s = state.currentSession || state.allUpcomingSessions[0] || state.allSessions[0];
+      if (!s) { els.sessionDetailCard.innerHTML = '<div class="text-center py-6 text-sm text-slate-500 dark:text-slate-400">Aucune session sélectionnée.</div>'; return; }
+      state.currentSession = s; const tasks = normalizeSessionTasks(s.tasks); const done = tasks.filter((t) => t.done).length;
+      els.sessionDetailCard.innerHTML = '<div><p class="text-sm font-medium text-apple-600 dark:text-apple-500">' + esc(s.homeLabel || 'Domicile') + '</p><h2 class="text-xl font-semibold tracking-tight mt-1">' + esc(formatDate(s.date)) + ' · ' + esc(s.duration || 0) + 'h</h2><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(s.amount) + ' · Statut : ' + esc(s.status || 'prévue') + '</p><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p></div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(s) + '</div><div class="space-y-2">' + (tasks.length ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(task.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + '</span></span></label>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche prévue.</div>') + '</div><div><label for="commentInput" class="block text-sm font-medium mb-1">Commentaire optionnel</label><textarea id="commentInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ajouter une remarque pour le client">' + esc(s.intervenanteComment || '') + '</textarea></div><button id="finishSessionBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Terminer la session</button>';
+      const finishBtn = byId('finishSessionBtn'); if (finishBtn) finishBtn.addEventListener('click', finishWorkerSession);
+    }
+    function bindOpenSessionButtons() { document.querySelectorAll('.open-session-btn').forEach((btn) => btn.addEventListener('click', () => { const found = state.allSessions.find((s) => s.homeId === btn.dataset.homeId && s.id === btn.dataset.sessionId); if (found) { state.currentSession = found; renderSessionDetail(); setCurrentPage('sessions'); } })); }
+
+    async function finishWorkerSession() {
+      const s = state.currentSession; if (!s?.homeId || !s?.id) return;
+      const finishBtn = byId('finishSessionBtn'); if (finishBtn) { finishBtn.disabled = true; finishBtn.classList.add('opacity-60'); }
+      try {
+        const checked = new Set(Array.from(document.querySelectorAll('.worker-task-checkbox:checked')).map((c) => c.dataset.taskId));
+        const tasks = normalizeSessionTasks(s.tasks).map((task) => ({ ...task, done: checked.has(task.id) }));
+        const comment = (byId('commentInput')?.value || '').trim();
+        await setDoc(doc(db, 'users', s.homeId, 'entries', s.id), { tasks, status: 'terminee_intervenante', intervenanteComment: comment, intervenanteValidatedAt: nowISO(), updatedAt: serverTimestamp() }, { merge: true });
+        showToast('✅ Session terminée.'); state.currentSession = null; await loadWorkerHomes(); setCurrentPage('home');
+      } catch (error) { console.error(error); showToast('⚠️ Session non enregistrée.'); if (finishBtn) { finishBtn.disabled = false; finishBtn.classList.remove('opacity-60'); } }
+    }
+
+    function setCurrentPage(page) {
+      state.currentPage = page;
+      document.querySelectorAll('.page').forEach((el) => el.classList.remove('active'));
+      const pageEl = byId('page-' + page); if (pageEl) pageEl.classList.add('active');
+      const titles = { home: 'Accueil', sessions: 'Sessions', homes: 'Domiciles', settings: 'Réglages' }; els.pageTitle.textContent = titles[page] || 'Accueil';
+      document.querySelectorAll('.nav-btn').forEach((btn) => { const active = btn.dataset.page === page; btn.className = 'nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-[11px] ' + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'); });
+    }
+
+    function bindEvents() {
+      els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
+      els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
+      els.authSubmitBtn.addEventListener('click', submitAuth); els.passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
+      els.logoutBtn.addEventListener('click', async () => { await signOut(auth); state.currentUser = null; state.workerProfile = null; showAuth(); showToast('Déconnectée.'); });
+      els.refreshBtn.addEventListener('click', loadWorkerHomes);
+      els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
+      els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
+      els.addHomeBtn.addEventListener('click', addWorkerHomeWithCode);
+      els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Domicile actif modifié.'); });
+      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); });
+      document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
+    }
+
+    function runSmokeTests() {
+      const tests = [ ['Code normalisé', workerCodeValue(' a7 k92p ') === 'A7K92P'], ['Tâches normalisées', normalizeSessionTasks([{ label: 'Aspirateur' }]).length === 1], ['HTML échappé', esc('<x>') === '&lt;x&gt;'], ['Date ISO conservée', toISODateOnly('2026-05-10') === '2026-05-10'] ];
+      console.table(tests.map(([test, ok]) => ({ test, ok }))); return tests.every(([, ok]) => ok);
+    }
+    window.__cleanAppIntervenanteTests = { runSmokeTests, workerCodeValue, normalizeSessionTasks };
+
+    bindEvents(); renderAuthMode(); showAuth();
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      if (!firebaseUser) { state.currentUser = null; state.workerProfile = null; showAuth(); return; }
+      try {
+        const profile = await ensureWorkerUserDocument(firebaseUser);
+        if (profile.role !== 'intervenante') { state.currentUser = firebaseUser; state.workerProfile = profile; showAuth(); showAuthError('Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.'); return; }
+        state.currentUser = firebaseUser; state.workerProfile = profile; showApp(); await loadWorkerHomes(); setCurrentPage('home');
+      } catch (error) { console.error(error); showAuth(); showAuthError(firebaseErrorMessage(error)); }
+    });
+  </script>
+</body>
+</html>
