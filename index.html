@@ -876,16 +876,42 @@
       .filter((task) => task.label);
   }
 
+  function cleanTaskText(value) {
+    const text = String(value || '').trim();
+    if (!text || /^[0-9a-f]{8,}$/i.test(text) || /^task-[a-z0-9-]*$/i.test(text)) return '';
+    return text;
+  }
+
+  function normalizeTranslations(value) {
+    if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+    return Object.fromEntries(Object.entries(value).map(([language, text]) => [String(language), cleanTaskText(text)]).filter(([, text]) => text));
+  }
+
   function normalizeSessionTasks(value) {
     if (!Array.isArray(value)) return [];
     return value
-      .map((task) => ({
-        id: String(task?.id || crypto.randomUUID()),
-        label: String(task?.label || '').trim(),
-        source: String(task?.source || 'manual'),
-        done: Boolean(task?.done)
-      }))
-      .filter((task) => task.label);
+      .map((task) => {
+        if (typeof task === 'string') {
+          const label = cleanTaskText(task);
+          return { id: crypto.randomUUID(), label, originalText: label, originalLanguage: 'fr', type: 'custom', source: 'manual', translations: {}, done: false };
+        }
+        const originalText = cleanTaskText(task?.originalText || task?.label || task?.title || task?.name || task?.text);
+        const label = cleanTaskText(task?.label || task?.title || task?.name || task?.text || originalText);
+        const type = String(task?.type || (task?.originalText || task?.source === 'manual' ? 'custom' : 'preset'));
+        return {
+          id: String(task?.id || crypto.randomUUID()),
+          label,
+          labelKey: String(task?.labelKey || task?.i18nKey || ''),
+          i18nKey: String(task?.i18nKey || task?.labelKey || ''),
+          originalText,
+          originalLanguage: String(task?.originalLanguage || 'fr'),
+          type,
+          source: String(task?.source || (type === 'custom' ? 'manual' : 'default')),
+          translations: normalizeTranslations(task?.translations),
+          done: Boolean(task?.done)
+        };
+      })
+      .filter((task) => task.label || task.originalText || task.labelKey || task.i18nKey);
   }
 
   function normalizeSessionTaskMap(value, fallback = {}) {
@@ -2157,7 +2183,11 @@
       tasks.push({
         id: String(task.id || crypto.randomUUID()),
         label: task.label,
+        originalText: task.originalText || task.label,
+        originalLanguage: task.originalLanguage || 'fr',
+        type: 'custom',
         source: 'manual',
+        translations: task.translations || {},
         done: false
       });
     });
@@ -2912,7 +2942,7 @@
       const label = (els.sessionPunctualTaskInput?.value || '').trim();
       if (!label) return;
       state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks || []);
-      state.ui.sessionDraftTasks.push({ id: crypto.randomUUID(), label, source: 'manual', done: false });
+      state.ui.sessionDraftTasks.push({ id: crypto.randomUUID(), label, originalText: label, originalLanguage: 'fr', type: 'custom', source: 'manual', translations: {}, done: false });
       if (els.sessionPunctualTaskInput) els.sessionPunctualTaskInput.value = '';
       state.ui.sessionTaskPreviewVisible = true;
       saveState();
