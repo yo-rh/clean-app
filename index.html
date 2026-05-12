@@ -741,6 +741,7 @@
     deleteDoc,
     serverTimestamp
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
   // Remplace ce bloc par le firebaseConfig de ton projet Firebase.
   const firebaseConfig = {
@@ -760,9 +761,13 @@
   const firebaseApp = initializeApp(firebaseConfig);
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
+  const functions = getFunctions(firebaseApp, "europe-west1");
+  const translateTaskCallable = httpsCallable(functions, "translateTask");
 
   const STORAGE_KEY = 'cleanAppFirebaseV1';
   const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
+  const SUPPORTED_TASK_LANGUAGES = ['fr', 'es', 'en', 'pt', 'ar'];
+  const BUILT_IN_TASK_IDS = new Set(['default_aspirateur', 'default_serpilliere', 'default_salle_de_bain', 'default_cuisine', 'recurring_draps']);
 
   const defaultState = {
     settings: {
@@ -824,33 +829,60 @@
   function normalizeTaskSettings(value, fallback = []) {
     const source = Array.isArray(value) ? value : fallback;
     return source
-      .map((task) => ({
-        id: String(task?.id || crypto.randomUUID()),
-        label: String(task?.label || '').trim()
-      }))
-      .filter((task) => task.label);
+      .map((task) => {
+        const label = cleanTaskText(task?.label || task?.title || task?.name || task?.text || task?.originalText);
+        const originalText = cleanTaskText(task?.originalText || label);
+        return {
+          id: String(task?.id || crypto.randomUUID()),
+          label,
+          originalText,
+          originalLanguage: String(task?.originalLanguage || 'fr'),
+          type: String(task?.type || (task?.originalText || task?.source === 'manual' ? 'custom' : 'preset')),
+          source: String(task?.source || 'default'),
+          translations: normalizeTranslations(task?.translations)
+        };
+      })
+      .filter((task) => task.label || task.originalText);
   }
 
   function normalizeRecurringTaskSettings(value, fallback = []) {
     const source = Array.isArray(value) ? value : fallback;
     return source
-      .map((task) => ({
-        id: String(task?.id || crypto.randomUUID()),
-        label: String(task?.label || '').trim(),
-        everySessions: Math.max(2, Math.floor(Number(task?.everySessions || task?.every || 2)))
-      }))
-      .filter((task) => task.label);
+      .map((task) => {
+        const label = cleanTaskText(task?.label || task?.title || task?.name || task?.text || task?.originalText);
+        const originalText = cleanTaskText(task?.originalText || label);
+        return {
+          id: String(task?.id || crypto.randomUUID()),
+          label,
+          originalText,
+          originalLanguage: String(task?.originalLanguage || 'fr'),
+          type: String(task?.type || (task?.originalText || task?.source === 'manual' ? 'custom' : 'preset')),
+          source: String(task?.source || 'recurring'),
+          translations: normalizeTranslations(task?.translations),
+          everySessions: Math.max(2, Math.floor(Number(task?.everySessions || task?.every || 2)))
+        };
+      })
+      .filter((task) => task.label || task.originalText);
   }
 
   function normalizePunctualTaskSettings(value, fallback = []) {
     const source = Array.isArray(value) ? value : fallback;
     return source
-      .map((task) => ({
-        id: String(task?.id || crypto.randomUUID()),
-        label: String(task?.label || '').trim(),
-        date: toISODateOnly(task?.date || todayISO())
-      }))
-      .filter((task) => task.label);
+      .map((task) => {
+        const label = cleanTaskText(task?.label || task?.title || task?.name || task?.text || task?.originalText);
+        const originalText = cleanTaskText(task?.originalText || label);
+        return {
+          id: String(task?.id || crypto.randomUUID()),
+          label,
+          originalText,
+          originalLanguage: String(task?.originalLanguage || 'fr'),
+          type: String(task?.type || (task?.originalText || task?.source === 'manual' ? 'custom' : 'preset')),
+          source: String(task?.source || 'punctual'),
+          translations: normalizeTranslations(task?.translations),
+          date: toISODateOnly(task?.date || todayISO())
+        };
+      })
+      .filter((task) => task.label || task.originalText);
   }
 
   function cleanTaskText(value) {
@@ -1171,11 +1203,95 @@
   const nativeAlert = window.alert.bind(window);
   window.alert = (message) => nativeAlert(t(message));
 
+  function getTaskDisplayLabel(task, language = currentLanguage()) {
+    const lang = String(language || 'fr');
+    const translations = normalizeTranslations(task?.translations);
+    const sourceLanguage = String(task?.originalLanguage || 'fr');
+    if (lang !== sourceLanguage && translations[lang]) return translations[lang];
+
+    const fallback = cleanTaskText(task?.originalText || task?.label || task?.title || task?.name || task?.text);
+    if (!fallback) return '';
+    if (task?.type === 'custom' || task?.source === 'manual') return fallback;
+    return t(fallback);
+  }
+
   function localizedTaskLabel(task) {
-    const lang = currentLanguage();
-    const normalized = normalizeTranslations(task?.translations);
-    if (lang !== 'fr' && normalized[lang]) return normalized[lang];
-    return t(task?.label || task?.originalText || '');
+    return getTaskDisplayLabel(task, currentLanguage());
+  }
+
+  const pendingTaskTranslationKeys = new Set();
+  const taskTranslationCache = new Map();
+
+  function createUserTask(label, source, extra = {}) {
+    const text = cleanTaskText(label);
+    return {
+      id: String(extra.id || crypto.randomUUID()),
+      label: text,
+      originalText: text,
+      originalLanguage: 'fr',
+      type: 'custom',
+      source,
+      translations: normalizeTranslations(extra.translations),
+      ...extra
+    };
+  }
+
+  async function translateTextWithGoogle(text, sourceLanguage, targetLanguage) {
+    const cleanText = cleanTaskText(text);
+    if (!cleanText || !targetLanguage || sourceLanguage === targetLanguage) return '';
+    const cacheKey = [sourceLanguage || 'fr', targetLanguage, cleanText.toLowerCase()].join('::');
+    if (taskTranslationCache.has(cacheKey)) return taskTranslationCache.get(cacheKey);
+    const result = await translateTaskCallable({ text: cleanText, sourceLanguage: sourceLanguage || 'fr', targetLanguage });
+    const translatedText = cleanTaskText(result?.data?.translatedText);
+    if (translatedText) taskTranslationCache.set(cacheKey, translatedText);
+    return translatedText;
+  }
+
+  async function ensureTaskTranslation(task, targetLanguage) {
+    if (!task || !targetLanguage) return task;
+    task.translations = normalizeTranslations(task.translations);
+    const sourceLanguage = String(task.originalLanguage || 'fr');
+    if (targetLanguage === sourceLanguage || task.translations[targetLanguage]) return task;
+    const text = cleanTaskText(task.originalText || task.label || task.title || task.name || task.text);
+    if (!text) return task;
+    const translatedText = await translateTextWithGoogle(text, sourceLanguage, targetLanguage);
+    if (translatedText) task.translations[targetLanguage] = translatedText;
+    return task;
+  }
+
+  async function translateTaskForSupportedLanguages(task) {
+    const sourceLanguage = String(task?.originalLanguage || 'fr');
+    for (const language of SUPPORTED_TASK_LANGUAGES) {
+      if (language !== sourceLanguage) {
+        try {
+          await ensureTaskTranslation(task, language);
+        } catch (error) {
+          console.warn('Erreur traduction tâche :', error);
+        }
+      }
+    }
+    return task;
+  }
+
+  function isUserTaskTranslatable(task) {
+    if (!task || BUILT_IN_TASK_IDS.has(String(task.id || ''))) return false;
+    return Boolean(task.type === 'custom' || task.source === 'manual' || task.originalText);
+  }
+
+  function scheduleVisibleTaskTranslation(task, onTranslated) {
+    const language = currentLanguage();
+    if (!task || !language || !isUserTaskTranslatable(task)) return;
+    const sourceLanguage = String(task.originalLanguage || 'fr');
+    if (language === sourceLanguage || normalizeTranslations(task.translations)[language]) return;
+    const text = cleanTaskText(task.originalText || task.label || task.title || task.name || task.text);
+    if (!text) return;
+    const key = [task.id || text, language].join('::');
+    if (pendingTaskTranslationKeys.has(key)) return;
+    pendingTaskTranslationKeys.add(key);
+    ensureTaskTranslation(task, language)
+      .then(() => { if (normalizeTranslations(task.translations)[language]) onTranslated?.(); })
+      .catch((error) => console.warn('Erreur traduction tâche visible :', error))
+      .finally(() => pendingTaskTranslationKeys.delete(key));
   }
 
   const durationButtons = Array.from(document.querySelectorAll('.duration-option'));
@@ -2221,7 +2337,11 @@
       tasks.push({
         id: String(task.id),
         label: task.label,
+        originalText: task.originalText || task.label,
+        originalLanguage: task.originalLanguage || 'fr',
+        type: task.type || 'preset',
         source: 'default',
+        translations: normalizeTranslations(task.translations),
         done: false
       });
     });
@@ -2231,7 +2351,11 @@
         tasks.push({
           id: String(task.id),
           label: task.label,
+          originalText: task.originalText || task.label,
+          originalLanguage: task.originalLanguage || 'fr',
+          type: task.type || 'preset',
           source: 'recurring',
+          translations: normalizeTranslations(task.translations),
           done: false
         });
       }
@@ -2242,7 +2366,11 @@
         tasks.push({
           id: String(task.id),
           label: task.label,
+          originalText: task.originalText || task.label,
+          originalLanguage: task.originalLanguage || 'fr',
+          type: task.type || 'custom',
           source: 'punctual',
+          translations: normalizeTranslations(task.translations),
           done: false
         });
       }
@@ -2282,6 +2410,8 @@
 
     if (els.defaultTasksList) {
       const tasks = normalizeTaskSettings(state.settings.defaultTasks);
+      state.settings.defaultTasks = tasks;
+      tasks.forEach((task) => scheduleVisibleTaskTranslation(task, () => persistTaskSettings(false)));
       els.defaultTasksList.innerHTML = tasks.length
         ? tasks.map((task) => taskSettingItemHtml(task, 'default', 'À chaque passage')).join('')
         : emptyTaskSettingHtml('Aucune tâche à chaque passage pour le moment.');
@@ -2289,6 +2419,8 @@
 
     if (els.recurringTasksList) {
       const tasks = normalizeRecurringTaskSettings(state.settings.recurringTasks);
+      state.settings.recurringTasks = tasks;
+      tasks.forEach((task) => scheduleVisibleTaskTranslation(task, () => persistTaskSettings(false)));
       els.recurringTasksList.innerHTML = tasks.length
         ? tasks.map((task) => taskSettingItemHtml(task, 'recurring', 'Toutes les ' + task.everySessions + ' sessions')).join('')
         : emptyTaskSettingHtml('Aucune tâche récurrente pour le moment.');
@@ -2296,6 +2428,8 @@
 
     if (els.punctualTasksList) {
       const tasks = normalizePunctualTaskSettings(state.settings.punctualTasks);
+      state.settings.punctualTasks = tasks;
+      tasks.forEach((task) => scheduleVisibleTaskTranslation(task, () => persistTaskSettings(false)));
       els.punctualTasksList.innerHTML = tasks.length
         ? tasks.map((task) => taskSettingItemHtml(task, 'punctual', formatDate(task.date))).join('')
         : emptyTaskSettingHtml('Aucune tâche ponctuelle planifiée.');
@@ -2318,7 +2452,7 @@
       + '</div>';
   }
 
-  async function persistTaskSettings() {
+  async function persistTaskSettings(showSuccess = true) {
     state.settings.defaultTasks = normalizeTaskSettings(state.settings.defaultTasks);
     state.settings.recurringTasks = normalizeRecurringTaskSettings(state.settings.recurringTasks);
     state.settings.punctualTasks = normalizePunctualTaskSettings(state.settings.punctualTasks);
@@ -2326,7 +2460,7 @@
     renderTaskSettings();
     try {
       await saveUserSettings();
-      showToast('✅ Tâches enregistrées.');
+      if (showSuccess) showToast('✅ Tâches enregistrées.');
     } catch (error) {
       console.error(error);
       showToast('⚠️ Tâches non synchronisées.');
@@ -2354,6 +2488,7 @@
   }
 
   function renderSessionTasks(entry) {
+    scheduleSessionTaskTranslations(entry);
     const tasks = normalizeSessionTasks(entry.tasks);
     if (!tasks.length) {
       return '<div class="mt-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche associée à cette session.</div>';
@@ -2453,6 +2588,23 @@
       .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)))[0] || null;
   }
 
+
+  function scheduleSessionTaskTranslations(entry) {
+    if (!entry || entry.type !== 'session') return;
+    entry.tasks = normalizeSessionTasks(entry.tasks);
+    entry.tasks.forEach((task) => {
+      scheduleVisibleTaskTranslation(task, () => {
+        entry.tasks = normalizeSessionTasks(entry.tasks).map((candidate) => candidate.id === task.id ? { ...candidate, translations: normalizeTranslations(task.translations) } : candidate);
+        state.settings.sessionTasks = normalizeSessionTaskMap(state.settings.sessionTasks);
+        state.settings.sessionTasks[entry.id] = entry.tasks;
+        saveState();
+        saveRemoteEntry(entry).catch(console.error);
+        saveUserSettings().catch(console.error);
+        renderFull();
+      });
+    });
+  }
+
   function renderNextSession(sorted) {
     if (!els.nextSessionCard) return;
     const next = nextSessionEntry(sorted || sortedEntries());
@@ -2462,6 +2614,7 @@
       return;
     }
 
+    scheduleSessionTaskTranslations(next);
     const tasks = normalizeSessionTasks(next.tasks);
     const doneCount = tasks.filter((task) => task.done).length;
     els.nextSessionCard.classList.remove('hidden');
@@ -2926,11 +3079,18 @@
   }
 
   if (els.addDefaultTaskBtn) {
-    els.addDefaultTaskBtn.addEventListener('click', () => {
+    els.addDefaultTaskBtn.addEventListener('click', async () => {
       const label = (els.defaultTaskInput?.value || '').trim();
       if (!label) return;
+      const task = createUserTask(label, 'default');
+      if (els.addDefaultTaskBtn) els.addDefaultTaskBtn.disabled = true;
+      try {
+        await translateTaskForSupportedLanguages(task);
+      } finally {
+        if (els.addDefaultTaskBtn) els.addDefaultTaskBtn.disabled = false;
+      }
       state.settings.defaultTasks = normalizeTaskSettings(state.settings.defaultTasks);
-      state.settings.defaultTasks.push({ id: crypto.randomUUID(), label });
+      state.settings.defaultTasks.push(task);
       if (els.defaultTaskInput) els.defaultTaskInput.value = '';
       persistTaskSettings();
     });
@@ -2943,12 +3103,19 @@
   }
 
   if (els.addRecurringTaskBtn) {
-    els.addRecurringTaskBtn.addEventListener('click', () => {
+    els.addRecurringTaskBtn.addEventListener('click', async () => {
       const label = (els.recurringTaskInput?.value || '').trim();
       const everySessions = Math.max(2, Math.floor(Number(els.recurringTaskEveryInput?.value || 2)));
       if (!label) return;
+      const task = createUserTask(label, 'recurring', { everySessions });
+      if (els.addRecurringTaskBtn) els.addRecurringTaskBtn.disabled = true;
+      try {
+        await translateTaskForSupportedLanguages(task);
+      } finally {
+        if (els.addRecurringTaskBtn) els.addRecurringTaskBtn.disabled = false;
+      }
       state.settings.recurringTasks = normalizeRecurringTaskSettings(state.settings.recurringTasks);
-      state.settings.recurringTasks.push({ id: crypto.randomUUID(), label, everySessions });
+      state.settings.recurringTasks.push(task);
       if (els.recurringTaskInput) els.recurringTaskInput.value = '';
       if (els.recurringTaskEveryInput) els.recurringTaskEveryInput.value = '';
       persistTaskSettings();
@@ -2962,20 +3129,28 @@
   }
 
   if (els.addPunctualTaskBtn) {
-    els.addPunctualTaskBtn.addEventListener('click', () => {
+    els.addPunctualTaskBtn.addEventListener('click', async () => {
       const label = (els.punctualTaskInput?.value || '').trim();
       const date = toISODateOnly(els.punctualTaskDateInput?.value || todayISO());
       if (!label) return;
+      const task = createUserTask(label, 'punctual', { date });
+      if (els.addPunctualTaskBtn) els.addPunctualTaskBtn.disabled = true;
+      try {
+        await translateTaskForSupportedLanguages(task);
+      } finally {
+        if (els.addPunctualTaskBtn) els.addPunctualTaskBtn.disabled = false;
+      }
       state.settings.punctualTasks = normalizePunctualTaskSettings(state.settings.punctualTasks);
-      state.settings.punctualTasks.push({ id: crypto.randomUUID(), label, date });
+      state.settings.punctualTasks.push(task);
 
       state.entries
         .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) === date)
         .forEach((entry) => {
           entry.tasks = normalizeSessionTasks(entry.tasks);
-          entry.tasks.push({ id: crypto.randomUUID(), label, source: 'punctual', done: false });
+          entry.tasks.push({ ...task, id: crypto.randomUUID(), done: false });
           state.settings.sessionTasks = normalizeSessionTaskMap(state.settings.sessionTasks);
           state.settings.sessionTasks[entry.id] = entry.tasks;
+          saveRemoteEntry(entry).catch(console.error);
           saveUserSettings().catch(console.error);
         });
 
@@ -3011,11 +3186,18 @@
   }
 
   if (els.addSessionPunctualTaskBtn) {
-    els.addSessionPunctualTaskBtn.addEventListener('click', () => {
+    els.addSessionPunctualTaskBtn.addEventListener('click', async () => {
       const label = (els.sessionPunctualTaskInput?.value || '').trim();
       if (!label) return;
+      const task = createUserTask(label, 'manual', { done: false });
+      if (els.addSessionPunctualTaskBtn) els.addSessionPunctualTaskBtn.disabled = true;
+      try {
+        await translateTaskForSupportedLanguages(task);
+      } finally {
+        if (els.addSessionPunctualTaskBtn) els.addSessionPunctualTaskBtn.disabled = false;
+      }
       state.ui.sessionDraftTasks = normalizeSessionTasks(state.ui.sessionDraftTasks || []);
-      state.ui.sessionDraftTasks.push({ id: crypto.randomUUID(), label, originalText: label, originalLanguage: 'fr', type: 'custom', source: 'manual', translations: {}, done: false });
+      state.ui.sessionDraftTasks.push(task);
       if (els.sessionPunctualTaskInput) els.sessionPunctualTaskInput.value = '';
       state.ui.sessionTaskPreviewVisible = true;
       saveState();
