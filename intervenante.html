@@ -22,6 +22,8 @@
     .hidden-view { display: none !important; }
     .page { display: none; }
     .page.active { display: block; }
+    .setup-step { display: none; }
+    .setup-step.active { display: block; }
     .safe-bottom { padding-bottom: calc(180px + env(safe-area-inset-bottom)); }
     .app-main, .page { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
     .scroll-safe-bottom { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
@@ -49,7 +51,7 @@
       <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
       <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
       <h1 class="text-3xl font-semibold tracking-tight">Espace intervenante</h1>
-      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.</p>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les personnes chez qui vous intervenez.</p>
     </div>
 
     <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
@@ -67,7 +69,112 @@
       </div>
       <p id="authError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300"></p>
       <button id="authSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
-      <a href="./index.html" class="block w-full text-center rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour espace client</a>
+      <a href="./index.html" class="block w-full text-center rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour à l’espace principal</a>
+    </section>
+  </section>
+
+
+  <section id="setupScreen" class="hidden-view min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
+    <div class="mb-6 text-center">
+      <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
+      <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
+      <h1 id="setupTitle" class="text-3xl font-semibold tracking-tight">Choisissez votre langue</h1>
+      <p id="setupSubtitle" class="mt-2 text-sm text-slate-500 dark:text-slate-400">Le reste de votre espace sera affiché dans la langue choisie.</p>
+    </div>
+
+    <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-soft space-y-5">
+      <div>
+        <div class="flex items-center justify-between mb-2">
+          <span id="setupStepLabel" class="text-xs font-semibold uppercase tracking-wide text-apple-600">Étape 1 sur 6</span>
+          <button id="setupSkipBtn" type="button" class="text-xs font-medium text-slate-400">Passer</button>
+        </div>
+        <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
+          <div id="setupProgressBar" class="h-full bg-apple-600 rounded-full transition-all" style="width: 16%;"></div>
+        </div>
+      </div>
+
+      <div class="setup-step active space-y-4" data-worker-setup-step="0">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Choisissez votre langue</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Le reste de votre espace sera affiché dans la langue choisie.</p>
+        </div>
+        <div>
+          <label for="setupLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
+          <select id="setupLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
+            <option value="fr">Français</option>
+            <option value="es">Espagnol</option>
+            <option value="en">Anglais</option>
+            <option value="pt">Portugais</option>
+            <option value="ar">Arabe</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="setup-step space-y-4" data-worker-setup-step="1">
+        <h2 class="text-xl font-semibold mb-2">Bienvenue sur votre espace intervenante</h2>
+        <p class="text-sm text-slate-500 dark:text-slate-400">Ajoutez les foyers de vos utilisateurs, consultez vos prochaines sessions et cochez les tâches réalisées après chaque passage.</p>
+      </div>
+
+      <div class="setup-step space-y-4" data-worker-setup-step="2">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Mes informations</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Ces informations seront visibles par les foyers liés à votre espace. Elles permettront de vous identifier et de vous contacter via WhatsApp.</p>
+        </div>
+        <div>
+          <label for="setupFirstNameInput" class="block text-sm font-medium mb-1">Prénom</label>
+          <input id="setupFirstNameInput" type="text" autocomplete="given-name" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Diana" />
+        </div>
+        <div>
+          <label for="setupPhoneInput" class="block text-sm font-medium mb-1">Numéro de téléphone</label>
+          <input id="setupPhoneInput" type="tel" autocomplete="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
+        </div>
+      </div>
+
+      <div class="setup-step space-y-4" data-worker-setup-step="3">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Ajouter un foyer</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Demandez à la personne chez qui vous intervenez de générer un code d’accès depuis son application, puis saisissez-le ici pour ajouter son foyer à votre espace.</p>
+        </div>
+        <div>
+          <label for="setupHomeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout</label>
+          <input id="setupHomeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
+        </div>
+        <button id="setupAddHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter le foyer</button>
+        <button id="setupSkipHomeBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Passer cette étape pour le moment</button>
+      </div>
+
+      <div class="setup-step space-y-4" data-worker-setup-step="4">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Votre espace est prêt</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Vous retrouverez vos prochaines sessions dans l’accueil. Les tâches peuvent être cochées au fur et à mesure : elles apparaîtront comme terminées dans l’espace du foyer.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3 text-sm">
+          <div class="rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3"><strong>Accueil</strong><br><span class="text-slate-500 dark:text-slate-400">Prochaines sessions</span></div>
+          <div class="rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3"><strong>Sessions</strong><br><span class="text-slate-500 dark:text-slate-400">Détail des passages et tâches</span></div>
+          <div class="rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3"><strong>Foyers</strong><br><span class="text-slate-500 dark:text-slate-400">Foyers liés</span></div>
+          <div class="rounded-2xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-3"><strong>Réglages</strong><br><span class="text-slate-500 dark:text-slate-400">Mes informations, langue, ajout de foyer</span></div>
+        </div>
+      </div>
+
+      <div class="setup-step space-y-4" data-worker-setup-step="5">
+        <div class="rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4">
+          <p class="text-4xl mb-3">📱</p>
+          <h2 class="text-xl font-semibold mb-2">Ajoutez Clean’ App à votre écran d’accueil</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Pour l’utiliser comme une vraie application sur iPhone :</p>
+          <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <li>Ouvrez Clean’ App dans Safari.</li>
+            <li>Appuyez sur le bouton de partage en bas de l’écran.</li>
+            <li>Sélectionnez “Sur l’écran d’accueil”.</li>
+            <li>Appuyez sur “Ajouter”.</li>
+          </ol>
+          <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Vous pourrez ensuite ouvrir Clean’ App directement depuis votre écran d’accueil, comme une application classique.</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 pt-2">
+        <button id="setupBackBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour</button>
+        <button id="setupNextBtn" type="button" class="rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Continuer</button>
+      </div>
     </section>
   </section>
 
@@ -98,8 +205,8 @@
       <section id="page-homes" class="page space-y-4">
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
-            <h2 class="text-xl font-semibold tracking-tight">Mes domiciles</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Liste des domiciles liés à votre compte intervenante.</p>
+            <h2 class="text-xl font-semibold tracking-tight">Mes foyers</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Liste des foyers liés à votre espace intervenante.</p>
           </div>
           <div id="homesList" class="space-y-2"></div>
         </section>
@@ -108,14 +215,14 @@
       <section id="page-settings" class="page space-y-4">
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
           <div>
-            <h2 class="text-xl font-semibold tracking-tight">Ajouter un domicile</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Saisissez le code court généré côté client. Exemple : A7K92P</p>
+            <h2 class="text-xl font-semibold tracking-tight">Ajouter un foyer</h2>
+            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Saisissez le code d’accès généré depuis l’espace principal. Exemple : A7K92P</p>
           </div>
           <div>
-            <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code domicile</label>
+            <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout</label>
             <input id="homeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
           </div>
-          <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter ce domicile</button>
+          <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter le foyer</button>
           <p id="addHomeMessage" class="hidden text-sm"></p>
         </section>
 
@@ -161,7 +268,7 @@
         <div class="grid grid-cols-4 items-end text-[11px]">
           <button data-page="home" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-900 dark:text-white"><span class="text-xl leading-none">🏠</span><span>Accueil</span></button>
           <button data-page="sessions" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🧽</span><span>Sessions</span></button>
-          <button data-page="homes" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🏘️</span><span>Domiciles</span></button>
+          <button data-page="homes" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">🏘️</span><span>Foyers</span></button>
           <button data-page="settings" class="nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-slate-500 dark:text-slate-400"><span class="text-xl leading-none">⚙️</span><span>Réglages</span></button>
         </div>
       </div>
@@ -214,14 +321,14 @@
       authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '', language: 'fr' }, workerProfileUnsubscribe: null,
       homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [], allPayments: [],
       currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
-      currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: '', pendingTaskTranslations: new Set()
+      currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: '', pendingTaskTranslations: new Set(), setupStep: 0
     };
 
     const byId = (id) => document.getElementById(id);
     const els = {
-      authScreen: byId('authScreen'), appShell: byId('appShell'), bottomNav: byId('bottomNav'),
+      authScreen: byId('authScreen'), setupScreen: byId('setupScreen'), appShell: byId('appShell'), bottomNav: byId('bottomNav'),
       loginTabBtn: byId('loginTabBtn'), registerTabBtn: byId('registerTabBtn'), emailInput: byId('emailInput'), passwordInput: byId('passwordInput'),
-      authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
+      authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), setupTitle: byId('setupTitle'), setupSubtitle: byId('setupSubtitle'), setupStepLabel: byId('setupStepLabel'), setupProgressBar: byId('setupProgressBar'), setupSkipBtn: byId('setupSkipBtn'), setupBackBtn: byId('setupBackBtn'), setupNextBtn: byId('setupNextBtn'), setupLanguageSelect: byId('setupLanguageSelect'), setupFirstNameInput: byId('setupFirstNameInput'), setupPhoneInput: byId('setupPhoneInput'), setupHomeCodeInput: byId('setupHomeCodeInput'), setupAddHomeBtn: byId('setupAddHomeBtn'), setupSkipHomeBtn: byId('setupSkipHomeBtn'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
       homeSummary: byId('homeSummary'), upcomingSessionsList: byId('upcomingSessionsList'), sessionDetailCard: byId('sessionDetailCard'),
       homesList: byId('homesList'), homeCodeInput: byId('homeCodeInput'), addHomeBtn: byId('addHomeBtn'), addHomeMessage: byId('addHomeMessage'),
       workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
@@ -229,17 +336,28 @@
     };
 
     const UI_TRANSLATIONS = {
-      es: {"Espace intervenante":"Espacio de trabajadora","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Inicia sesión y añade domicilios con los códigos proporcionados por los clientes.","Connexion":"Iniciar sesión","Créer":"Crear","Mot de passe":"Contraseña","Minimum 6 caractères":"Mínimo 6 caracteres","Se connecter":"Iniciar sesión","Retour espace client":"Volver al espacio cliente","Compte intervenante":"Cuenta de trabajadora","Accueil":"Inicio","Votre planning":"Tu planificación","Prochaines sessions":"Próximas sesiones","Chargement…":"Cargando…","Mes domiciles":"Mis domicilios","Liste des domiciles liés à votre compte intervenante.":"Lista de domicilios vinculados a tu cuenta de trabajadora.","Ajouter un domicile":"Añadir un domicilio","Saisissez le code court généré côté client. Exemple : A7K92P":"Introduce el código corto generado por el cliente. Ejemplo: A7K92P","Code domicile":"Código de domicilio","Ajouter ce domicile":"Añadir este domicilio","Mes informations":"Mi información","Choisissez le domicile à consulter par défaut.":"Elige el domicilio que se consultará por defecto.","Domicile actif":"Domicilio activo","Aucun domicile sélectionné.":"No se ha seleccionado ningún domicilio.","Préférences":"Preferencias","Langue":"Idioma","Français":"Francés","Espagnol":"Español","Anglais":"Inglés","Portugais":"Portugués","Arabe":"Árabe","Se déconnecter":"Cerrar sesión","Sessions":"Sesiones","Domiciles":"Domicilios","Réglages":"Ajustes","Historique des paiements":"Historial de pagos","Paiements":"Pagos","Fermer":"Cerrar","Date":"Fecha","Durée":"Duración","Domicile":"Domicilio","Adresse":"Dirección","Montant prévu":"Importe previsto","Statut":"Estado","Paiement":"Pago","Notes":"Notas","Réduire":"Reducir","Voir":"Ver","Aucune tâche prévue":"No hay tareas previstas","Aucune tâche renseignée pour cette session.":"No hay tareas indicadas para esta sesión.","Domicile lié":"Domicilio vinculado","Informations du domicile non renseignées.":"Información del domicilio no indicada.","Appeler":"Llamar","Itinéraire":"Ruta","Aucun domicile ajouté pour le moment.":"No se ha añadido ningún domicilio por ahora.","Tâches":"Tareas","Tâches :":"Tareas:","Paiement non renseigné":"Pago no indicado","montant non précisé":"importe no indicado","statut non précisé":"estado no indicado","Paiement :":"Pago:","À faire":"Por hacer","Terminée":"Terminada","Aspirateur":"Aspiradora","Serpillière":"Fregar el suelo","Salle de bain":"Baño","Cuisine":"Cocina","Changer les draps":"Cambiar las sábanas","Déconnectée.":"Sesión cerrada.","Domicile actif modifié.":"Domicilio activo cambiado.","✅ Langue enregistrée.":"✅ Idioma guardado.","Récurrente":"Recurrente","Ponctuelle":"Puntual","Ajoutée":"Añadida","Base":"Base","prévue":"prevista","terminee_intervenante":"terminada","Créer mon compte intervenante":"Crear mi cuenta de trabajadora","Le mot de passe doit contenir au moins 6 caractères.":"La contraseña debe contener al menos 6 caracteres.","Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.":"Esta cuenta es de cliente. Usa otro email para el espacio de trabajadora.","Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.":"Has iniciado sesión con una cuenta de cliente. Inicia sesión con una cuenta de trabajadora o crea una con otro email.","Détail par domicile":"Detalle por domicilio","Aucun reste à payer par domicile.":"No queda nada por pagar por domicilio.","Montant dû total":"Importe total debido","Paiements à régulariser · détail disponible par domicile":"Pagos por regularizar · detalle disponible por domicilio","Aucun paiement enregistré pour le moment.":"No hay pagos registrados por ahora.","session du":"sesión del"},
-      en: {"Espace intervenante":"Worker area","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Sign in, then add homes with the codes provided by clients.","Connexion":"Sign in","Créer":"Create","Mot de passe":"Password","Minimum 6 caractères":"Minimum 6 characters","Se connecter":"Sign in","Retour espace client":"Back to client area","Compte intervenante":"Worker account","Accueil":"Home","Votre planning":"Your schedule","Prochaines sessions":"Upcoming sessions","Chargement…":"Loading…","Mes domiciles":"My homes","Liste des domiciles liés à votre compte intervenante.":"List of homes linked to your worker account.","Ajouter un domicile":"Add a home","Saisissez le code court généré côté client. Exemple : A7K92P":"Enter the short code generated on the client side. Example: A7K92P","Code domicile":"Home code","Ajouter ce domicile":"Add this home","Mes informations":"My information","Choisissez le domicile à consulter par défaut.":"Choose the default home to view.","Domicile actif":"Active home","Aucun domicile sélectionné.":"No home selected.","Préférences":"Preferences","Langue":"Language","Français":"French","Espagnol":"Spanish","Anglais":"English","Portugais":"Portuguese","Arabe":"Arabic","Se déconnecter":"Sign out","Sessions":"Sessions","Domiciles":"Homes","Réglages":"Settings","Historique des paiements":"Payment history","Paiements":"Payments","Fermer":"Close","Date":"Date","Durée":"Duration","Domicile":"Home","Adresse":"Address","Montant prévu":"Expected amount","Statut":"Status","Paiement":"Payment","Notes":"Notes","Réduire":"Collapse","Voir":"View","Aucune tâche prévue":"No tasks planned","Aucune tâche renseignée pour cette session.":"No task entered for this session.","Domicile lié":"Linked home","Informations du domicile non renseignées.":"Home information not provided.","Appeler":"Call","Itinéraire":"Directions","Aucun domicile ajouté pour le moment.":"No home added yet.","Tâches":"Tasks","Tâches :":"Tasks:","Paiement non renseigné":"Payment not provided","montant non précisé":"amount not specified","statut non précisé":"status not specified","Paiement :":"Payment:","À faire":"To do","Terminée":"Done","Aspirateur":"Vacuuming","Serpillière":"Mopping","Salle de bain":"Bathroom","Cuisine":"Kitchen","Changer les draps":"Change the sheets","Déconnectée.":"Signed out.","Domicile actif modifié.":"Active home changed.","✅ Langue enregistrée.":"✅ Language saved.","Récurrente":"Recurring","Ponctuelle":"One-off","Ajoutée":"Added","Base":"Base","prévue":"planned","terminee_intervenante":"completed","Créer mon compte intervenante":"Create my worker account","Le mot de passe doit contenir au moins 6 caractères.":"Password must contain at least 6 characters.","Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.":"This is a client account. Use another email for the worker area.","Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.":"You are signed in with a client account. Sign in with a worker account or create one with another email.","Détail par domicile":"Details by home","Aucun reste à payer par domicile.":"No remaining amount due by home.","Montant dû total":"Total amount due","Paiements à régulariser · détail disponible par domicile":"Payments to settle · details available by home","Aucun paiement enregistré pour le moment.":"No payment recorded yet.","session du":"session on"},
+      es: {"Espace intervenante":"Espacio de trabajadora","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les personnes chez qui vous intervenez.":"Inicia sesión y añade domicilios con los códigos proporcionados por las personas donde trabajas.","Connexion":"Iniciar sesión","Créer":"Crear","Mot de passe":"Contraseña","Minimum 6 caractères":"Mínimo 6 caracteres","Se connecter":"Iniciar sesión","Retour à l’espace principal":"Volver al espacio principal","Compte intervenante":"Cuenta de trabajadora","Accueil":"Inicio","Votre planning":"Tu planificación","Prochaines sessions":"Próximas sesiones","Chargement…":"Cargando…","Mes foyers":"Mis domicilios","Liste des foyers liés à votre espace intervenante.":"Lista de domicilios vinculados a tu cuenta de trabajadora.","Ajouter un foyer":"Añadir un domicilio","Saisissez le code d’accès généré depuis l’espace principal. Exemple : A7K92P":"Introduce el código corto generado desde el espacio principal. Ejemplo: A7K92P","Code d’ajout":"Código de domicilio","Ajouter le foyer":"Añadir este domicilio","Mes informations":"Mi información","Choisissez le domicile à consulter par défaut.":"Elige el domicilio que se consultará por defecto.","Foyer actif":"Domicilio activo","Aucun domicile sélectionné.":"No se ha seleccionado ningún domicilio.","Préférences":"Preferencias","Langue":"Idioma","Français":"Francés","Espagnol":"Español","Anglais":"Inglés","Portugais":"Portugués","Arabe":"Árabe","Se déconnecter":"Cerrar sesión","Sessions":"Sesiones","Foyers":"Domicilios","Réglages":"Ajustes","Historique des paiements":"Historial de pagos","Paiements":"Pagos","Fermer":"Cerrar","Date":"Fecha","Durée":"Duración","Domicile":"Domicilio","Adresse":"Dirección","Montant prévu":"Importe previsto","Statut":"Estado","Paiement":"Pago","Notes":"Notas","Réduire":"Reducir","Voir":"Ver","Aucune tâche prévue":"No hay tareas previstas","Aucune tâche renseignée pour cette session.":"No hay tareas indicadas para esta sesión.","Domicile lié":"Domicilio vinculado","Informations du domicile non renseignées.":"Información del domicilio no indicada.","Appeler":"Llamar","Itinéraire":"Ruta","Aucun domicile ajouté pour le moment.":"No se ha añadido ningún domicilio por ahora.","Tâches":"Tareas","Tâches :":"Tareas:","Paiement non renseigné":"Pago no indicado","montant non précisé":"importe no indicado","statut non précisé":"estado no indicado","Paiement :":"Pago:","À faire":"Por hacer","Terminée":"Terminada","Aspirateur":"Aspiradora","Serpillière":"Fregar el suelo","Salle de bain":"Baño","Cuisine":"Cocina","Changer les draps":"Cambiar las sábanas","Déconnectée.":"Sesión cerrada.","Foyer actif modifié.":"Domicilio activo cambiado.","✅ Langue enregistrée.":"✅ Idioma guardado.","Récurrente":"Recurrente","Ponctuelle":"Puntual","Ajoutée":"Añadida","Base":"Base","prévue":"prevista","terminee_intervenante":"terminada","Créer mon compte intervenante":"Crear mi cuenta de trabajadora","Le mot de passe doit contenir au moins 6 caractères.":"La contraseña debe contener al menos 6 caracteres.","Ce compte est lié à l’espace principal. Utilisez un autre email pour l’espace intervenante.":"Esta cuenta está vinculada al espacio principal. Usa otro email para el espacio de trabajadora.","Vous êtes connecté avec un compte de l’espace principal. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.":"Has iniciado sesión con una cuenta del espacio principal. Inicia sesión con una cuenta de trabajadora o crea una con otro email.","Détail par domicile":"Detalle por domicilio","Aucun reste à payer par domicile.":"No queda nada por pagar por domicilio.","Montant dû total":"Importe total debido","Paiements à régulariser · détail disponible par domicile":"Pagos por regularizar · detalle disponible por domicilio","Aucun paiement enregistré pour le moment.":"No hay pagos registrados por ahora.","session du":"sesión del"},
+      en: {"Espace intervenante":"Worker area","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les personnes chez qui vous intervenez.":"Sign in, then add homes with the codes provided by the people whose homes you visit.","Connexion":"Sign in","Créer":"Create","Mot de passe":"Password","Minimum 6 caractères":"Minimum 6 characters","Se connecter":"Sign in","Retour à l’espace principal":"Back to main area","Compte intervenante":"Worker account","Accueil":"Home","Votre planning":"Your schedule","Prochaines sessions":"Upcoming sessions","Chargement…":"Loading…","Mes foyers":"My homes","Liste des foyers liés à votre espace intervenante.":"List of homes linked to your worker account.","Ajouter un foyer":"Add a home","Saisissez le code d’accès généré depuis l’espace principal. Exemple : A7K92P":"Enter the short code generated from the main area. Example: A7K92P","Code d’ajout":"Home code","Ajouter le foyer":"Add this home","Mes informations":"My information","Choisissez le domicile à consulter par défaut.":"Choose the default home to view.","Foyer actif":"Active home","Aucun domicile sélectionné.":"No home selected.","Préférences":"Preferences","Langue":"Language","Français":"French","Espagnol":"Spanish","Anglais":"English","Portugais":"Portuguese","Arabe":"Arabic","Se déconnecter":"Sign out","Sessions":"Sessions","Foyers":"Homes","Réglages":"Settings","Historique des paiements":"Payment history","Paiements":"Payments","Fermer":"Close","Date":"Date","Durée":"Duration","Domicile":"Home","Adresse":"Address","Montant prévu":"Expected amount","Statut":"Status","Paiement":"Payment","Notes":"Notes","Réduire":"Collapse","Voir":"View","Aucune tâche prévue":"No tasks planned","Aucune tâche renseignée pour cette session.":"No task entered for this session.","Domicile lié":"Linked home","Informations du domicile non renseignées.":"Home information not provided.","Appeler":"Call","Itinéraire":"Directions","Aucun domicile ajouté pour le moment.":"No home added yet.","Tâches":"Tasks","Tâches :":"Tasks:","Paiement non renseigné":"Payment not provided","montant non précisé":"amount not specified","statut non précisé":"status not specified","Paiement :":"Payment:","À faire":"To do","Terminée":"Done","Aspirateur":"Vacuuming","Serpillière":"Mopping","Salle de bain":"Bathroom","Cuisine":"Kitchen","Changer les draps":"Change the sheets","Déconnectée.":"Signed out.","Foyer actif modifié.":"Active home changed.","✅ Langue enregistrée.":"✅ Language saved.","Récurrente":"Recurring","Ponctuelle":"One-off","Ajoutée":"Added","Base":"Base","prévue":"planned","terminee_intervenante":"completed","Créer mon compte intervenante":"Create my worker account","Le mot de passe doit contenir au moins 6 caractères.":"Password must contain at least 6 characters.","Ce compte est lié à l’espace principal. Utilisez un autre email pour l’espace intervenante.":"This account is linked to the main area. Use another email for the worker area.","Vous êtes connecté avec un compte de l’espace principal. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.":"You are signed in with a main-area account. Sign in with a worker account or create one with another email.","Détail par domicile":"Details by home","Aucun reste à payer par domicile.":"No remaining amount due by home.","Montant dû total":"Total amount due","Paiements à régulariser · détail disponible par domicile":"Payments to settle · details available by home","Aucun paiement enregistré pour le moment.":"No payment recorded yet.","session du":"session on"},
       pt: {}, ar: {}
     };
-    UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, "Langue":"Idioma", "Accueil":"Início", "Réglages":"Definições", "Domiciles":"Domicílios", "Connexion":"Entrar", "Créer":"Criar", "Se connecter":"Entrar", "Se déconnecter":"Sair", "Ajouter un domicile":"Adicionar domicílio", "Fermer":"Fechar", "Voir":"Ver", "Aspirateur":"Aspirador", "Serpillière":"Lavar o chão", "Salle de bain":"Casa de banho", "Cuisine":"Cozinha", "Changer les draps":"Trocar os lençóis" };
-    UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, "Langue":"اللغة", "Accueil":"الرئيسية", "Réglages":"الإعدادات", "Domiciles":"المنازل", "Connexion":"تسجيل الدخول", "Créer":"إنشاء", "Se connecter":"تسجيل الدخول", "Se déconnecter":"تسجيل الخروج", "Ajouter un domicile":"إضافة منزل", "Fermer":"إغلاق", "Voir":"عرض", "Aspirateur":"تنظيف بالمكنسة", "Serpillière":"مسح الأرض", "Salle de bain":"الحمام", "Cuisine":"المطبخ", "Changer les draps":"تغيير الملاءات" };
+    UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, "Langue":"Idioma", "Accueil":"Início", "Réglages":"Definições", "Foyers":"Domicílios", "Connexion":"Entrar", "Créer":"Criar", "Se connecter":"Entrar", "Se déconnecter":"Sair", "Ajouter un foyer":"Adicionar domicílio", "Fermer":"Fechar", "Voir":"Ver", "Aspirateur":"Aspirador", "Serpillière":"Lavar o chão", "Salle de bain":"Casa de banho", "Cuisine":"Cozinha", "Changer les draps":"Trocar os lençóis" };
+    UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, "Langue":"اللغة", "Accueil":"الرئيسية", "Réglages":"الإعدادات", "Foyers":"المنازل", "Connexion":"تسجيل الدخول", "Créer":"إنشاء", "Se connecter":"تسجيل الدخول", "Se déconnecter":"تسجيل الخروج", "Ajouter un foyer":"إضافة منزل", "Fermer":"إغلاق", "Voir":"عرض", "Aspirateur":"تنظيف بالمكنسة", "Serpillière":"مسح الأرض", "Salle de bain":"الحمام", "Cuisine":"المطبخ", "Changer les draps":"تغيير الملاءات" };
+    const TUTORIAL_TRANSLATIONS = {
+      es: {"Choisissez votre langue":"Elige tu idioma","Le reste de votre espace sera affiché dans la langue choisie.":"El resto de tu espacio se mostrará en el idioma elegido.","Bienvenue sur votre espace intervenante":"Bienvenida a tu espacio de trabajadora","Ajoutez les foyers de vos utilisateurs, consultez vos prochaines sessions et cochez les tâches réalisées après chaque passage.":"Añade los hogares de tus usuarios, consulta tus próximas sesiones y marca las tareas realizadas después de cada visita.","Mes informations":"Mi información","Prénom":"Nombre","Numéro de téléphone":"Número de teléfono","Ces informations seront visibles par les foyers liés à votre espace. Elles permettront de vous identifier et de vous contacter via WhatsApp.":"Esta información será visible para los hogares vinculados a tu espacio. Permitirá identificarte y contactarte por WhatsApp.","Ajouter un foyer":"Añadir un hogar","Code d’ajout":"Código de añadido","Demandez à la personne chez qui vous intervenez de générer un code d’accès depuis son application, puis saisissez-le ici pour ajouter son foyer à votre espace.":"Pide a la persona donde intervienes que genere un código de acceso desde su aplicación y escríbelo aquí para añadir su hogar a tu espacio.","Ajouter le foyer":"Añadir el hogar","Passer cette étape pour le moment":"Saltar este paso por ahora","Aucun foyer lié pour le moment. Ajoutez un foyer depuis vos réglages avec le code fourni.":"No hay ningún hogar vinculado por ahora. Añade un hogar desde tus ajustes con el código proporcionado.","Votre espace est prêt":"Tu espacio está listo","Vous retrouverez vos prochaines sessions dans l’accueil. Les tâches peuvent être cochées au fur et à mesure : elles apparaîtront comme terminées dans l’espace du foyer.":"Encontrarás tus próximas sesiones en el inicio. Las tareas se pueden marcar poco a poco: aparecerán como terminadas en el espacio del hogar.","Accueil":"Inicio","Sessions":"Sesiones","Foyers":"Hogares","Réglages":"Ajustes","Ajouter Clean’ App à votre écran d’accueil":"Añade Clean’ App a tu pantalla de inicio","Pour l’utiliser comme une vraie application sur iPhone :":"Para usarla como una verdadera aplicación en iPhone:","Ouvrez Clean’ App dans Safari.":"Abre Clean’ App en Safari.","Appuyez sur le bouton de partage en bas de l’écran.":"Toca el botón de compartir en la parte inferior de la pantalla.","Sélectionnez “Sur l’écran d’accueil”.":"Selecciona “En la pantalla de inicio”.","Appuyez sur “Ajouter”.":"Toca “Añadir”.","Vous pourrez ensuite ouvrir Clean’ App directement depuis votre écran d’accueil, comme une application classique.":"Después podrás abrir Clean’ App directamente desde la pantalla de inicio, como una aplicación clásica.","Accéder à mon espace":"Acceder a mi espacio","Continuer":"Continuar","Commencer":"Empezar","Retour":"Atrás","Passer":"Saltar","Étape {current} sur {total}":"Paso {current} de {total}","Prochaines sessions":"Próximas sesiones","Détail des passages et tâches":"Detalle de visitas y tareas","Foyers liés":"Domicilios vinculados","Mes informations, langue, ajout de foyer":"Mi información, idioma, añadir hogar"},
+      en: {"Choisissez votre langue":"Choose your language","Le reste de votre espace sera affiché dans la langue choisie.":"The rest of your space will be shown in the selected language.","Bienvenue sur votre espace intervenante":"Welcome to your worker space","Ajoutez les foyers de vos utilisateurs, consultez vos prochaines sessions et cochez les tâches réalisées après chaque passage.":"Add your users’ homes, view your upcoming sessions, and check off completed tasks after each visit.","Mes informations":"My information","Prénom":"First name","Numéro de téléphone":"Phone number","Ces informations seront visibles par les foyers liés à votre espace. Elles permettront de vous identifier et de vous contacter via WhatsApp.":"This information will be visible to homes linked to your space. It will identify you and let them contact you via WhatsApp.","Ajouter un foyer":"Add a home","Code d’ajout":"Add code","Demandez à la personne chez qui vous intervenez de générer un code d’accès depuis son application, puis saisissez-le ici pour ajouter son foyer à votre espace.":"Ask the person whose home you visit to generate an access code from their app, then enter it here to add their home to your space.","Ajouter le foyer":"Add the home","Passer cette étape pour le moment":"Skip this step for now","Aucun foyer lié pour le moment. Ajoutez un foyer depuis vos réglages avec le code fourni.":"No home linked yet. Add a home from settings with the provided code.","Votre espace est prêt":"Your space is ready","Vous retrouverez vos prochaines sessions dans l’accueil. Les tâches peuvent être cochées au fur et à mesure : elles apparaîtront comme terminées dans l’espace du foyer.":"You will find your upcoming sessions on the home screen. Tasks can be checked off as you go: they will appear as completed in the home space.","Accueil":"Home","Sessions":"Sessions","Foyers":"Homes","Réglages":"Settings","Ajouter Clean’ App à votre écran d’accueil":"Add Clean’ App to your home screen","Pour l’utiliser comme une vraie application sur iPhone :":"To use it like a real app on iPhone:","Ouvrez Clean’ App dans Safari.":"Open Clean’ App in Safari.","Appuyez sur le bouton de partage en bas de l’écran.":"Tap the share button at the bottom of the screen.","Sélectionnez “Sur l’écran d’accueil”.":"Select “Add to Home Screen”.","Appuyez sur “Ajouter”.":"Tap “Add”.","Vous pourrez ensuite ouvrir Clean’ App directement depuis votre écran d’accueil, comme une application classique.":"You can then open Clean’ App directly from your home screen, like a regular app.","Accéder à mon espace":"Go to my space","Continuer":"Continue","Commencer":"Start","Retour":"Back","Passer":"Skip","Étape {current} sur {total}":"Step {current} of {total}","Prochaines sessions":"Upcoming sessions","Détail des passages et tâches":"Visit and task details","Foyers liés":"Linked homes","Mes informations, langue, ajout de foyer":"My information, language, add a home"},
+      pt: {"Choisissez votre langue":"Escolha seu idioma","Le reste de votre espace sera affiché dans la langue choisie.":"O restante do seu espaço será exibido no idioma escolhido.","Bienvenue sur votre espace intervenante":"Bem-vinda ao seu espaço de trabalhadora","Ajoutez les foyers de vos utilisateurs, consultez vos prochaines sessions et cochez les tâches réalisées après chaque passage.":"Adicione os lares dos seus usuários, consulte suas próximas sessões e marque as tarefas realizadas após cada visita.","Mes informations":"Minhas informações","Prénom":"Nome","Numéro de téléphone":"Número de telefone","Ces informations seront visibles par les foyers liés à votre espace. Elles permettront de vous identifier et de vous contacter via WhatsApp.":"Essas informações ficarão visíveis para os lares vinculados ao seu espaço. Elas permitirão identificar você e contatá-la pelo WhatsApp.","Ajouter un foyer":"Adicionar um lar","Code d’ajout":"Código de adição","Demandez à la personne chez qui vous intervenez de générer un code d’accès depuis son application, puis saisissez-le ici pour ajouter son foyer à votre espace.":"Peça à pessoa onde você trabalha para gerar um código de acesso no aplicativo dela e digite-o aqui para adicionar o lar ao seu espaço.","Ajouter le foyer":"Adicionar o lar","Passer cette étape pour le moment":"Pular esta etapa por enquanto","Aucun foyer lié pour le moment. Ajoutez un foyer depuis vos réglages avec le code fourni.":"Nenhum lar vinculado por enquanto. Adicione um lar nas configurações com o código fornecido.","Votre espace est prêt":"Seu espaço está pronto","Vous retrouverez vos prochaines sessions dans l’accueil. Les tâches peuvent être cochées au fur et à mesure : elles apparaîtront comme terminées dans l’espace du foyer.":"Você encontrará suas próximas sessões na página inicial. As tarefas podem ser marcadas aos poucos: aparecerão como concluídas no espaço do lar.","Accueil":"Início","Sessions":"Sessões","Foyers":"Lares","Réglages":"Configurações","Ajouter Clean’ App à votre écran d’accueil":"Adicione Clean’ App à sua tela inicial","Pour l’utiliser comme une vraie application sur iPhone :":"Para usá-lo como um aplicativo de verdade no iPhone:","Ouvrez Clean’ App dans Safari.":"Abra Clean’ App no Safari.","Appuyez sur le bouton de partage en bas de l’écran.":"Toque no botão de compartilhar na parte inferior da tela.","Sélectionnez “Sur l’écran d’accueil”.":"Selecione “Na tela inicial”.","Appuyez sur “Ajouter”.":"Toque em “Adicionar”.","Vous pourrez ensuite ouvrir Clean’ App directement depuis votre écran d’accueil, comme une application classique.":"Depois, você poderá abrir Clean’ App diretamente da tela inicial, como um aplicativo clássico.","Accéder à mon espace":"Acessar meu espaço","Continuer":"Continuar","Commencer":"Começar","Retour":"Voltar","Passer":"Pular","Étape {current} sur {total}":"Etapa {current} de {total}","Prochaines sessions":"Próximas sessões","Détail des passages et tâches":"Detalhe das visitas e tarefas","Foyers liés":"Domicílios vinculados","Mes informations, langue, ajout de foyer":"Minhas informações, idioma, adicionar lar"},
+      ar: {"Choisissez votre langue":"اختاري لغتك","Le reste de votre espace sera affiché dans la langue choisie.":"سيظهر باقي مساحتك باللغة المختارة.","Bienvenue sur votre espace intervenante":"مرحباً بك في مساحة العاملة","Ajoutez les foyers de vos utilisateurs, consultez vos prochaines sessions et cochez les tâches réalisées après chaque passage.":"أضيفي منازل المستخدمين، واطلعي على الجلسات القادمة، وحددي المهام المنجزة بعد كل زيارة.","Mes informations":"معلوماتي","Prénom":"الاسم الأول","Numéro de téléphone":"رقم الهاتف","Ces informations seront visibles par les foyers liés à votre espace. Elles permettront de vous identifier et de vous contacter via WhatsApp.":"ستكون هذه المعلومات مرئية للمنازل المرتبطة بمساحتك، وتساعد على التعرف عليك والتواصل معك عبر واتساب.","Ajouter un foyer":"إضافة منزل","Code d’ajout":"رمز الإضافة","Demandez à la personne chez qui vous intervenez de générer un code d’accès depuis son application, puis saisissez-le ici pour ajouter son foyer à votre espace.":"اطلبي من الشخص الذي تعملين لديه إنشاء رمز دخول من تطبيقه، ثم أدخليه هنا لإضافة منزله إلى مساحتك.","Ajouter le foyer":"إضافة المنزل","Passer cette étape pour le moment":"تخطي هذه الخطوة الآن","Aucun foyer lié pour le moment. Ajoutez un foyer depuis vos réglages avec le code fourni.":"لا يوجد منزل مرتبط حالياً. أضيفي منزلاً من الإعدادات باستخدام الرمز المقدم.","Votre espace est prêt":"مساحتك جاهزة","Vous retrouverez vos prochaines sessions dans l’accueil. Les tâches peuvent être cochées au fur et à mesure : elles apparaîtront comme terminées dans l’espace du foyer.":"ستجدين جلساتك القادمة في الصفحة الرئيسية. يمكن تحديد المهام تدريجياً وستظهر كمكتملة في مساحة المنزل.","Accueil":"الرئيسية","Sessions":"الجلسات","Foyers":"المنازل","Réglages":"الإعدادات","Ajouter Clean’ App à votre écran d’accueil":"أضيفي Clean’ App إلى الشاشة الرئيسية","Pour l’utiliser comme une vraie application sur iPhone :":"لاستخدامه مثل تطبيق حقيقي على iPhone:","Ouvrez Clean’ App dans Safari.":"افتحي Clean’ App في Safari.","Appuyez sur le bouton de partage en bas de l’écran.":"اضغطي زر المشاركة أسفل الشاشة.","Sélectionnez “Sur l’écran d’accueil”.":"اختاري “على الشاشة الرئيسية”.","Appuyez sur “Ajouter”.":"اضغطي “إضافة”.","Vous pourrez ensuite ouvrir Clean’ App directement depuis votre écran d’accueil, comme une application classique.":"بعد ذلك يمكنك فتح Clean’ App مباشرة من الشاشة الرئيسية مثل أي تطبيق عادي.","Accéder à mon espace":"الدخول إلى مساحتي","Continuer":"متابعة","Commencer":"البدء","Retour":"رجوع","Passer":"تخطي","Étape {current} sur {total}":"الخطوة {current} من {total}","Prochaines sessions":"الجلسات القادمة","Détail des passages et tâches":"تفاصيل الزيارات والمهام","Foyers liés":"المنازل المرتبطة","Mes informations, langue, ajout de foyer":"معلوماتي، اللغة، إضافة منزل"}
+    };
+    Object.entries(TUTORIAL_TRANSLATIONS).forEach(([language, entries]) => {
+      UI_TRANSLATIONS[language] = { ...(UI_TRANSLATIONS[language] || {}), ...entries };
+    });
+
     function currentLanguage() { return state.workerInfo?.language || state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; }
-    function t(text) {
+    function t(text, replacements = {}) {
       const source = String(text ?? ''); const lang = currentLanguage();
       let translated = lang === 'fr' ? source : (UI_TRANSLATIONS[lang]?.[source] || source);
       if (translated === source && lang !== 'fr') translated = source.replace(/tâche\(s\)/g, lang === 'es' ? 'tarea(s)' : lang === 'pt' ? 'tarefa(s)' : lang === 'ar' ? 'مهام' : 'task(s)').replace(/terminée\(s\)/g, lang === 'es' ? 'terminada(s)' : lang === 'pt' ? 'concluída(s)' : lang === 'ar' ? 'مكتملة' : 'done');
+      Object.entries(replacements).forEach(([key, value]) => { translated = translated.replaceAll('{' + key + '}', String(value)); });
       return translated;
     }
     const i18nTextSources = new WeakMap();
@@ -420,8 +538,87 @@
     function openPaymentModal() { renderPaymentHistoryModal(); byId('paymentModal')?.classList.remove('hidden-view'); }
     function closePaymentModal() { byId('paymentModal')?.classList.add('hidden-view'); }
 
-    function showAuth() { els.authScreen.classList.remove('hidden-view'); els.appShell.classList.add('hidden-view'); els.bottomNav.classList.add('hidden-view'); }
-    function showApp() { els.authScreen.classList.add('hidden-view'); els.appShell.classList.remove('hidden-view'); els.bottomNav.classList.remove('hidden-view'); }
+    function setupCompleted() {
+      return Boolean(state.workerProfile?.settings?.setupCompleted);
+    }
+    function showAuth() {
+      els.authScreen.classList.remove('hidden-view');
+      els.setupScreen.classList.add('hidden-view');
+      els.appShell.classList.add('hidden-view');
+      els.bottomNav.classList.add('hidden-view');
+    }
+    function showSetup() {
+      els.authScreen.classList.add('hidden-view');
+      els.setupScreen.classList.remove('hidden-view');
+      els.appShell.classList.add('hidden-view');
+      els.bottomNav.classList.add('hidden-view');
+      renderSetup();
+    }
+    function showApp() {
+      els.authScreen.classList.add('hidden-view');
+      els.setupScreen.classList.add('hidden-view');
+      els.appShell.classList.remove('hidden-view');
+      els.bottomNav.classList.remove('hidden-view');
+    }
+    function collectSetupValues() {
+      const language = els.setupLanguageSelect?.value || state.workerInfo?.language || 'fr';
+      state.workerInfo = { ...(state.workerInfo || {}), language, firstName: (els.setupFirstNameInput?.value || state.workerInfo?.firstName || '').trim(), phone: (els.setupPhoneInput?.value || state.workerInfo?.phone || '').trim() };
+    }
+    async function saveWorkerLanguage(language = els.setupLanguageSelect?.value || currentLanguage()) {
+      if (!state.currentUser) return;
+      state.workerInfo = { ...(state.workerInfo || {}), language };
+      const settings = { ...(state.workerProfile?.settings || {}), language };
+      await Promise.all([
+        setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }),
+        setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName: state.workerInfo?.firstName || '', phone: state.workerInfo?.phone || '', language, updatedAt: serverTimestamp() }, { merge: true })
+      ]);
+      state.workerProfile = { ...(state.workerProfile || {}), settings };
+    }
+    async function saveSetupInfo() {
+      collectSetupValues();
+      if (!state.currentUser) return;
+      await Promise.all([
+        setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName: state.workerInfo.firstName || '', phone: state.workerInfo.phone || '', language: state.workerInfo.language || 'fr', updatedAt: serverTimestamp() }, { merge: true }),
+        setDoc(doc(db, 'users', state.currentUser.uid), { settings: { ...(state.workerProfile?.settings || {}), language: state.workerInfo.language || 'fr' }, updatedAt: serverTimestamp() }, { merge: true })
+      ]);
+    }
+    function renderSetup() {
+      const maxStep = 5;
+      state.setupStep = Math.min(Math.max(Number(state.setupStep || 0), 0), maxStep);
+      document.querySelectorAll('.setup-step').forEach((step, index) => step.classList.toggle('active', index === state.setupStep));
+      if (els.setupStepLabel) els.setupStepLabel.textContent = t('Étape {current} sur {total}', { current: state.setupStep + 1, total: maxStep + 1 });
+      if (els.setupProgressBar) els.setupProgressBar.style.width = (((state.setupStep + 1) / (maxStep + 1)) * 100) + '%';
+      if (els.setupTitle) els.setupTitle.textContent = t(state.setupStep === 0 ? 'Choisissez votre langue' : state.setupStep === 1 ? 'Bienvenue sur votre espace intervenante' : state.setupStep === 2 ? 'Mes informations' : state.setupStep === 3 ? 'Ajouter un foyer' : state.setupStep === 4 ? 'Votre espace est prêt' : 'Ajouter Clean’ App à votre écran d’accueil');
+      if (els.setupSubtitle) els.setupSubtitle.textContent = t(state.setupStep === 0 ? 'Le reste de votre espace sera affiché dans la langue choisie.' : '');
+      if (els.setupBackBtn) { els.setupBackBtn.disabled = state.setupStep === 0; els.setupBackBtn.classList.toggle('opacity-40', state.setupStep === 0); }
+      if (els.setupNextBtn) els.setupNextBtn.textContent = t(state.setupStep === 1 ? 'Commencer' : state.setupStep === maxStep ? 'Accéder à mon espace' : 'Continuer');
+      if (els.setupSkipBtn) els.setupSkipBtn.classList.toggle('hidden', state.setupStep < 3);
+      if (els.setupLanguageSelect) els.setupLanguageSelect.value = state.workerInfo?.language || 'fr';
+      if (els.setupFirstNameInput && document.activeElement !== els.setupFirstNameInput) els.setupFirstNameInput.value = state.workerInfo?.firstName || '';
+      if (els.setupPhoneInput && document.activeElement !== els.setupPhoneInput) els.setupPhoneInput.value = state.workerInfo?.phone || '';
+      applyTranslations(els.setupScreen);
+    }
+    async function finishSetup() {
+      await saveSetupInfo();
+      const settings = { ...(state.workerProfile?.settings || {}), setupCompleted: true, language: state.workerInfo?.language || 'fr' };
+      await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true });
+      state.workerProfile = { ...(state.workerProfile || {}), settings };
+      state.setupStep = 0;
+      showApp();
+      await loadWorkerHomes();
+      setCurrentPage(state.homeLabels.length ? 'home' : 'homes');
+      showToast('✅ Configuration terminée.');
+    }
+    async function nextSetupStep() {
+      collectSetupValues();
+      if (state.setupStep === 0) await saveWorkerLanguage(state.workerInfo.language || 'fr');
+      if (state.setupStep === 2) await saveSetupInfo();
+      if (state.setupStep >= 5) { await finishSetup(); return; }
+      state.setupStep += 1;
+      renderSetup();
+    }
+    function backSetupStep() { collectSetupValues(); state.setupStep = Math.max(0, state.setupStep - 1); renderSetup(); }
+
     function renderAuthMode() {
       const register = state.authMode === 'register';
       applyTranslations();
@@ -434,7 +631,7 @@
       const ref = doc(db, 'users', firebaseUser.uid);
       const snapshot = await getDoc(ref);
       if (!snapshot.exists()) {
-        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', role: 'intervenante', settings: { setupCompleted: true, language: 'fr' }, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', role: 'intervenante', settings: { setupCompleted: false, language: 'fr' }, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
         await setDoc(ref, profile, { merge: true });
         return profile;
       }
@@ -489,8 +686,8 @@
       try {
         const credential = state.authMode === 'register' ? await createUserWithEmailAndPassword(auth, email, password) : await signInWithEmailAndPassword(auth, email, password);
         const profile = await ensureWorkerUserDocument(credential.user);
-        if (profile.role !== 'intervenante') throw new Error('Ce compte est un compte client. Utilisez un autre email pour l’espace intervenante.');
-        state.currentUser = credential.user; state.workerProfile = profile; state.workerInfo = await ensureWorkerProfileDocument(credential.user); startWorkerProfileListener(); showApp(); await loadWorkerHomes(); showToast(state.authMode === 'register' ? '✅ Compte créé.' : '✅ Connectée.');
+        if (profile.role !== 'intervenante') throw new Error('Ce compte est lié à l’espace principal. Utilisez un autre email pour l’espace intervenante.');
+        state.currentUser = credential.user; state.workerProfile = profile; state.workerInfo = await ensureWorkerProfileDocument(credential.user); startWorkerProfileListener(); if (setupCompleted()) { showApp(); await loadWorkerHomes(); } else { showSetup(); } showToast(state.authMode === 'register' ? '✅ Compte créé.' : '✅ Connectée.');
       } catch (error) { console.error(error); showAuthError(firebaseErrorMessage(error)); }
       finally { els.authSubmitBtn.disabled = false; els.authSubmitBtn.classList.remove('opacity-60'); }
     }
@@ -504,17 +701,17 @@
       if (isValidWorkerAccess(access, cleanedCode)) return access;
       throw new Error('Code invalide ou inactif.');
     }
-    async function addWorkerHomeWithCode() {
+    async function addWorkerHomeWithCode(sourceInput = els.homeCodeInput, sourceButton = els.addHomeBtn, afterAdd = () => setCurrentPage('home')) {
       if (!state.currentUser) { showToast('Connectez-vous comme intervenante.'); return; }
-      const code = workerCodeValue(els.homeCodeInput.value); if (!code) return;
-      els.addHomeBtn.disabled = true; els.addHomeBtn.classList.add('opacity-60');
+      const code = workerCodeValue(sourceInput?.value || ''); if (!code) return;
+      if (sourceButton) { sourceButton.disabled = true; sourceButton.classList.add('opacity-60'); }
       try {
         const access = await resolveWorkerAccessCode(code); const homeId = String(access.homeId || ''); if (!homeId) throw new Error('Code invalide.');
         await setDoc(workerHomeLinkRef(state.currentUser.uid, homeId), { homeId, code, role: 'intervenante', active: true, addedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
         await setDoc(doc(db, 'users', homeId), { settings: { workerUid: state.currentUser.uid }, updatedAt: serverTimestamp() }, { merge: true });
-        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); els.homeCodeInput.value = ''; showToast('✅ Domicile ajouté.'); await loadWorkerHomes(); setCurrentPage('home');
+        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); if (sourceInput) sourceInput.value = ''; showToast('✅ Foyer ajouté.'); await loadWorkerHomes(); afterAdd?.();
       } catch (error) { console.error(error); showToast(firebaseErrorMessage(error) || 'Code invalide.'); }
-      finally { els.addHomeBtn.disabled = false; els.addHomeBtn.classList.remove('opacity-60'); }
+      finally { if (sourceButton) { sourceButton.disabled = false; sourceButton.classList.remove('opacity-60'); } }
     }
 
     async function fetchWorkerHomeLinks() {
@@ -673,8 +870,8 @@
     function renderHome() {
       state.allUpcomingSessions.forEach(scheduleMissingTaskTranslations);
       const count = state.homeLabels.length;
-      els.homeSummary.textContent = count ? count + ' domicile' + (count > 1 ? 's' : '') + ' lié' + (count > 1 ? 's' : '') + ' · ' + state.allUpcomingSessions.length + ' session(s) à venir' : 'Aucun domicile lié pour le moment.';
-      els.upcomingSessionsList.innerHTML = state.allUpcomingSessions.length ? state.allUpcomingSessions.slice(0, 10).map((s) => sessionCardHtml(s, 'home')).join('') : '<div class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune session à venir. Ajoutez un domicile depuis les réglages.</div>';
+      els.homeSummary.textContent = count ? count + ' domicile' + (count > 1 ? 's' : '') + ' lié' + (count > 1 ? 's' : '') + ' · ' + state.allUpcomingSessions.length + ' session(s) à venir' : 'Aucun foyer lié pour le moment. Ajoutez un foyer depuis vos réglages avec le code fourni.';
+      els.upcomingSessionsList.innerHTML = state.allUpcomingSessions.length ? state.allUpcomingSessions.slice(0, 10).map((s) => sessionCardHtml(s, 'home')).join('') : '<div class="rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 p-6 text-center text-sm text-slate-500 dark:text-slate-400">Aucune session à venir. Ajoutez un foyer depuis les réglages.</div>';
       renderSessionsPage();
     }
     function taskChecklistHtml(session) {
@@ -709,11 +906,11 @@
         const gridClass = actionCount >= 3 ? 'grid grid-cols-3 gap-2 pt-1' : 'grid grid-cols-2 gap-2 pt-1';
         return '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm space-y-2"><div><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Domicile lié</span></div>'
           + (hasInfo ? '<div class="space-y-1 text-slate-600 dark:text-slate-300">' + (home.address ? '<p>📍 ' + esc(home.address) + '</p>' : '') + (home.phone ? '<p>☎️ ' + esc(home.phone) + '</p>' : '') + (home.accessNotes ? '<p class="whitespace-pre-wrap">📝 ' + esc(home.accessNotes) + '</p>' : '') + '</div>' : '<p class="text-slate-500 dark:text-slate-400">Informations du domicile non renseignées.</p>')
-          + '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-600 dark:text-slate-300 space-y-1"><p class="font-medium text-slate-800 dark:text-slate-100">Paramètres définis par le client</p><p>Taux horaire : ' + (home.hourlyRate ? euro(home.hourlyRate) + ' / h' : 'Non renseigné') + '</p><p>Durée par défaut : ' + (home.defaultDuration ? esc(home.defaultDuration) + 'h' : 'Non renseignée') + '</p><p>Jour par défaut : ' + esc(defaultVisitDayLabel(home.defaultVisitDay) || 'Non renseigné') + '</p><p>Heure par défaut : ' + esc(home.defaultVisitTime || 'Non renseignée') + '</p></div>'
+          + '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-600 dark:text-slate-300 space-y-1"><p class="font-medium text-slate-800 dark:text-slate-100">Paramètres définis par le foyer</p><p>Taux horaire : ' + (home.hourlyRate ? euro(home.hourlyRate) + ' / h' : 'Non renseigné') + '</p><p>Durée par défaut : ' + (home.defaultDuration ? esc(home.defaultDuration) + 'h' : 'Non renseignée') + '</p><p>Jour par défaut : ' + esc(defaultVisitDayLabel(home.defaultVisitDay) || 'Non renseigné') + '</p><p>Heure par défaut : ' + esc(home.defaultVisitTime || 'Non renseignée') + '</p></div>'
           + (phone || mapsUrl ? '<div class="' + gridClass + '">' + (phone ? '<a class="rounded-2xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-center font-medium" href="tel:+' + esc(phone) + '">Appeler</a><a class="rounded-2xl bg-green-600 text-white px-3 py-2 text-center font-medium" target="_blank" rel="noopener" href="https://wa.me/' + esc(phone) + '">WhatsApp</a>' : '') + (mapsUrl ? '<a class="rounded-2xl bg-apple-600 text-white px-3 py-2 text-center font-medium" target="_blank" rel="noopener" href="' + esc(mapsUrl) + '">Itinéraire</a>' : '') + '</div>' : '')
           + '</div>';
       }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile ajouté pour le moment.</div>';
-      els.homesList.innerHTML = list + '<button id="goAddHomeBtn" type="button" class="w-full rounded-2xl bg-apple-600 text-white px-4 py-3 font-medium">Ajouter un domicile</button>';
+      els.homesList.innerHTML = list + '<button id="goAddHomeBtn" type="button" class="w-full rounded-2xl bg-apple-600 text-white px-4 py-3 font-medium">Ajouter un foyer</button>';
       byId('goAddHomeBtn')?.addEventListener('click', () => { setCurrentPage('settings'); setTimeout(() => els.homeCodeInput?.focus(), 80); });
     }
 
@@ -775,7 +972,7 @@
       state.currentPage = page;
       document.querySelectorAll('.page').forEach((el) => el.classList.remove('active'));
       const pageEl = byId('page-' + page); if (pageEl) pageEl.classList.add('active');
-      const titles = { home: 'Accueil', sessions: 'Sessions', homes: 'Domiciles', settings: 'Réglages' }; els.pageTitle.textContent = t(titles[page] || 'Accueil');
+      const titles = { home: 'Accueil', sessions: 'Sessions', homes: 'Foyers', settings: 'Réglages' }; els.pageTitle.textContent = t(titles[page] || 'Accueil');
       document.querySelectorAll('.nav-btn').forEach((btn) => { const active = btn.dataset.page === page; btn.className = 'nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-[11px] ' + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'); });
     }
 
@@ -788,6 +985,14 @@
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
       els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
       els.addHomeBtn.addEventListener('click', addWorkerHomeWithCode);
+      els.setupNextBtn?.addEventListener('click', () => nextSetupStep().catch((error) => showToast(firebaseErrorMessage(error))));
+      els.setupBackBtn?.addEventListener('click', backSetupStep);
+      els.setupSkipBtn?.addEventListener('click', () => finishSetup().catch((error) => showToast(firebaseErrorMessage(error))));
+      els.setupLanguageSelect?.addEventListener('change', async () => { collectSetupValues(); try { await saveWorkerLanguage(state.workerInfo.language || 'fr'); renderSetup(); } catch (error) { showToast(firebaseErrorMessage(error)); } });
+      els.setupHomeCodeInput?.addEventListener('input', () => { els.setupHomeCodeInput.value = workerCodeValue(els.setupHomeCodeInput.value); });
+      els.setupHomeCodeInput?.addEventListener('keydown', (event) => { if (event.key === 'Enter') addWorkerHomeWithCode(els.setupHomeCodeInput, els.setupAddHomeBtn, () => { state.setupStep = 4; renderSetup(); }); });
+      els.setupAddHomeBtn?.addEventListener('click', () => addWorkerHomeWithCode(els.setupHomeCodeInput, els.setupAddHomeBtn, () => { state.setupStep = 4; renderSetup(); }));
+      els.setupSkipHomeBtn?.addEventListener('click', () => { state.setupStep = 4; renderSetup(); });
       els.saveWorkerInfoBtn.addEventListener('click', saveWorkerInfo);
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
@@ -832,8 +1037,8 @@
       if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', language: 'fr' }; showAuth(); return; }
       try {
         const profile = await ensureWorkerUserDocument(firebaseUser);
-        if (profile.role !== 'intervenante') { state.currentUser = firebaseUser; state.workerProfile = profile; showAuth(); showAuthError('Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.'); return; }
-        state.currentUser = firebaseUser; state.workerProfile = profile; state.workerInfo = await ensureWorkerProfileDocument(firebaseUser); startWorkerProfileListener(); showApp(); await loadWorkerHomes(); setCurrentPage('home');
+        if (profile.role !== 'intervenante') { state.currentUser = firebaseUser; state.workerProfile = profile; showAuth(); showAuthError('Vous êtes connecté avec un compte de l’espace principal. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.'); return; }
+        state.currentUser = firebaseUser; state.workerProfile = profile; state.workerInfo = await ensureWorkerProfileDocument(firebaseUser); startWorkerProfileListener(); if (setupCompleted()) { showApp(); await loadWorkerHomes(); setCurrentPage('home'); } else { showSetup(); }
       } catch (error) { console.error(error); showAuth(); showAuthError(firebaseErrorMessage(error)); }
     });
   </script>

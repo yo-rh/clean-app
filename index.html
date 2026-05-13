@@ -184,67 +184,138 @@
     <div class="mb-6 text-center">
       <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
       <p class="text-sm text-slate-500 dark:text-slate-400">Première configuration</p>
-      <h1 class="text-3xl font-semibold tracking-tight">Bienvenue 👋</h1>
+      <h1 class="text-3xl font-semibold tracking-tight">Bienvenue sur Clean’ App</h1>
       <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
-        Quelques réglages rapides pour personnaliser votre application.
+        Configurez votre foyer en quelques étapes pour gérer vos passages, vos tâches, vos paiements et faciliter les échanges avec votre intervenante.
       </p>
     </div>
 
     <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 shadow-soft space-y-5">
       <div>
         <div class="flex items-center justify-between mb-2">
-          <span id="setupStepLabel" class="text-xs font-semibold uppercase tracking-wide text-apple-600">Étape 1 sur 5</span>
+          <span id="setupStepLabel" class="text-xs font-semibold uppercase tracking-wide text-apple-600">Étape 1 sur 7</span>
           <button id="setupSkipBtn" type="button" class="text-xs font-medium text-slate-400">Passer</button>
         </div>
         <div class="h-2 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
-          <div id="setupProgressBar" class="h-full bg-apple-600 rounded-full transition-all" style="width: 20%;"></div>
+          <div id="setupProgressBar" class="h-full bg-apple-600 rounded-full transition-all" style="width: 14%;"></div>
         </div>
       </div>
 
-      <div class="setup-step active" data-setup-step="0">
-        <h2 class="text-xl font-semibold mb-2">Comment s’appelle votre intervenante ?</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Ce prénom sera utilisé dans les réglages et les messages de traduction.</p>
-        <label for="setupContactNameInput" class="block text-sm font-medium mb-1">Prénom</label>
-        <input id="setupContactNameInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Diana" />
+      <div class="setup-step active space-y-3" data-setup-step="0">
+        <div class="rounded-3xl bg-apple-50 dark:bg-apple-950/30 border border-apple-100 dark:border-apple-900 p-4 text-center">
+          <p class="text-4xl mb-3">✨</p>
+          <h2 class="text-xl font-semibold mb-2">Bienvenue sur Clean’ App</h2>
+          <p class="text-sm text-slate-600 dark:text-slate-300">Configurez votre foyer en quelques étapes pour gérer vos passages, vos tâches, vos paiements et faciliter les échanges avec votre intervenante.</p>
+        </div>
       </div>
 
-      <div class="setup-step" data-setup-step="1">
-        <h2 class="text-xl font-semibold mb-2">Quel est son numéro WhatsApp ?</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Il servira à préparer rapidement vos messages.</p>
-        <label for="setupContactPhoneInput" class="block text-sm font-medium mb-1">Téléphone</label>
-        <input id="setupContactPhoneInput" type="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
+      <div class="setup-step space-y-4" data-setup-step="1">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Mes informations / mon foyer</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Le nom du foyer permettra à votre intervenante d’identifier facilement le domicile concerné.</p>
+        </div>
+        <div>
+          <label for="setupUserFirstNameInput" class="block text-sm font-medium mb-1">Votre prénom</label>
+          <input id="setupUserFirstNameInput" type="text" autocomplete="given-name" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Alex" />
+        </div>
+        <div>
+          <label for="setupHomeNameInput" class="block text-sm font-medium mb-1">Nom du foyer</label>
+          <input id="setupHomeNameInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Foyer Martin" />
+        </div>
       </div>
 
-      <div class="setup-step" data-setup-step="2">
-        <h2 class="text-xl font-semibold mb-2">Quelle langue utiliser pour les traductions ?</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Vous pourrez modifier ce choix plus tard depuis les réglages.</p>
-        <label for="setupLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
-        <select id="setupLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
-          <option value="fr">Français</option>
-          <option value="es">Espagnol</option>
-          <option value="en">Anglais</option>
-          <option value="pt">Portugais</option>
-          <option value="ar">Arabe</option>
-        </select>
+      <div class="setup-step space-y-4" data-setup-step="2">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Langue de l’application</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Choisissez la langue d’affichage de votre application. Les messages envoyés à votre intervenante seront traduits selon la langue qu’elle aura choisie de son côté.</p>
+        </div>
+        <div>
+          <label for="setupLanguageSelect" class="block text-sm font-medium mb-1">Langue</label>
+          <select id="setupLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
+            <option value="fr">Français</option>
+            <option value="es">Espagnol</option>
+            <option value="en">Anglais</option>
+            <option value="pt">Portugais</option>
+            <option value="ar">Arabe</option>
+          </select>
+        </div>
       </div>
 
-      <div class="setup-step" data-setup-step="3">
-        <h2 class="text-xl font-semibold mb-2">Quel est le tarif habituel ?</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Il sera repris automatiquement lors de l’ajout d’une session.</p>
-        <label for="setupHourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
-        <input id="setupHourlyRateInput" type="number" min="0" step="0.01" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 15" />
+      <div class="setup-step space-y-4" data-setup-step="3">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Paramètres de passage</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Ces informations sont définies par vous. Elles serviront à préparer automatiquement les prochaines sessions et à aider votre intervenante à voir ses passages dans le bon ordre.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="setupHourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
+            <input id="setupHourlyRateInput" type="number" min="0" step="0.01" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 15" />
+          </div>
+          <div>
+            <label for="setupDefaultDurationInput" class="block text-sm font-medium mb-1">Durée par défaut (heures)</label>
+            <input id="setupDefaultDurationInput" type="number" min="0" step="0.25" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 2" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="setupDefaultVisitDayInput" class="block text-sm font-medium mb-1">Jour de passage par défaut</label>
+            <select id="setupDefaultVisitDayInput" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
+              <option value="">Non défini</option><option value="1">Lundi</option><option value="2">Mardi</option><option value="3">Mercredi</option><option value="4">Jeudi</option><option value="5">Vendredi</option><option value="6">Samedi</option><option value="0">Dimanche</option>
+            </select>
+          </div>
+          <div>
+            <label for="setupDefaultVisitTimeInput" class="block text-sm font-medium mb-1">Heure de passage par défaut</label>
+            <input id="setupDefaultVisitTimeInput" type="time" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+          </div>
+        </div>
       </div>
 
-      <div class="setup-step" data-setup-step="4">
-        <h2 class="text-xl font-semibold mb-2">Quelle est la durée habituelle d’un passage ?</h2>
-        <p class="text-sm text-slate-500 dark:text-slate-400 mb-4">Ce réglage servira pour les ajouts rapides.</p>
-        <label for="setupDefaultDurationInput" class="block text-sm font-medium mb-1">Durée par défaut (heures)</label>
-        <input id="setupDefaultDurationInput" type="number" min="0" step="0.25" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 2" />
+      <div class="setup-step space-y-4" data-setup-step="4">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Tâches de base</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Ajoutez les tâches à faire à chaque passage. Vous pourrez ensuite ajouter des tâches ponctuelles ou récurrentes.</p>
+        </div>
+        <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
+          <input id="setupDefaultTaskInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Poussières" />
+          <button id="setupAddTaskBtn" type="button" class="rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 text-sm font-medium">Ajouter une tâche</button>
+        </div>
+        <div id="setupTasksList" class="space-y-2"></div>
+        <button id="setupSkipTasksBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Passer cette étape</button>
+      </div>
+
+      <div class="setup-step space-y-4" data-setup-step="5">
+        <div>
+          <h2 class="text-xl font-semibold mb-2">Invitez votre intervenante</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Générez un code d’accès et transmettez-le à votre intervenante. Elle pourra ajouter votre foyer à son espace et voir les prochaines sessions, les tâches et les informations utiles.</p>
+        </div>
+        <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-center">
+          <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Code d’accès</p>
+          <p id="setupWorkerAccessCodeDisplay" class="mt-1 break-all text-2xl font-semibold tracking-wide">—</p>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <button id="setupGenerateWorkerCodeBtn" type="button" class="rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Générer un code</button>
+          <button id="setupCopyWorkerCodeBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Copier le code</button>
+        </div>
+      </div>
+
+      <div class="setup-step space-y-4" data-setup-step="6">
+        <div class="rounded-3xl bg-slate-50 dark:bg-slate-950 border border-slate-200 dark:border-slate-800 p-4">
+          <p class="text-4xl mb-3">📱</p>
+          <h2 class="text-xl font-semibold mb-2">Ajoutez Clean’ App à votre écran d’accueil</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400 mb-3">Pour l’utiliser comme une vraie application sur iPhone :</p>
+          <ol class="list-decimal list-inside space-y-2 text-sm text-slate-600 dark:text-slate-300">
+            <li>Ouvrez Clean’ App dans Safari.</li>
+            <li>Appuyez sur le bouton de partage en bas de l’écran.</li>
+            <li>Sélectionnez “Sur l’écran d’accueil”.</li>
+            <li>Appuyez sur “Ajouter”.</li>
+          </ol>
+          <p class="mt-3 text-sm text-slate-500 dark:text-slate-400">Vous pourrez ensuite ouvrir Clean’ App directement depuis votre écran d’accueil, comme une application classique.</p>
+        </div>
       </div>
 
       <div class="grid grid-cols-2 gap-3 pt-2">
         <button id="setupBackBtn" type="button" class="rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour</button>
-        <button id="setupNextBtn" type="button" class="rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Continuer</button>
+        <button id="setupNextBtn" type="button" class="rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Commencer</button>
       </div>
     </section>
   </div>
@@ -254,7 +325,7 @@
       <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 w-20 h-20 rounded-3xl shadow-soft object-cover" />
       <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
       <h1 class="text-3xl font-semibold tracking-tight">Compte intervenante</h1>
-      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.</p>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous, puis ajoutez les foyers avec les codes fournis depuis leur espace principal.</p>
     </div>
 
     <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
@@ -272,7 +343,7 @@
       </div>
       <p id="workerAccessError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300">Connexion impossible.</p>
       <button id="workerAuthSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
-      <button id="backToClientLoginBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour au mode client</button>
+      <button id="backToClientLoginBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour à l’espace principal</button>
     </section>
   </div>
 
@@ -308,7 +379,7 @@
       <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
         <div>
           <h2 class="text-xl font-semibold tracking-tight">Mes domiciles</h2>
-          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Ajoutez un domicile avec le code fourni par le client, puis choisissez celui à afficher.</p>
+          <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Ajoutez un foyer avec le code fourni depuis l’espace principal, puis choisissez celui à afficher.</p>
         </div>
         <div>
           <label for="workerHomeSelect" class="block text-sm font-medium mb-1">Domicile actif</label>
@@ -536,7 +607,7 @@
             <div class="space-y-5">
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <h3 class="font-semibold">Mes informations</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Ces informations seront visibles côté client et côté intervenante.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Ces informations seront visibles dans votre espace et par votre intervenante.</p>
                 <div>
                   <label for="homeNameInput" class="block text-sm font-medium mb-1">Nom du domicile</label>
                   <input id="homeNameInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Maison Yohann" />
@@ -546,7 +617,7 @@
                   <input id="homeAddressInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 12 rue des Lilas, 75000 Paris" />
                 </div>
                 <div>
-                  <label for="homePhoneInput" class="block text-sm font-medium mb-1">Numéro de téléphone du client</label>
+                  <label for="homePhoneInput" class="block text-sm font-medium mb-1">Numéro de téléphone du foyer</label>
                   <input id="homePhoneInput" type="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
                 </div>
                 <div>
@@ -558,7 +629,7 @@
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <h3 class="font-semibold">Langue</h3>
-                <p class="text-sm text-slate-500 dark:text-slate-400">Choisissez la langue de l’application client.</p>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Choisissez la langue de votre application.</p>
                 <div>
                   <label for="translationLanguageSelect" class="block text-sm font-medium mb-1">Langue de l’application</label>
                   <select id="translationLanguageSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
@@ -771,6 +842,7 @@
   const defaultState = {
     settings: {
       homeName: '',
+      userFirstName: '',
       address: '',
       phone: '',
       accessNotes: '',
@@ -1041,11 +1113,20 @@
     setupBackBtn: byId('setupBackBtn'),
     setupNextBtn: byId('setupNextBtn'),
     setupSkipBtn: byId('setupSkipBtn'),
-    setupContactNameInput: byId('setupContactNameInput'),
-    setupContactPhoneInput: byId('setupContactPhoneInput'),
+    setupUserFirstNameInput: byId('setupUserFirstNameInput'),
+    setupHomeNameInput: byId('setupHomeNameInput'),
     setupLanguageSelect: byId('setupLanguageSelect'),
     setupHourlyRateInput: byId('setupHourlyRateInput'),
     setupDefaultDurationInput: byId('setupDefaultDurationInput'),
+    setupDefaultVisitDayInput: byId('setupDefaultVisitDayInput'),
+    setupDefaultVisitTimeInput: byId('setupDefaultVisitTimeInput'),
+    setupDefaultTaskInput: byId('setupDefaultTaskInput'),
+    setupAddTaskBtn: byId('setupAddTaskBtn'),
+    setupTasksList: byId('setupTasksList'),
+    setupSkipTasksBtn: byId('setupSkipTasksBtn'),
+    setupWorkerAccessCodeDisplay: byId('setupWorkerAccessCodeDisplay'),
+    setupGenerateWorkerCodeBtn: byId('setupGenerateWorkerCodeBtn'),
+    setupCopyWorkerCodeBtn: byId('setupCopyWorkerCodeBtn'),
     logoutBtn: byId('logoutBtn'),
     balanceLabel: byId('balanceLabel'),
     balanceDisplay: byId('balanceDisplay'),
@@ -1133,25 +1214,25 @@
 
   const UI_TRANSLATIONS = {
     es: {
-      "Chargement de votre espace…":"Cargando tu espacio…","Bienvenue sur":"Bienvenido a","Gérez votre employée de maison en toute simplicité.":"Gestiona tu servicio doméstico con total sencillez.","Connexion":"Iniciar sesión","Créer":"Crear","Mot de passe":"Contraseña","Minimum 6 caractères":"Mínimo 6 caracteres","Se connecter":"Iniciar sesión","Créer un compte":"Crear una cuenta","Espace intervenante":"Espacio de trabajadora","Accès intervenante":"Acceso de trabajadora","Première configuration":"Primera configuración","Bienvenue 👋":"Bienvenido 👋","Quelques réglages rapides pour personnaliser votre application.":"Algunos ajustes rápidos para personalizar tu aplicación.","Passer":"Saltar","Retour":"Atrás","Continuer":"Continuar","Comment s’appelle votre intervenante ?":"¿Cómo se llama tu trabajadora?","Ce prénom sera utilisé dans les réglages et les messages de traduction.":"Este nombre se usará en los ajustes y mensajes de traducción.","Prénom":"Nombre","Quel est son numéro WhatsApp ?":"¿Cuál es su número de WhatsApp?","Il servira à préparer rapidement vos messages.":"Servirá para preparar rápidamente tus mensajes.","Téléphone":"Teléfono","Quelle langue utiliser pour les traductions ?":"¿Qué idioma usar para las traducciones?","Vous pourrez modifier ce choix plus tard depuis les réglages.":"Podrás cambiar esta opción más tarde desde los ajustes.","Langue":"Idioma","Français":"Francés","Espagnol":"Español","Anglais":"Inglés","Portugais":"Portugués","Arabe":"Árabe","Quel est le tarif habituel ?":"¿Cuál es la tarifa habitual?","Il sera repris automatiquement lors de l’ajout d’une session.":"Se usará automáticamente al añadir una sesión.","Taux horaire (€ / h)":"Tarifa por hora (€ / h)","Quelle est la durée habituelle d’un passage ?":"¿Cuál es la duración habitual de una visita?","Ce réglage servira pour les ajouts rapides.":"Este ajuste se usará para los añadidos rápidos.","Durée par défaut (heures)":"Duración predeterminada (horas)","Compte intervenante":"Cuenta de trabajadora","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Inicia sesión y añade domicilios con los códigos proporcionados por los clientes.","Compte client":"Cuenta de cliente","Votre prochaine session":"Tu próxima sesión","Prochaine session":"Próxima sesión","Tâches à réaliser":"Tareas a realizar","Commentaire optionnel":"Comentario opcional","Ajouter une remarque pour le domicile":"Añadir una nota para el domicilio","Terminer la session":"Terminar la sesión","Mes domiciles":"Mis domicilios","Ajoutez un domicile avec le code fourni par le client, puis choisissez celui à afficher.":"Añade un domicilio con el código del cliente y elige cuál mostrar.","Domicile actif":"Domicilio activo","Code d’ajout domicile":"Código para añadir domicilio","Ajouter ce domicile":"Añadir este domicilio","Gestion simple et synchronisée":"Gestión sencilla y sincronizada","Log out":"Cerrar sesión","Solde actuel":"Saldo actual","À payer":"Por pagar","Sessions":"Sesiones","Paiements":"Pagos","Ajouter session aujourd'hui":"Añadir sesión hoy","Résumé rapide":"Resumen rápido","Vue d'ensemble":"Vista general","Dernière session":"Última sesión","Dernier paiement":"Último pago","Aucune":"Ninguna","Aucun":"Ninguno","Ajouter une session":"Añadir una sesión","Enregistrer des heures":"Registrar horas","Date":"Fecha","Durée":"Duración","Autre":"Otra","Autre durée (heures)":"Otra duración (horas)","Taux horaire appliqué (€ / h)":"Tarifa aplicada (€ / h)","Montant calculé":"Importe calculado","Tâche ponctuelle pour cette session":"Tarea puntual para esta sesión","Ajoutez une tâche uniquement pour ce passage.":"Añade una tarea solo para esta visita.","Ajouter":"Añadir","Aperçu des tâches prévues":"Vista previa de tareas previstas","Enregistrer la session":"Guardar la sesión","Ajouter un paiement":"Añadir un pago","Le paiement sera déduit du solde total.":"El pago se descontará del saldo total.","Montant payé (€)":"Importe pagado (€)","Enregistrer le paiement":"Guardar el pago","Historique":"Historial","Sessions et paiements de votre compte.":"Sesiones y pagos de tu cuenta.","Contacter":"Contactar","Préparer un message":"Preparar un mensaje","Message à traduire / envoyer":"Mensaje para traducir / enviar","Traduire":"Traducir","Traduction en cours...":"Traducción en curso...","Message prêt à envoyer":"Mensaje listo para enviar","La version finale apparaîtra ici...":"La versión final aparecerá aquí...","Paramétrage":"Ajustes","Compte":"Cuenta","Mes informations":"Mi información","Ces informations seront visibles côté client et côté intervenante.":"Esta información será visible para el cliente y la trabajadora.","Nom du domicile":"Nombre del domicilio","Adresse du domicile":"Dirección del domicilio","Numéro de téléphone du client":"Número de teléfono del cliente","Informations d’accès et consignes":"Información de acceso e instrucciones","Enregistrer":"Guardar","Contact":"Contacto","Prénom de la femme de ménage":"Nombre de la empleada de hogar","Contact WhatsApp":"Contacto WhatsApp","Code d’accès":"Código de acceso","Générer un code intervenante":"Generar un código de trabajadora","Langue de l’application":"Idioma de la aplicación","Choisissez la langue de l’application client.":"Elige el idioma de la aplicación cliente.","Général":"General","Tâches du domicile":"Tareas del domicilio","Configurez les tâches qui s’ajoutent automatiquement aux sessions.":"Configura las tareas que se añaden automáticamente a las sesiones.","Voir / Modifier":"Ver / Modificar","À chaque passage":"En cada visita","Récurrentes":"Recurrentes","Ponctuelles":"Puntuales","Supprimer":"Eliminar","Retirer":"Quitar","Voir":"Ver","Réduire":"Reducir","Fermer":"Cerrar","Déduire du solde":"Descontar del saldo","Accueil":"Inicio","Réglages":"Ajustes","Domiciles":"Domicilios","Aspirateur":"Aspiradora","Serpillière":"Fregar el suelo","Salle de bain":"Baño","Cuisine":"Cocina","Changer les draps":"Cambiar las sábanas","Base":"Base","Récurrente":"Recurrente","Ponctuelle":"Puntual","Ajoutée":"Añadida","Session":"Sesión","Paiement":"Pago","Montant enregistré":"Importe registrado","Aucune donnée pour le moment.":"No hay datos por ahora.","Aucune tâche prévue.":"No hay tareas previstas.","Aucune tâche prévue pour cette session.":"No hay tareas previstas para esta sesión.","Aucune tâche associée à cette session.":"No hay tareas asociadas a esta sesión.","Aucune tâche à afficher.":"No hay tareas para mostrar.","Aucune session prévue.":"No hay sesiones previstas.","Se déconnecter":"Cerrar sesión","Retour espace client":"Volver al espacio cliente","Rôle":"Rol","utilisateur":"usuario","Renouveler le code intervenante":"Renovar el código de trabajadora","Montant à payer":"Importe por pagar","Avance disponible":"Crédito disponible","Avance":"Crédito","Statut":"Estado","OK":"OK","Étape 1 sur 5":"Paso 1 de 5","Étape {current} sur {total}":"Paso {current} de {total}","Terminer":"Finalizar"},
+      "Chargement de votre espace…":"Cargando tu espacio…","Bienvenue sur":"Bienvenido a","Gérez votre employée de maison en toute simplicité.":"Gestiona tu servicio doméstico con total sencillez.","Connexion":"Iniciar sesión","Créer":"Crear","Mot de passe":"Contraseña","Minimum 6 caractères":"Mínimo 6 caracteres","Se connecter":"Iniciar sesión","Créer un compte":"Crear una cuenta","Espace intervenante":"Espacio de trabajadora","Accès intervenante":"Acceso de trabajadora","Première configuration":"Primera configuración","Bienvenue 👋":"Bienvenido 👋","Quelques réglages rapides pour personnaliser votre application.":"Algunos ajustes rápidos para personalizar tu aplicación.","Passer":"Saltar","Retour":"Atrás","Continuer":"Continuar","Comment s’appelle votre intervenante ?":"¿Cómo se llama tu trabajadora?","Ce prénom sera utilisé dans les réglages et les messages de traduction.":"Este nombre se usará en los ajustes y mensajes de traducción.","Prénom":"Nombre","Quel est son numéro WhatsApp ?":"¿Cuál es su número de WhatsApp?","Il servira à préparer rapidement vos messages.":"Servirá para preparar rápidamente tus mensajes.","Téléphone":"Teléfono","Quelle langue utiliser pour les traductions ?":"¿Qué idioma usar para las traducciones?","Vous pourrez modifier ce choix plus tard depuis les réglages.":"Podrás cambiar esta opción más tarde desde los ajustes.","Langue":"Idioma","Français":"Francés","Espagnol":"Español","Anglais":"Inglés","Portugais":"Portugués","Arabe":"Árabe","Quel est le tarif habituel ?":"¿Cuál es la tarifa habitual?","Il sera repris automatiquement lors de l’ajout d’une session.":"Se usará automáticamente al añadir una sesión.","Taux horaire (€ / h)":"Tarifa por hora (€ / h)","Quelle est la durée habituelle d’un passage ?":"¿Cuál es la duración habitual de una visita?","Ce réglage servira pour les ajouts rapides.":"Este ajuste se usará para los añadidos rápidos.","Durée par défaut (heures)":"Duración predeterminada (horas)","Compte intervenante":"Cuenta de trabajadora","Connectez-vous, puis ajoutez les foyers avec les codes fournis depuis leur espace principal.":"Inicia sesión y añade domicilios con los códigos proporcionados desde su espacio principal.","Compte principal":"Cuenta principal","Votre prochaine session":"Tu próxima sesión","Prochaine session":"Próxima sesión","Tâches à réaliser":"Tareas a realizar","Commentaire optionnel":"Comentario opcional","Ajouter une remarque pour le domicile":"Añadir una nota para el domicilio","Terminer la session":"Terminar la sesión","Mes domiciles":"Mis domicilios","Ajoutez un foyer avec le code fourni depuis l’espace principal, puis choisissez celui à afficher.":"Añade un domicilio con el código del espacio principal y elige cuál mostrar.","Domicile actif":"Domicilio activo","Code d’ajout domicile":"Código para añadir domicilio","Ajouter ce domicile":"Añadir este domicilio","Gestion simple et synchronisée":"Gestión sencilla y sincronizada","Log out":"Cerrar sesión","Solde actuel":"Saldo actual","À payer":"Por pagar","Sessions":"Sesiones","Paiements":"Pagos","Ajouter session aujourd'hui":"Añadir sesión hoy","Résumé rapide":"Resumen rápido","Vue d'ensemble":"Vista general","Dernière session":"Última sesión","Dernier paiement":"Último pago","Aucune":"Ninguna","Aucun":"Ninguno","Ajouter une session":"Añadir una sesión","Enregistrer des heures":"Registrar horas","Date":"Fecha","Durée":"Duración","Autre":"Otra","Autre durée (heures)":"Otra duración (horas)","Taux horaire appliqué (€ / h)":"Tarifa aplicada (€ / h)","Montant calculé":"Importe calculado","Tâche ponctuelle pour cette session":"Tarea puntual para esta sesión","Ajoutez une tâche uniquement pour ce passage.":"Añade una tarea solo para esta visita.","Ajouter":"Añadir","Aperçu des tâches prévues":"Vista previa de tareas previstas","Enregistrer la session":"Guardar la sesión","Ajouter un paiement":"Añadir un pago","Le paiement sera déduit du solde total.":"El pago se descontará del saldo total.","Montant payé (€)":"Importe pagado (€)","Enregistrer le paiement":"Guardar el pago","Historique":"Historial","Sessions et paiements de votre compte.":"Sesiones y pagos de tu cuenta.","Contacter":"Contactar","Préparer un message":"Preparar un mensaje","Message à traduire / envoyer":"Mensaje para traducir / enviar","Traduire":"Traducir","Traduction en cours...":"Traducción en curso...","Message prêt à envoyer":"Mensaje listo para enviar","La version finale apparaîtra ici...":"La versión final aparecerá aquí...","Paramétrage":"Ajustes","Compte":"Cuenta","Mes informations":"Mi información","Ces informations seront visibles dans votre espace et par votre intervenante.":"Esta información será visible para el espacio principal y la trabajadora.","Nom du domicile":"Nombre del domicilio","Adresse du domicile":"Dirección del domicilio","Numéro de téléphone du foyer":"Número de teléfono del foyer","Informations d’accès et consignes":"Información de acceso e instrucciones","Enregistrer":"Guardar","Contact":"Contacto","Prénom de la femme de ménage":"Nombre de la empleada de hogar","Contact WhatsApp":"Contacto WhatsApp","Code d’accès":"Código de acceso","Générer un code intervenante":"Generar un código de trabajadora","Langue de l’application":"Idioma de la aplicación","Choisissez la langue de votre application.":"Elige el idioma de la aplicación principal.","Général":"General","Tâches du domicile":"Tareas del domicilio","Configurez les tâches qui s’ajoutent automatiquement aux sessions.":"Configura las tareas que se añaden automáticamente a las sesiones.","Voir / Modifier":"Ver / Modificar","À chaque passage":"En cada visita","Récurrentes":"Recurrentes","Ponctuelles":"Puntuales","Supprimer":"Eliminar","Retirer":"Quitar","Voir":"Ver","Réduire":"Reducir","Fermer":"Cerrar","Déduire du solde":"Descontar del saldo","Accueil":"Inicio","Réglages":"Ajustes","Domiciles":"Domicilios","Aspirateur":"Aspiradora","Serpillière":"Fregar el suelo","Salle de bain":"Baño","Cuisine":"Cocina","Changer les draps":"Cambiar las sábanas","Base":"Base","Récurrente":"Recurrente","Ponctuelle":"Puntual","Ajoutée":"Añadida","Session":"Sesión","Paiement":"Pago","Montant enregistré":"Importe registrado","Aucune donnée pour le moment.":"No hay datos por ahora.","Aucune tâche prévue.":"No hay tareas previstas.","Aucune tâche prévue pour cette session.":"No hay tareas previstas para esta sesión.","Aucune tâche associée à cette session.":"No hay tareas asociadas a esta sesión.","Aucune tâche à afficher.":"No hay tareas para mostrar.","Aucune session prévue.":"No hay sesiones previstas.","Se déconnecter":"Cerrar sesión","Retour à l’espace principal":"Volver al espacio cliente","Rôle":"Rol","utilisateur":"usuario","Renouveler le code intervenante":"Renovar el código de trabajadora","Montant à payer":"Importe por pagar","Avance disponible":"Crédito disponible","Avance":"Crédito","Statut":"Estado","OK":"OK","Étape 1 sur 5":"Paso 1 de 5","Étape {current} sur {total}":"Paso {current} de {total}","Terminer":"Finalizar"},
     en: {
-      "Chargement de votre espace…":"Loading your space…","Bienvenue sur":"Welcome to","Gérez votre employée de maison en toute simplicité.":"Manage your housekeeper with ease.","Connexion":"Sign in","Créer":"Create","Mot de passe":"Password","Minimum 6 caractères":"Minimum 6 characters","Se connecter":"Sign in","Créer un compte":"Create an account","Espace intervenante":"Worker area","Accès intervenante":"Worker access","Première configuration":"First setup","Bienvenue 👋":"Welcome 👋","Quelques réglages rapides pour personnaliser votre application.":"A few quick settings to personalize your app.","Passer":"Skip","Retour":"Back","Continuer":"Continue","Comment s’appelle votre intervenante ?":"What is your worker's name?","Ce prénom sera utilisé dans les réglages et les messages de traduction.":"This first name will be used in settings and translation messages.","Prénom":"First name","Quel est son numéro WhatsApp ?":"What is their WhatsApp number?","Il servira à préparer rapidement vos messages.":"It will help prepare your messages quickly.","Téléphone":"Phone","Quelle langue utiliser pour les traductions ?":"Which language should translations use?","Vous pourrez modifier ce choix plus tard depuis les réglages.":"You can change this later in settings.","Langue":"Language","Français":"French","Espagnol":"Spanish","Anglais":"English","Portugais":"Portuguese","Arabe":"Arabic","Quel est le tarif habituel ?":"What is the usual rate?","Il sera repris automatiquement lors de l’ajout d’une session.":"It will be reused automatically when adding a session.","Taux horaire (€ / h)":"Hourly rate (€ / h)","Quelle est la durée habituelle d’un passage ?":"What is the usual visit duration?","Ce réglage servira pour les ajouts rapides.":"This setting will be used for quick additions.","Durée par défaut (heures)":"Default duration (hours)","Compte intervenante":"Worker account","Connectez-vous, puis ajoutez vos domiciles avec les codes fournis par les clients.":"Sign in, then add homes with the codes provided by clients.","Compte client":"Client account","Votre prochaine session":"Your next session","Prochaine session":"Next session","Tâches à réaliser":"Tasks to do","Commentaire optionnel":"Optional comment","Ajouter une remarque pour le domicile":"Add a note for the home","Terminer la session":"Finish session","Mes domiciles":"My homes","Ajoutez un domicile avec le code fourni par le client, puis choisissez celui à afficher.":"Add a home with the client-provided code, then choose which one to display.","Domicile actif":"Active home","Code d’ajout domicile":"Home add code","Ajouter ce domicile":"Add this home","Gestion simple et synchronisée":"Simple, synced management","Log out":"Log out","Solde actuel":"Current balance","À payer":"Due","Sessions":"Sessions","Paiements":"Payments","Ajouter session aujourd'hui":"Add today's session","Résumé rapide":"Quick summary","Vue d'ensemble":"Overview","Dernière session":"Last session","Dernier paiement":"Last payment","Aucune":"None","Aucun":"None","Ajouter une session":"Add a session","Enregistrer des heures":"Record hours","Date":"Date","Durée":"Duration","Autre":"Other","Autre durée (heures)":"Other duration (hours)","Taux horaire appliqué (€ / h)":"Applied hourly rate (€ / h)","Montant calculé":"Calculated amount","Tâche ponctuelle pour cette session":"One-off task for this session","Ajoutez une tâche uniquement pour ce passage.":"Add a task only for this visit.","Ajouter":"Add","Aperçu des tâches prévues":"Preview planned tasks","Enregistrer la session":"Save session","Ajouter un paiement":"Add a payment","Le paiement sera déduit du solde total.":"The payment will be deducted from the total balance.","Montant payé (€)":"Amount paid (€)","Enregistrer le paiement":"Save payment","Historique":"History","Sessions et paiements de votre compte.":"Sessions and payments for your account.","Contacter":"Contact","Préparer un message":"Prepare a message","Message à traduire / envoyer":"Message to translate / send","Traduire":"Translate","Traduction en cours...":"Translation in progress...","Message prêt à envoyer":"Message ready to send","La version finale apparaîtra ici...":"The final version will appear here...","Paramétrage":"Settings","Compte":"Account","Mes informations":"My information","Ces informations seront visibles côté client et côté intervenante.":"This information will be visible to the client and worker.","Nom du domicile":"Home name","Adresse du domicile":"Home address","Numéro de téléphone du client":"Client phone number","Informations d’accès et consignes":"Access information and instructions","Enregistrer":"Save","Contact":"Contact","Prénom de la femme de ménage":"Housekeeper first name","Contact WhatsApp":"WhatsApp contact","Code d’accès":"Access code","Générer un code intervenante":"Generate worker code","Langue de l’application":"Application language","Choisissez la langue de l’application client.":"Choose the client app language.","Général":"General","Tâches du domicile":"Home tasks","Configurez les tâches qui s’ajoutent automatiquement aux sessions.":"Configure tasks that are automatically added to sessions.","Voir / Modifier":"View / Edit","À chaque passage":"Every visit","Récurrentes":"Recurring","Ponctuelles":"One-off","Supprimer":"Delete","Retirer":"Remove","Voir":"View","Réduire":"Collapse","Fermer":"Close","Déduire du solde":"Deduct from balance","Accueil":"Home","Réglages":"Settings","Domiciles":"Homes","Aspirateur":"Vacuuming","Serpillière":"Mopping","Salle de bain":"Bathroom","Cuisine":"Kitchen","Changer les draps":"Change the sheets","Base":"Base","Récurrente":"Recurring","Ponctuelle":"One-off","Ajoutée":"Added","Session":"Session","Paiement":"Payment","Montant enregistré":"Recorded amount","Aucune donnée pour le moment.":"No data yet.","Aucune tâche prévue.":"No tasks planned.","Aucune tâche prévue pour cette session.":"No tasks planned for this session.","Aucune tâche associée à cette session.":"No tasks associated with this session.","Aucune tâche à afficher.":"No tasks to display.","Aucune session prévue.":"No session planned.","Se déconnecter":"Sign out","Retour espace client":"Back to client area","Rôle":"Role","utilisateur":"user","Renouveler le code intervenante":"Renew worker code","Montant à payer":"Amount due","Avance disponible":"Available credit","Avance":"Credit","Statut":"Status","OK":"OK","Étape 1 sur 5":"Step 1 of 5","Étape {current} sur {total}":"Step {current} of {total}","Terminer":"Finish"},
+      "Chargement de votre espace…":"Loading your space…","Bienvenue sur":"Welcome to","Gérez votre employée de maison en toute simplicité.":"Manage your housekeeper with ease.","Connexion":"Sign in","Créer":"Create","Mot de passe":"Password","Minimum 6 caractères":"Minimum 6 characters","Se connecter":"Sign in","Créer un compte":"Create an account","Espace intervenante":"Worker area","Accès intervenante":"Worker access","Première configuration":"First setup","Bienvenue 👋":"Welcome 👋","Quelques réglages rapides pour personnaliser votre application.":"A few quick settings to personalize your app.","Passer":"Skip","Retour":"Back","Continuer":"Continue","Comment s’appelle votre intervenante ?":"What is your worker's name?","Ce prénom sera utilisé dans les réglages et les messages de traduction.":"This first name will be used in settings and translation messages.","Prénom":"First name","Quel est son numéro WhatsApp ?":"What is their WhatsApp number?","Il servira à préparer rapidement vos messages.":"It will help prepare your messages quickly.","Téléphone":"Phone","Quelle langue utiliser pour les traductions ?":"Which language should translations use?","Vous pourrez modifier ce choix plus tard depuis les réglages.":"You can change this later in settings.","Langue":"Language","Français":"French","Espagnol":"Spanish","Anglais":"English","Portugais":"Portuguese","Arabe":"Arabic","Quel est le tarif habituel ?":"What is the usual rate?","Il sera repris automatiquement lors de l’ajout d’une session.":"It will be reused automatically when adding a session.","Taux horaire (€ / h)":"Hourly rate (€ / h)","Quelle est la durée habituelle d’un passage ?":"What is the usual visit duration?","Ce réglage servira pour les ajouts rapides.":"This setting will be used for quick additions.","Durée par défaut (heures)":"Default duration (hours)","Compte intervenante":"Worker account","Connectez-vous, puis ajoutez les foyers avec les codes fournis depuis leur espace principal.":"Sign in, then add homes with the codes provided by clients.","Compte principal":"Client account","Votre prochaine session":"Your next session","Prochaine session":"Next session","Tâches à réaliser":"Tasks to do","Commentaire optionnel":"Optional comment","Ajouter une remarque pour le domicile":"Add a note for the home","Terminer la session":"Finish session","Mes domiciles":"My homes","Ajoutez un foyer avec le code fourni depuis l’espace principal, puis choisissez celui à afficher.":"Add a home with the main-space code, then choose which one to display.","Domicile actif":"Active home","Code d’ajout domicile":"Home add code","Ajouter ce domicile":"Add this home","Gestion simple et synchronisée":"Simple, synced management","Log out":"Log out","Solde actuel":"Current balance","À payer":"Due","Sessions":"Sessions","Paiements":"Payments","Ajouter session aujourd'hui":"Add today's session","Résumé rapide":"Quick summary","Vue d'ensemble":"Overview","Dernière session":"Last session","Dernier paiement":"Last payment","Aucune":"None","Aucun":"None","Ajouter une session":"Add a session","Enregistrer des heures":"Record hours","Date":"Date","Durée":"Duration","Autre":"Other","Autre durée (heures)":"Other duration (hours)","Taux horaire appliqué (€ / h)":"Applied hourly rate (€ / h)","Montant calculé":"Calculated amount","Tâche ponctuelle pour cette session":"One-off task for this session","Ajoutez une tâche uniquement pour ce passage.":"Add a task only for this visit.","Ajouter":"Add","Aperçu des tâches prévues":"Preview planned tasks","Enregistrer la session":"Save session","Ajouter un paiement":"Add a payment","Le paiement sera déduit du solde total.":"The payment will be deducted from the total balance.","Montant payé (€)":"Amount paid (€)","Enregistrer le paiement":"Save payment","Historique":"History","Sessions et paiements de votre compte.":"Sessions and payments for your account.","Contacter":"Contact","Préparer un message":"Prepare a message","Message à traduire / envoyer":"Message to translate / send","Traduire":"Translate","Traduction en cours...":"Translation in progress...","Message prêt à envoyer":"Message ready to send","La version finale apparaîtra ici...":"The final version will appear here...","Paramétrage":"Settings","Compte":"Account","Mes informations":"My information","Ces informations seront visibles dans votre espace et par votre intervenante.":"This information will be visible to the main space and worker.","Nom du domicile":"Home name","Adresse du domicile":"Home address","Numéro de téléphone du foyer":"Home phone number","Informations d’accès et consignes":"Access information and instructions","Enregistrer":"Save","Contact":"Contact","Prénom de la femme de ménage":"Housekeeper first name","Contact WhatsApp":"WhatsApp contact","Code d’accès":"Access code","Générer un code intervenante":"Generate worker code","Langue de l’application":"Application language","Choisissez la langue de votre application.":"Choose the main app language.","Général":"General","Tâches du domicile":"Home tasks","Configurez les tâches qui s’ajoutent automatiquement aux sessions.":"Configure tasks that are automatically added to sessions.","Voir / Modifier":"View / Edit","À chaque passage":"Every visit","Récurrentes":"Recurring","Ponctuelles":"One-off","Supprimer":"Delete","Retirer":"Remove","Voir":"View","Réduire":"Collapse","Fermer":"Close","Déduire du solde":"Deduct from balance","Accueil":"Home","Réglages":"Settings","Domiciles":"Homes","Aspirateur":"Vacuuming","Serpillière":"Mopping","Salle de bain":"Bathroom","Cuisine":"Kitchen","Changer les draps":"Change the sheets","Base":"Base","Récurrente":"Recurring","Ponctuelle":"One-off","Ajoutée":"Added","Session":"Session","Paiement":"Payment","Montant enregistré":"Recorded amount","Aucune donnée pour le moment.":"No data yet.","Aucune tâche prévue.":"No tasks planned.","Aucune tâche prévue pour cette session.":"No tasks planned for this session.","Aucune tâche associée à cette session.":"No tasks associated with this session.","Aucune tâche à afficher.":"No tasks to display.","Aucune session prévue.":"No session planned.","Se déconnecter":"Sign out","Retour à l’espace principal":"Back to main area","Rôle":"Role","utilisateur":"user","Renouveler le code intervenante":"Renew worker code","Montant à payer":"Amount due","Avance disponible":"Available credit","Avance":"Credit","Statut":"Status","OK":"OK","Étape 1 sur 5":"Step 1 of 5","Étape {current} sur {total}":"Step {current} of {total}","Terminer":"Finish"},
     pt: {}, ar: {}
   };
   UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, "Langue":"Idioma", "Français":"Francês", "Espagnol":"Espanhol", "Anglais":"Inglês", "Portugais":"Português", "Arabe":"Árabe", "Accueil":"Início", "Réglages":"Definições", "Domiciles":"Domicílios", "Connexion":"Entrar", "Créer":"Criar", "Se connecter":"Entrar", "Se déconnecter":"Sair", "Ajouter":"Adicionar", "Supprimer":"Eliminar", "Voir":"Ver", "Fermer":"Fechar", "Session":"Sessão", "Paiement":"Pagamento", "Aspirateur":"Aspirador", "Serpillière":"Lavar o chão", "Salle de bain":"Casa de banho", "Cuisine":"Cozinha", "Changer les draps":"Trocar os lençóis" };
   UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, "Langue":"اللغة", "Français":"الفرنسية", "Espagnol":"الإسبانية", "Anglais":"الإنجليزية", "Portugais":"البرتغالية", "Arabe":"العربية", "Accueil":"الرئيسية", "Réglages":"الإعدادات", "Domiciles":"المنازل", "Connexion":"تسجيل الدخول", "Créer":"إنشاء", "Se connecter":"تسجيل الدخول", "Se déconnecter":"تسجيل الخروج", "Ajouter":"إضافة", "Supprimer":"حذف", "Voir":"عرض", "Fermer":"إغلاق", "Session":"جلسة", "Paiement":"دفعة", "Aspirateur":"تنظيف بالمكنسة", "Serpillière":"مسح الأرض", "Salle de bain":"الحمام", "Cuisine":"المطبخ", "Changer les draps":"تغيير الملاءات" };
 
   Object.assign(UI_TRANSLATIONS.en, {
-    "⚠️ Réglages sauvegardés localement.": "⚠️ Settings saved locally.", "Configuration passée.": "Setup skipped.", "✅ Configuration terminée.": "✅ Setup complete.", "Merci de renseigner votre email et votre mot de passe.": "Please enter your email and password.", "✅ Compte créé.": "✅ Account created.", "✅ Connecté.": "✅ Signed in.", "✅ Compte intervenante créé.": "✅ Worker account created.", "✅ Connectée.": "✅ Signed in.", "Déconnecté.": "Signed out.", "Merci de vous connecter avant de générer un code.": "Please sign in before generating a code.", "Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.": "Unable to save the code in Firebase. Check the connection or Firestore rules.", "✅ Code intervenante généré.": "✅ Worker code generated.", "Connectez-vous comme intervenante.": "Sign in as a worker.", "✅ Domicile ajouté.": "✅ Home added.", "Code invalide.": "Invalid code.", "Aucun domicile": "No home", "Ajoutez un domicile avec le code fourni par un client.": "Add a home with the code provided by a client.", "✅ Session terminée.": "✅ Session finished.", "⚠️ Session non enregistrée.": "⚠️ Session not saved.", "✅ Tâches enregistrées.": "✅ Tasks saved.", "⚠️ Tâches non synchronisées.": "⚠️ Tasks not synced.", "⚠️ Tâche non synchronisée.": "⚠️ Task not synced.", "⚠️ Non synchronisé.": "⚠️ Not synced.", "Supprimer cette session ?": "Delete this session?", "Supprimer ce paiement ?": "Delete this payment?", "🗑️ Entrée supprimée.": "🗑️ Entry deleted.", "⚠️ Suppression locale uniquement.": "⚠️ Local deletion only.", "✅ Session ajoutée.": "✅ Session added.", "✅ Informations du domicile enregistrées.": "✅ Home information saved.", "Merci de renseigner une durée valide et un taux horaire supérieur à 0.": "Please enter a valid duration and an hourly rate greater than 0.", "✅ Session enregistrée.": "✅ Session saved.", "Merci de renseigner un montant valide.": "Please enter a valid amount.", "✅ Paiement enregistré.": "✅ Payment saved.", "Préparation du prompt de traduction...": "Preparing the translation prompt...", "✅ Prompt ouvert dans ChatGPT.": "✅ Prompt opened in ChatGPT.", "Erreur de traduction.": "Translation error.", "Merci de renseigner un numéro WhatsApp valide dans les paramètres.": "Please enter a valid WhatsApp number in settings.", "Merci de rédiger un message avant d'ouvrir WhatsApp.": "Please write a message before opening WhatsApp.", "Rôle": "Role", "utilisateur": "user"
+    "⚠️ Réglages sauvegardés localement.": "⚠️ Settings saved locally.", "Configuration passée.": "Setup skipped.", "✅ Configuration terminée.": "✅ Setup complete.", "Merci de renseigner votre email et votre mot de passe.": "Please enter your email and password.", "✅ Compte créé.": "✅ Account created.", "✅ Connecté.": "✅ Signed in.", "✅ Compte intervenante créé.": "✅ Worker account created.", "✅ Connectée.": "✅ Signed in.", "Déconnecté.": "Signed out.", "Merci de vous connecter avant de générer un code.": "Please sign in before generating a code.", "Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.": "Unable to save the code in Firebase. Check the connection or Firestore rules.", "✅ Code intervenante généré.": "✅ Worker code generated.", "Connectez-vous comme intervenante.": "Sign in as a worker.", "✅ Domicile ajouté.": "✅ Home added.", "Code invalide.": "Invalid code.", "Aucun domicile": "No home", "Ajoutez un foyer avec le code fourni depuis l’espace principal.": "Add a home with the code provided from the main area.", "✅ Session terminée.": "✅ Session finished.", "⚠️ Session non enregistrée.": "⚠️ Session not saved.", "✅ Tâches enregistrées.": "✅ Tasks saved.", "⚠️ Tâches non synchronisées.": "⚠️ Tasks not synced.", "⚠️ Tâche non synchronisée.": "⚠️ Task not synced.", "⚠️ Non synchronisé.": "⚠️ Not synced.", "Supprimer cette session ?": "Delete this session?", "Supprimer ce paiement ?": "Delete this payment?", "🗑️ Entrée supprimée.": "🗑️ Entry deleted.", "⚠️ Suppression locale uniquement.": "⚠️ Local deletion only.", "✅ Session ajoutée.": "✅ Session added.", "✅ Informations du domicile enregistrées.": "✅ Home information saved.", "Merci de renseigner une durée valide et un taux horaire supérieur à 0.": "Please enter a valid duration and an hourly rate greater than 0.", "✅ Session enregistrée.": "✅ Session saved.", "Merci de renseigner un montant valide.": "Please enter a valid amount.", "✅ Paiement enregistré.": "✅ Payment saved.", "Préparation du prompt de traduction...": "Preparing the translation prompt...", "✅ Prompt ouvert dans ChatGPT.": "✅ Prompt opened in ChatGPT.", "Erreur de traduction.": "Translation error.", "Merci de renseigner un numéro WhatsApp valide dans les paramètres.": "Please enter a valid WhatsApp number in settings.", "Merci de rédiger un message avant d'ouvrir WhatsApp.": "Please write a message before opening WhatsApp.", "Rôle": "Role", "utilisateur": "user"
   });
   Object.assign(UI_TRANSLATIONS.es, {
-    "⚠️ Réglages sauvegardés localement.": "⚠️ Ajustes guardados localmente.", "Configuration passée.": "Configuración omitida.", "✅ Configuration terminée.": "✅ Configuración terminada.", "Merci de renseigner votre email et votre mot de passe.": "Introduce tu email y contraseña.", "✅ Compte créé.": "✅ Cuenta creada.", "✅ Connecté.": "✅ Conectado.", "✅ Compte intervenante créé.": "✅ Cuenta de trabajadora creada.", "✅ Connectée.": "✅ Conectada.", "Déconnecté.": "Sesión cerrada.", "Merci de vous connecter avant de générer un code.": "Inicia sesión antes de generar un código.", "Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.": "No se puede guardar el código en Firebase. Comprueba la conexión o las reglas de Firestore.", "✅ Code intervenante généré.": "✅ Código de trabajadora generado.", "Connectez-vous comme intervenante.": "Inicia sesión como trabajadora.", "✅ Domicile ajouté.": "✅ Domicilio añadido.", "Code invalide.": "Código inválido.", "Aucun domicile": "Ningún domicilio", "Ajoutez un domicile avec le code fourni par un client.": "Añade un domicilio con el código proporcionado por un cliente.", "✅ Session terminée.": "✅ Sesión terminada.", "⚠️ Session non enregistrée.": "⚠️ Sesión no guardada.", "✅ Tâches enregistrées.": "✅ Tareas guardadas.", "⚠️ Tâches non synchronisées.": "⚠️ Tareas no sincronizadas.", "⚠️ Tâche non synchronisée.": "⚠️ Tarea no sincronizada.", "⚠️ Non synchronisé.": "⚠️ No sincronizado.", "Supprimer cette session ?": "¿Eliminar esta sesión?", "Supprimer ce paiement ?": "¿Eliminar este pago?", "🗑️ Entrée supprimée.": "🗑️ Entrada eliminada.", "⚠️ Suppression locale uniquement.": "⚠️ Eliminación solo local.", "✅ Session ajoutée.": "✅ Sesión añadida.", "✅ Informations du domicile enregistrées.": "✅ Información del domicilio guardada.", "Merci de renseigner une durée valide et un taux horaire supérieur à 0.": "Introduce una duración válida y una tarifa por hora superior a 0.", "✅ Session enregistrée.": "✅ Sesión guardada.", "Merci de renseigner un montant valide.": "Introduce un importe válido.", "✅ Paiement enregistré.": "✅ Pago guardado.", "Préparation du prompt de traduction...": "Preparando el prompt de traducción...", "✅ Prompt ouvert dans ChatGPT.": "✅ Prompt abierto en ChatGPT.", "Erreur de traduction.": "Error de traducción.", "Merci de renseigner un numéro WhatsApp valide dans les paramètres.": "Introduce un número de WhatsApp válido en los ajustes.", "Merci de rédiger un message avant d'ouvrir WhatsApp.": "Escribe un mensaje antes de abrir WhatsApp."
+    "⚠️ Réglages sauvegardés localement.": "⚠️ Ajustes guardados localmente.", "Configuration passée.": "Configuración omitida.", "✅ Configuration terminée.": "✅ Configuración terminada.", "Merci de renseigner votre email et votre mot de passe.": "Introduce tu email y contraseña.", "✅ Compte créé.": "✅ Cuenta creada.", "✅ Connecté.": "✅ Conectado.", "✅ Compte intervenante créé.": "✅ Cuenta de trabajadora creada.", "✅ Connectée.": "✅ Conectada.", "Déconnecté.": "Sesión cerrada.", "Merci de vous connecter avant de générer un code.": "Inicia sesión antes de generar un código.", "Impossible d’enregistrer le code dans Firebase. Vérifiez la connexion ou les règles Firestore.": "No se puede guardar el código en Firebase. Comprueba la conexión o las reglas de Firestore.", "✅ Code intervenante généré.": "✅ Código de trabajadora generado.", "Connectez-vous comme intervenante.": "Inicia sesión como trabajadora.", "✅ Domicile ajouté.": "✅ Domicilio añadido.", "Code invalide.": "Código inválido.", "Aucun domicile": "Ningún domicilio", "Ajoutez un foyer avec le code fourni depuis l’espace principal.": "Añade un domicilio con el código proporcionado desde el espacio principal.", "✅ Session terminée.": "✅ Sesión terminada.", "⚠️ Session non enregistrée.": "⚠️ Sesión no guardada.", "✅ Tâches enregistrées.": "✅ Tareas guardadas.", "⚠️ Tâches non synchronisées.": "⚠️ Tareas no sincronizadas.", "⚠️ Tâche non synchronisée.": "⚠️ Tarea no sincronizada.", "⚠️ Non synchronisé.": "⚠️ No sincronizado.", "Supprimer cette session ?": "¿Eliminar esta sesión?", "Supprimer ce paiement ?": "¿Eliminar este pago?", "🗑️ Entrée supprimée.": "🗑️ Entrada eliminada.", "⚠️ Suppression locale uniquement.": "⚠️ Eliminación solo local.", "✅ Session ajoutée.": "✅ Sesión añadida.", "✅ Informations du domicile enregistrées.": "✅ Información del domicilio guardada.", "Merci de renseigner une durée valide et un taux horaire supérieur à 0.": "Introduce una duración válida y una tarifa por hora superior a 0.", "✅ Session enregistrée.": "✅ Sesión guardada.", "Merci de renseigner un montant valide.": "Introduce un importe válido.", "✅ Paiement enregistré.": "✅ Pago guardado.", "Préparation du prompt de traduction...": "Preparando el prompt de traducción...", "✅ Prompt ouvert dans ChatGPT.": "✅ Prompt abierto en ChatGPT.", "Erreur de traduction.": "Error de traducción.", "Merci de renseigner un numéro WhatsApp valide dans les paramètres.": "Introduce un número de WhatsApp válido en los ajustes.", "Merci de rédiger un message avant d'ouvrir WhatsApp.": "Escribe un mensaje antes de abrir WhatsApp."
   });
   UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.pt };
   UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.ar };
 
-  Object.assign(UI_TRANSLATIONS.en, {"Créez votre compte pour commencer.": "Create your account to get started.", "Connexion impossible.": "Unable to sign in.", "Retour au mode client": "Back to client mode", "Domicile": "Home", "Changer": "Change", "Tâches à faire": "Tasks to do", "Supprimer cette entrée ?": "Delete this entry?", "Cette action est irréversible.": "This action cannot be undone.", "Annuler": "Cancel", "Choisissez une durée rapide ou saisissez une autre valeur.": "Choose a quick duration or enter another value.", "Historique complet": "Full history", "Actualiser": "Refresh", "Préparez un message et envoyez-le directement.": "Prepare a message and send it directly.", "Message en français": "Message in French", "Décaler": "Postpone", "Tâches": "Tasks", "WhatsApp": "WhatsApp", "Compte : —": "Account: —", "Rôle : —": "Role: —", "Générez un code à transmettre à votre intervenante.": "Generate a code to share with your worker.", "Liste fixe ajoutée automatiquement à toutes les sessions.": "Fixed list automatically added to all sessions.", "Nom de la tâche à chaque passage": "Task name for each visit", "Récurrentes": "Recurring", "Programmez les tâches qui reviennent toutes les X sessions.": "Schedule tasks that recur every X sessions.", "Tâche": "Task", "Ajouter la tâche récurrente": "Add recurring task", "Ponctuelles": "One-off", "Ajoutez une tâche exceptionnelle pour une date précise.": "Add an exceptional task for a specific date.", "Ajouter la tâche ponctuelle": "Add one-off task", "Tâches à réaliser": "Tasks to do"});
-  Object.assign(UI_TRANSLATIONS.es, {"Créez votre compte pour commencer.": "Crea tu cuenta para empezar.", "Connexion impossible.": "No se puede iniciar sesión.", "Retour au mode client": "Volver al modo cliente", "Domicile": "Domicilio", "Changer": "Cambiar", "Tâches à faire": "Tareas por hacer", "Supprimer cette entrée ?": "¿Eliminar esta entrada?", "Cette action est irréversible.": "Esta acción es irreversible.", "Annuler": "Cancelar", "Choisissez une durée rapide ou saisissez une autre valeur.": "Elige una duración rápida o introduce otro valor.", "Historique complet": "Historial completo", "Actualiser": "Actualizar", "Préparez un message et envoyez-le directement.": "Prepara un mensaje y envíalo directamente.", "Message en français": "Mensaje en francés", "Décaler": "Posponer", "Tâches": "Tareas", "WhatsApp": "WhatsApp", "Compte : —": "Cuenta: —", "Rôle : —": "Rol: —", "Générez un code à transmettre à votre intervenante.": "Genera un código para transmitir a tu trabajadora.", "Liste fixe ajoutée automatiquement à toutes les sessions.": "Lista fija añadida automáticamente a todas las sesiones.", "Nom de la tâche à chaque passage": "Nombre de la tarea en cada visita", "Récurrentes": "Recurrentes", "Programmez les tâches qui reviennent toutes les X sessions.": "Programa tareas que vuelven cada X sesiones.", "Tâche": "Tarea", "Ajouter la tâche récurrente": "Añadir tarea recurrente", "Ponctuelles": "Puntuales", "Ajoutez une tâche exceptionnelle pour une date précise.": "Añade una tarea excepcional para una fecha concreta.", "Ajouter la tâche ponctuelle": "Añadir tarea puntual", "Tâches à réaliser": "Tareas a realizar"});
+  Object.assign(UI_TRANSLATIONS.en, {"Créez votre compte pour commencer.": "Create your account to get started.", "Connexion impossible.": "Unable to sign in.", "Retour à l’espace principal": "Back to main area", "Domicile": "Home", "Changer": "Change", "Tâches à faire": "Tasks to do", "Supprimer cette entrée ?": "Delete this entry?", "Cette action est irréversible.": "This action cannot be undone.", "Annuler": "Cancel", "Choisissez une durée rapide ou saisissez une autre valeur.": "Choose a quick duration or enter another value.", "Historique complet": "Full history", "Actualiser": "Refresh", "Préparez un message et envoyez-le directement.": "Prepare a message and send it directly.", "Message en français": "Message in French", "Décaler": "Postpone", "Tâches": "Tasks", "WhatsApp": "WhatsApp", "Compte : —": "Account: —", "Rôle : —": "Role: —", "Générez un code à transmettre à votre intervenante.": "Generate a code to share with your worker.", "Liste fixe ajoutée automatiquement à toutes les sessions.": "Fixed list automatically added to all sessions.", "Nom de la tâche à chaque passage": "Task name for each visit", "Récurrentes": "Recurring", "Programmez les tâches qui reviennent toutes les X sessions.": "Schedule tasks that recur every X sessions.", "Tâche": "Task", "Ajouter la tâche récurrente": "Add recurring task", "Ponctuelles": "One-off", "Ajoutez une tâche exceptionnelle pour une date précise.": "Add an exceptional task for a specific date.", "Ajouter la tâche ponctuelle": "Add one-off task", "Tâches à réaliser": "Tasks to do"});
+  Object.assign(UI_TRANSLATIONS.es, {"Créez votre compte pour commencer.": "Crea tu cuenta para empezar.", "Connexion impossible.": "No se puede iniciar sesión.", "Retour à l’espace principal": "Volver al espacio principal", "Domicile": "Domicilio", "Changer": "Cambiar", "Tâches à faire": "Tareas por hacer", "Supprimer cette entrée ?": "¿Eliminar esta entrada?", "Cette action est irréversible.": "Esta acción es irreversible.", "Annuler": "Cancelar", "Choisissez une durée rapide ou saisissez une autre valeur.": "Elige una duración rápida o introduce otro valor.", "Historique complet": "Historial completo", "Actualiser": "Actualizar", "Préparez un message et envoyez-le directement.": "Prepara un mensaje y envíalo directamente.", "Message en français": "Mensaje en francés", "Décaler": "Posponer", "Tâches": "Tareas", "WhatsApp": "WhatsApp", "Compte : —": "Cuenta: —", "Rôle : —": "Rol: —", "Générez un code à transmettre à votre intervenante.": "Genera un código para transmitir a tu trabajadora.", "Liste fixe ajoutée automatiquement à toutes les sessions.": "Lista fija añadida automáticamente a todas las sesiones.", "Nom de la tâche à chaque passage": "Nombre de la tarea en cada visita", "Récurrentes": "Recurrentes", "Programmez les tâches qui reviennent toutes les X sessions.": "Programa tareas que vuelven cada X sesiones.", "Tâche": "Tarea", "Ajouter la tâche récurrente": "Añadir tarea recurrente", "Ponctuelles": "Puntuales", "Ajoutez une tâche exceptionnelle pour une date précise.": "Añade una tarea excepcional para una fecha concreta.", "Ajouter la tâche ponctuelle": "Añadir tarea puntual", "Tâches à réaliser": "Tareas a realizar"});
   UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.pt };
   UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, ...UI_TRANSLATIONS.ar };
 
@@ -1466,6 +1547,7 @@
     state.settings = {
       ...state.settings,
       homeName: String(remoteSettings.homeName ?? remoteSettings.householdName ?? remoteSettings.domicileName ?? state.settings.homeName ?? ''),
+      userFirstName: String(remoteSettings.userFirstName ?? remoteSettings.firstName ?? state.settings.userFirstName ?? ''),
       address: String(remoteSettings.address ?? state.settings.address ?? ''),
       phone: String(remoteSettings.phone ?? state.settings.phone ?? ''),
       accessNotes: String(remoteSettings.accessNotes ?? state.settings.accessNotes ?? ''),
@@ -1485,7 +1567,7 @@
       workerUid: String(remoteSettings.workerUid ?? state.settings.workerUid ?? ''),
       setupCompleted: hasSetupFlag
         ? Boolean(remoteSettings.setupCompleted ?? data.setupCompleted)
-        : Boolean(remoteSettings.contactName || remoteSettings.contactPhone || remoteSettings.hourlyRate || remoteSettings.defaultDuration || state.entries.length > 0)
+        : Boolean(remoteSettings.homeName || remoteSettings.userFirstName || remoteSettings.hourlyRate || remoteSettings.defaultDuration || remoteSettings.defaultVisitDay || remoteSettings.defaultVisitTime || state.entries.length > 0)
     };
 
     await setDoc(userRef, {
@@ -1723,10 +1805,22 @@
     return isLoggedIn() && !state.settings.setupCompleted;
   }
 
+  function renderSetupTasksList() {
+    if (!els.setupTasksList) return;
+    const tasks = normalizeTaskSettings(state.settings.defaultTasks, []);
+    els.setupTasksList.innerHTML = tasks.length
+      ? tasks.map((task) => '<div class="flex items-center justify-between gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><span>' + esc(getTaskDisplayLabel(task, 'fr') || task.label) + '</span><button type="button" class="setup-remove-task-btn text-xs font-medium text-red-500" data-task-id="' + esc(task.id) + '">Retirer</button></div>').join('')
+      : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche de base pour le moment.</div>';
+  }
+
+  function renderSetupAccessCode() {
+    if (els.setupWorkerAccessCodeDisplay) els.setupWorkerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
+  }
+
   function renderSetup() {
     if (!els.setupScreen) return;
 
-    const maxStep = 4;
+    const maxStep = 6;
     state.ui.setupStep = Math.min(Math.max(Number(state.ui.setupStep || 0), 0), maxStep);
 
     document.querySelectorAll('.setup-step').forEach((step, index) => {
@@ -1739,34 +1833,43 @@
       els.setupBackBtn.disabled = state.ui.setupStep === 0;
       els.setupBackBtn.classList.toggle('opacity-40', state.ui.setupStep === 0);
     }
-    if (els.setupNextBtn) els.setupNextBtn.textContent = t(state.ui.setupStep === maxStep ? 'Terminer' : 'Continuer');
+    if (els.setupNextBtn) {
+      const labels = ['Commencer', 'Continuer', 'Continuer', 'Continuer', 'Continuer', 'Continuer', 'Terminer la configuration'];
+      els.setupNextBtn.textContent = t(labels[state.ui.setupStep] || 'Continuer');
+    }
 
-    if (els.setupContactNameInput) els.setupContactNameInput.value = state.settings.contactName || '';
-    if (els.setupContactPhoneInput) els.setupContactPhoneInput.value = state.settings.contactPhone || '';
+    if (els.setupUserFirstNameInput && document.activeElement !== els.setupUserFirstNameInput) els.setupUserFirstNameInput.value = state.settings.userFirstName || '';
+    if (els.setupHomeNameInput && document.activeElement !== els.setupHomeNameInput) els.setupHomeNameInput.value = state.settings.homeName || '';
     if (els.setupLanguageSelect) els.setupLanguageSelect.value = state.settings.translationLanguage || 'fr';
-    if (els.setupHourlyRateInput) els.setupHourlyRateInput.value = state.settings.hourlyRate || '';
-    if (els.setupDefaultDurationInput) els.setupDefaultDurationInput.value = state.settings.defaultDuration || '';
+    if (els.setupHourlyRateInput && document.activeElement !== els.setupHourlyRateInput) els.setupHourlyRateInput.value = state.settings.hourlyRate || '';
+    if (els.setupDefaultDurationInput && document.activeElement !== els.setupDefaultDurationInput) els.setupDefaultDurationInput.value = state.settings.defaultDuration || '';
+    if (els.setupDefaultVisitDayInput) els.setupDefaultVisitDayInput.value = state.settings.defaultVisitDay || '';
+    if (els.setupDefaultVisitTimeInput) els.setupDefaultVisitTimeInput.value = normalizeSessionTime(state.settings.defaultVisitTime || '');
+    renderSetupTasksList();
+    renderSetupAccessCode();
   }
 
   function collectSetupValues() {
-    state.settings.contactName = (els.setupContactNameInput?.value || '').trim();
-    state.settings.contactPhone = (els.setupContactPhoneInput?.value || '').trim();
+    state.settings.userFirstName = (els.setupUserFirstNameInput?.value || '').trim();
+    state.settings.homeName = (els.setupHomeNameInput?.value || '').trim();
     state.settings.translationLanguage = els.setupLanguageSelect?.value || 'fr';
     state.settings.hourlyRate = Number(els.setupHourlyRateInput?.value || state.settings.hourlyRate || defaultState.settings.hourlyRate);
     state.settings.defaultDuration = Number(els.setupDefaultDurationInput?.value || state.settings.defaultDuration || defaultState.settings.defaultDuration);
+    state.settings.defaultVisitDay = String(els.setupDefaultVisitDayInput?.value || state.settings.defaultVisitDay || '');
+    state.settings.defaultVisitTime = normalizeSessionTime(els.setupDefaultVisitTimeInput?.value || state.settings.defaultVisitTime || '');
     saveState();
   }
 
   async function finishSetup(skipped) {
     collectSetupValues();
     state.settings.setupCompleted = true;
-    state.ui.setupStep = 0;
     state.ui.currentPage = 'dashboard';
     state.ui.setupStep = 0;
     saveState();
 
     try {
       await saveUserSettings();
+      renderSetupAccessCode();
     } catch (error) {
       console.error(error);
       showToast('⚠️ Réglages sauvegardés localement.');
@@ -1780,7 +1883,7 @@
 
   async function nextSetupStep() {
     collectSetupValues();
-    if (state.ui.setupStep >= 4) {
+    if (state.ui.setupStep >= 6) {
       await finishSetup(false);
       return;
     }
@@ -1794,6 +1897,37 @@
     state.ui.setupStep = Math.max(0, state.ui.setupStep - 1);
     saveState();
     renderSetup();
+  }
+
+  async function addSetupDefaultTask() {
+    const label = cleanTaskText(els.setupDefaultTaskInput?.value || '');
+    if (!label) return;
+    const task = createUserTask(label, 'manual');
+    try { await translateTaskForSupportedLanguages(task); } catch (error) { console.warn('Traduction tâche tutoriel :', error); }
+    state.settings.defaultTasks = [...normalizeTaskSettings(state.settings.defaultTasks, []), task];
+    if (els.setupDefaultTaskInput) els.setupDefaultTaskInput.value = '';
+    saveState();
+    queueSettingsSave();
+    renderSetupTasksList();
+  }
+
+  function removeSetupDefaultTask(taskId) {
+    state.settings.defaultTasks = normalizeTaskSettings(state.settings.defaultTasks, []).filter((task) => task.id !== taskId);
+    saveState();
+    queueSettingsSave();
+    renderSetupTasksList();
+  }
+
+  async function copySetupWorkerCode() {
+    const code = String(state.settings.intervenanteAccessCode || '').trim();
+    if (!code) { showToast('Générez un code intervenante.'); return; }
+    try {
+      await navigator.clipboard.writeText(code);
+      showToast('✅ Code copié.');
+    } catch (error) {
+      console.error(error);
+      showToast('Code : ' + code);
+    }
   }
 
   function isWorkerUser() {
@@ -1902,7 +2036,7 @@
 
       let userProfile = await ensureUserDocument(credential.user, 'intervenante');
       if (userProfile.role !== 'intervenante') {
-        throw new Error('Ce compte est un compte client. Utilisez un autre email pour créer un compte intervenante.');
+        throw new Error('Ce compte est lié à l’espace principal. Utilisez un autre email pour créer un compte intervenante.');
       }
 
       state.auth.token = credential.user.uid;
@@ -2199,6 +2333,7 @@
       }
       await setDoc(doc(db, WORKER_CODES_COLLECTION, code), payload, { merge: true });
       await saveUserSettings();
+      renderSetupAccessCode();
     } catch (error) {
       console.error(error);
       state.settings.intervenanteAccessCode = previousCode || '';
@@ -2351,7 +2486,7 @@
       await renderWorkerHomesSettings(links);
       if (!links.length) {
         if (els.workerHomeName) els.workerHomeName.textContent = t('Aucun domicile');
-        if (els.workerSessionSummary) els.workerSessionSummary.textContent = t('Ajoutez un domicile avec le code fourni par un client.');
+        if (els.workerSessionSummary) els.workerSessionSummary.textContent = t('Ajoutez un foyer avec le code fourni depuis l’espace principal.');
         if (els.workerTasksList) els.workerTasksList.innerHTML = '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche à afficher.</div>';
         if (els.workerFinishSessionBtn) els.workerFinishSessionBtn.disabled = true;
         return;
@@ -2698,6 +2833,7 @@
 
     try {
       await saveUserSettings();
+      renderSetupAccessCode();
     } catch (error) {
       console.error(error);
       showToast('⚠️ Tâche non synchronisée.');
@@ -3178,13 +3314,21 @@
   if (els.setupNextBtn) els.setupNextBtn.addEventListener('click', nextSetupStep);
   if (els.setupBackBtn) els.setupBackBtn.addEventListener('click', backSetupStep);
   if (els.setupSkipBtn) els.setupSkipBtn.addEventListener('click', () => finishSetup(true));
+  if (els.setupSkipTasksBtn) els.setupSkipTasksBtn.addEventListener('click', () => { collectSetupValues(); state.ui.setupStep = 5; saveState(); renderSetup(); });
+  if (els.setupAddTaskBtn) els.setupAddTaskBtn.addEventListener('click', addSetupDefaultTask);
+  if (els.setupDefaultTaskInput) els.setupDefaultTaskInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') addSetupDefaultTask(); });
+  if (els.setupTasksList) els.setupTasksList.addEventListener('click', (event) => { const btn = event.target.closest?.('.setup-remove-task-btn'); if (btn) removeSetupDefaultTask(btn.dataset.taskId || ''); });
+  if (els.setupGenerateWorkerCodeBtn) els.setupGenerateWorkerCodeBtn.addEventListener('click', async () => { collectSetupValues(); await generateWorkerAccessCode(); renderSetupAccessCode(); });
+  if (els.setupCopyWorkerCodeBtn) els.setupCopyWorkerCodeBtn.addEventListener('click', copySetupWorkerCode);
 
   [
-    els.setupContactNameInput,
-    els.setupContactPhoneInput,
+    els.setupUserFirstNameInput,
+    els.setupHomeNameInput,
     els.setupLanguageSelect,
     els.setupHourlyRateInput,
-    els.setupDefaultDurationInput
+    els.setupDefaultDurationInput,
+    els.setupDefaultVisitDayInput,
+    els.setupDefaultVisitTimeInput
   ].forEach((input) => {
     if (!input) return;
     input.addEventListener('input', collectSetupValues);
