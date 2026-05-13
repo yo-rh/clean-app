@@ -132,7 +132,7 @@
         <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <h2 id="homesTitle" class="text-2xl font-semibold tracking-tight">Foyers</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Foyers détectés depuis les comptes clients et leurs sessions.</p>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Foyers détectés depuis les paramètres, liens intervenantes et sessions, y compris les comptes admin foyers.</p>
           </div>
           <div class="lg:min-w-[22rem]">
             <label for="homeSearchInput" class="sr-only">Recherche foyer</label>
@@ -148,6 +148,7 @@
           <p class="text-sm text-slate-500 dark:text-slate-400">Synthèse par foyer, par intervenante, sessions passées/futures, heures et montants estimés.</p>
         </div>
         <div id="sessionStatsWrap" class="grid grid-cols-1 gap-4 lg:grid-cols-2"></div>
+        <div id="sessionsTableWrap" class="overflow-x-auto"></div>
       </section>
     </main>
   </section>
@@ -210,6 +211,7 @@
       accountsTableWrap: document.getElementById('accountsTableWrap'),
       homesTableWrap: document.getElementById('homesTableWrap'),
       sessionStatsWrap: document.getElementById('sessionStatsWrap'),
+      sessionsTableWrap: document.getElementById('sessionsTableWrap'),
       accountSearchInput: document.getElementById('accountSearchInput'),
       roleFilterSelect: document.getElementById('roleFilterSelect'),
       homeSearchInput: document.getElementById('homeSearchInput'),
@@ -403,17 +405,44 @@
       return nonEmpty(settings.homeName || settings.householdName || settings.domicileName || settings.name || account.data?.homeName || account.data?.name, 'Foyer sans nom');
     }
 
+    function hasOwnValue(object, field) {
+      return Object.prototype.hasOwnProperty.call(object || {}, field) && object?.[field] !== undefined && object?.[field] !== null && object?.[field] !== '';
+    }
+
+    function hasOwnField(object, field) {
+      return Object.prototype.hasOwnProperty.call(object || {}, field) && object?.[field] !== undefined && object?.[field] !== null;
+    }
+
+    function isPaymentEntry(entry) {
+      const type = String(entry?.type || '').trim().toLowerCase();
+      return ['payment', 'paiement', 'checkout', 'invoice', 'facture'].includes(type) || hasOwnField(entry, 'paidAt') || hasOwnField(entry, 'paymentDate');
+    }
+
+    function isSessionEntry(entry) {
+      const type = String(entry?.type || '').trim().toLowerCase();
+      return type === 'session' || hasOwnField(entry, 'date') || hasOwnField(entry, 'sessionDate') || hasOwnField(entry, 'startAt') || hasOwnField(entry, 'duration') || hasOwnField(entry, 'durationHours') || Array.isArray(entry?.tasks);
+    }
+
+    function entryLinksHome(entry) {
+      return isSessionEntry(entry) || isPaymentEntry(entry);
+    }
+
+    function workerHomeLinksForHome(homeId) {
+      const id = String(homeId || '');
+      return state.workerHomeLinks.filter((link) => String(link.homeId || link.homeUid || link.id || '') === id && link.active !== false);
+    }
+
     function isHomeAccount(account) {
-      const role = normalizeRole(account.role, account.data || {});
-      if (role === 'intervenante' || role === 'admin') return false;
       const settings = account.data?.settings || {};
+      const linkedByWorkerHome = workerHomeLinksForHome(account.id).length > 0;
       return Boolean(
-        role === 'client' ||
-        settings.homeName ||
-        settings.householdName ||
-        settings.workerUid ||
-        account.data?.settings?.workerUid ||
-        account.entries?.length
+        hasOwnValue(settings, 'homeName') ||
+        hasOwnValue(settings, 'householdName') ||
+        hasOwnValue(settings, 'workerUid') ||
+        hasOwnValue(settings, 'intervenanteAccessCode') ||
+        hasOwnField(settings, 'sessionTasks') ||
+        (account.entries || []).some(entryLinksHome) ||
+        linkedByWorkerHome
       );
     }
 
@@ -512,7 +541,7 @@
         snapshot.docs.forEach((item) => {
           const workerUid = item.ref?.parent?.parent?.id || '';
           const data = item.data() || {};
-          links.push({ id: item.id, homeId: data.homeId || item.id, workerUid, ...data });
+          links.push({ id: item.id, ...data, homeId: data.homeId || data.homeUid || item.id, workerUid: data.workerUid || data.uid || data.intervenanteUid || workerUid });
         });
       }
       state.workerHomeLinks = links;
@@ -548,11 +577,12 @@
       let sessions = [];
       const usersSnapshot = await safeGetDocs(collection(db, USERS_COLLECTION), USERS_COLLECTION);
       if (!usersSnapshot) return { accounts, sessions };
+      console.log('[admin] Nombre total de users chargés :', usersSnapshot.docs.length);
 
       for (const documentSnapshot of usersSnapshot.docs) {
         const data = documentSnapshot.data() || {};
         const role = normalizeRole(data.role, data);
-        const account = { id: documentSnapshot.id, uid: data.uid || data.firebaseUid || data.authUid || documentSnapshot.id, data, role, entries: [], linkedHomesCount: 0 };
+        const account = { id: documentSnapshot.id, uid: data.uid || data.firebaseUid || data.authUid || documentSnapshot.id, data, role, entries: [], linkedHomesCount: 0, isHome: false };
         accounts.push(account);
       }
 
@@ -560,50 +590,72 @@
         const entriesSnapshot = await safeGetDocs(collection(db, USERS_COLLECTION, account.id, ENTRIES_COLLECTION), `users/${account.id}/${ENTRIES_COLLECTION}`);
         if (!entriesSnapshot) return;
         account.entries = entriesSnapshot.docs.map((item) => ({ id: item.id, homeId: account.id, homeUid: account.id, homeName: homeNameFromAccount(account), ...(item.data() || {}) }));
+        console.log(`[admin] Foyer ${account.id} : ${account.entries.length} entries trouvées`);
       }));
 
       accounts = dedupeAccounts(accounts);
       sessions = accounts.flatMap((account) => {
         account.entries = (account.entries || []).map((entry) => ({ ...entry, homeId: account.id, homeUid: account.id, homeName: homeNameFromAccount(account) }));
-        return account.entries.filter((entry) => String(entry.type || '').toLowerCase() === 'session');
+        return account.entries.filter(isSessionEntry);
       });
 
       accounts.forEach((account) => {
+        account.isHome = isHomeAccount(account);
         const ownHomeLinks = state.workerHomeLinks.filter((link) => [account.uid, account.id].filter(Boolean).includes(String(link.workerUid || link.uid || link.intervenanteUid || '')) && link.active !== false && link.homeId);
-        account.linkedHomesCount = account.role === 'intervenante' ? ownHomeLinks.length : 0;
+        account.linkedHomesCount = account.role === 'intervenante' ? ownHomeLinks.length : (account.isHome ? 1 : 0);
+        if (account.role === 'admin') console.log(`[admin] Compte admin ${account.id} détecté comme foyer :`, account.isHome);
       });
 
       console.log('[admin] Comptes chargés :', accounts.length, 'Sessions :', sessions.length);
       return { accounts, sessions };
     }
 
+    function workerUidFromLink(link) {
+      return String(link.workerUid || link.uid || link.intervenanteUid || '').trim();
+    }
+
+    function linkedWorkerUidsForHome(account, homeSessions = []) {
+      const settings = account.data?.settings || {};
+      const linkedWorkers = new Set();
+
+      // Méthode A : users/{homeId}.settings.workerUid -> cleanerProfiles/{workerUid} + users/{workerUid}
+      if (settings.workerUid) linkedWorkers.add(String(settings.workerUid));
+
+      // Méthode B : users/{workerUid}/workerHomes/{homeId} -> cleanerProfiles/{workerUid} + users/{workerUid}
+      workerHomeLinksForHome(account.id).forEach((link) => {
+        const workerUid = workerUidFromLink(link);
+        if (workerUid) linkedWorkers.add(workerUid);
+      });
+
+      homeSessions.forEach((session) => {
+        const workerUid = session.workerUid || session.intervenanteUid || session.cleanerUid;
+        if (workerUid) linkedWorkers.add(String(workerUid));
+      });
+      return Array.from(linkedWorkers).filter(Boolean);
+    }
+
     function buildHomes(accounts, sessions) {
-      const homes = accounts.filter(isHomeAccount).map((account) => {
+      const homes = accounts.filter((account) => account.isHome || isHomeAccount(account)).map((account) => {
         const settings = account.data?.settings || {};
         const homeSessions = sessions.filter((session) => session.homeId === account.id);
         const nextSession = homeSessions.filter(isFutureSession).sort(compareSessionAsc)[0] || null;
-        const linkedWorkers = new Set();
-        if (settings.workerUid) linkedWorkers.add(String(settings.workerUid));
-        state.workerHomeLinks.filter((link) => String(link.homeId || '') === account.id && link.active !== false).forEach((link) => {
-          if (link.workerUid) linkedWorkers.add(String(link.workerUid));
-          if (link.uid) linkedWorkers.add(String(link.uid));
-          if (link.intervenanteUid) linkedWorkers.add(String(link.intervenanteUid));
-        });
-        homeSessions.forEach((session) => {
-          const workerUid = session.workerUid || session.intervenanteUid || session.cleanerUid;
-          if (workerUid) linkedWorkers.add(String(workerUid));
-        });
+        const workerUids = linkedWorkerUidsForHome(account, homeSessions);
+        console.log(`[admin] Foyer ${account.id} : settings.workerUid`, settings.workerUid || 'non trouvé');
+        console.log(`[admin] Foyer ${account.id} : ${account.entries?.length || 0} entries trouvées`);
+        console.log(`[admin] Foyer ${account.id} : intervenantes liées trouvées`, workerUids);
         return {
           id: account.id,
           name: homeNameFromAccount(account),
           owner: nonEmpty(settings.userFirstName || account.data?.displayName || accountEmail(account)),
           ownerEmail: accountEmail(account),
-          workerUids: Array.from(linkedWorkers).filter(Boolean),
+          isAdminHome: account.role === 'admin',
+          workerUids,
           sessions: homeSessions,
           nextSession
         };
       });
       console.log('[admin] Foyers détectés :', homes.length);
+      console.log('[admin] Liste des homeIds détectés comme foyers :', homes.map((home) => home.id));
       return homes;
     }
 
@@ -676,6 +728,18 @@
       });
     }
 
+
+    function accountRoleHtml(account) {
+      const role = account.role || 'Non renseigné';
+      const homeBadge = account.isHome ? '<span class="mt-1 inline-flex rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-950 dark:text-emerald-200">' + esc(role === 'admin' ? 'Admin + foyer' : 'Foyer') + '</span>' : '';
+      return `<div class="flex flex-col items-start gap-1"><span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">${esc(role)}</span>${homeBadge}</div>`;
+    }
+
+    function accountLinkedHomesLabel(account) {
+      if (account.role === 'intervenante') return account.linkedHomesCount || 'Non renseigné';
+      return account.isHome ? 1 : 'Non renseigné';
+    }
+
     function renderAccounts() {
       const accounts = filteredAccounts();
       if (!accounts.length) {
@@ -689,10 +753,10 @@
             ${accounts.map((account) => `
               <tr>
                 <td data-label="Email"><span class="break-all font-medium">${esc(accountEmail(account))}</span></td>
-                <td data-label="Rôle"><span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">${esc(account.role || 'Non renseigné')}</span></td>
+                <td data-label="Rôle">${accountRoleHtml(account)}</td>
                 <td data-label="Création">${esc(formatDate(accountCreatedAt(account), true))}</td>
                 <td data-label="Dernière connexion">${esc(accountLastLoginLabel(account))}</td>
-                <td data-label="Foyers liés">${esc(account.linkedHomesCount || (account.role === 'client' ? 1 : 'Non renseigné'))}</td>
+                <td data-label="Foyers liés">${esc(accountLinkedHomesLabel(account))}</td>
                 <td data-label="Action"><button type="button" data-reset-email="${esc(accountEmail(account))}" class="rounded-xl bg-apple-600 px-3 py-2 text-sm font-medium text-white hover:bg-apple-700">Réinitialiser le mot de passe</button></td>
               </tr>
             `).join('')}
@@ -773,6 +837,72 @@
       `;
     }
 
+
+    function sessionDateLabel(session) {
+      const date = session.date || session.sessionDate || session.startAt || session.createdAt;
+      return date ? formatDate(date) : 'Non renseigné';
+    }
+
+    function sessionTimeLabel(session) {
+      return nonEmpty(normalizeTime(session.time || session.sessionTime || session.hour || session.startTime || ''), 'Non renseigné');
+    }
+
+    function sessionDurationLabel(session) {
+      const value = session.duration ?? session.hours ?? session.durationHours;
+      if (value === undefined || value === null || value === '') return 'Non renseigné';
+      const duration = Number(value);
+      return Number.isFinite(duration) ? `${numberText(duration, 2)} h` : nonEmpty(value, 'Non renseigné');
+    }
+
+    function sessionAmountLabel(session) {
+      const directAmount = session.amount ?? session.expectedAmount ?? session.price ?? session.total ?? session.value;
+      if (directAmount !== undefined && directAmount !== null && directAmount !== '') return money(Number(directAmount));
+      const computed = sessionAmount(session);
+      return computed > 0 ? money(computed) : 'Non renseigné';
+    }
+
+    function sessionStatusLabel(session) {
+      return nonEmpty(session.status || session.state || session.paymentStatus || session.validationStatus, 'Non renseigné');
+    }
+
+    function sessionWorkerLabel(session) {
+      const home = state.homes.find((item) => item.id === session.homeId);
+      const workerUid = session.workerUid || session.intervenanteUid || session.cleanerUid || home?.workerUids?.[0] || '';
+      return workerUid ? workerLabel(workerUid) : 'Non renseigné';
+    }
+
+    function renderSessions() {
+      if (!els.sessionsTableWrap) return;
+      const sessions = [...state.sessions].sort(compareSessionAsc);
+      if (!sessions.length) {
+        els.sessionsTableWrap.innerHTML = emptyState('Aucune session à afficher.');
+        return;
+      }
+      els.sessionsTableWrap.innerHTML = `
+        <article class="app-card p-4 lg:col-span-2">
+          <h3 class="text-xl font-semibold tracking-tight">Sessions chargées</h3>
+          <div class="mt-4 overflow-x-auto">
+            <table class="admin-table">
+              <thead><tr><th>Date</th><th>Heure</th><th>Durée</th><th>Montant</th><th>Statut</th><th>Foyer</th><th>Intervenante liée</th></tr></thead>
+              <tbody>
+                ${sessions.map((session) => `
+                  <tr>
+                    <td data-label="Date">${esc(sessionDateLabel(session))}</td>
+                    <td data-label="Heure">${esc(sessionTimeLabel(session))}</td>
+                    <td data-label="Durée">${esc(sessionDurationLabel(session))}</td>
+                    <td data-label="Montant">${esc(sessionAmountLabel(session))}</td>
+                    <td data-label="Statut">${esc(sessionStatusLabel(session))}</td>
+                    <td data-label="Foyer">${esc(session.homeName || state.homes.find((home) => home.id === session.homeId)?.name || 'Non renseigné')}</td>
+                    <td data-label="Intervenante liée">${esc(sessionWorkerLabel(session))}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </article>
+      `;
+    }
+
     function statListCard(title, rows) {
       return `
         <article class="app-card p-4">
@@ -805,6 +935,7 @@
       renderAccounts();
       renderHomes();
       renderSessionStats();
+      renderSessions();
     }
 
     async function handlePasswordReset(email, button) {
