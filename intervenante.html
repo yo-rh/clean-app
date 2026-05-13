@@ -22,9 +22,9 @@
     .hidden-view { display: none !important; }
     .page { display: none; }
     .page.active { display: block; }
-    .safe-bottom { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-    .app-main, .page { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
-    .scroll-safe-bottom { padding-bottom: calc(120px + env(safe-area-inset-bottom)); }
+    .safe-bottom { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+    .app-main, .page { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+    .scroll-safe-bottom { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
     input, select, textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; pointer-events: none; }
     #toast {
@@ -132,19 +132,19 @@
             <label for="workerPhoneInput" class="block text-sm font-medium mb-1">Téléphone</label>
             <input id="workerPhoneInput" type="tel" autocomplete="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
           </div>
+          <div>
+            <label for="workerPackageInput" class="block text-sm font-medium mb-1">Forfait ou tarif</label>
+            <input id="workerPackageInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 15 €/h ou forfait 60 €" />
+          </div>
+          <div>
+            <label for="workerDefaultDayInput" class="block text-sm font-medium mb-1">Jour de passage par défaut</label>
+            <input id="workerDefaultDayInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Mercredi" />
+          </div>
+          <div>
+            <label for="workerDefaultTimeInput" class="block text-sm font-medium mb-1">Heure de passage par défaut</label>
+            <input id="workerDefaultTimeInput" type="time" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+          </div>
           <button id="saveWorkerInfoBtn" type="button" class="w-full rounded-2xl bg-apple-600 text-white px-4 py-3 font-medium">Enregistrer mes informations</button>
-        </section>
-
-        <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
-          <div>
-            <h2 class="text-xl font-semibold tracking-tight">Domicile actif</h2>
-            <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Choisissez le domicile à consulter par défaut.</p>
-          </div>
-          <div>
-            <label for="homeSelect" class="block text-sm font-medium mb-1">Domicile actif</label>
-            <select id="homeSelect" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500"></select>
-          </div>
-          <div id="activeHomeInfo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile sélectionné.</div>
         </section>
 
         <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
@@ -223,7 +223,7 @@
     const translateTaskCallable = httpsCallable(functions, "translateTask");
 
     const state = {
-      authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '' }, workerProfileUnsubscribe: null,
+      authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '' }, workerProfileUnsubscribe: null,
       homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [], allPayments: [],
       currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
       currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: '', pendingTaskTranslations: new Set()
@@ -236,7 +236,7 @@
       authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
       homeSummary: byId('homeSummary'), upcomingSessionsList: byId('upcomingSessionsList'), sessionDetailCard: byId('sessionDetailCard'),
       homesList: byId('homesList'), homeCodeInput: byId('homeCodeInput'), addHomeBtn: byId('addHomeBtn'), addHomeMessage: byId('addHomeMessage'),
-      workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
+      workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), workerPackageInput: byId('workerPackageInput'), workerDefaultDayInput: byId('workerDefaultDayInput'), workerDefaultTimeInput: byId('workerDefaultTimeInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
       homeSelect: byId('homeSelect'), activeHomeInfo: byId('activeHomeInfo'), languageSelect: byId('languageSelect'), logoutBtn: byId('logoutBtn'), toast: byId('toast')
     };
 
@@ -283,6 +283,11 @@
       return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
     }
     function formatDate(value) { const d = new Date(toISODateOnly(value) + 'T12:00:00'); return new Intl.DateTimeFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(),{ weekday:'short', day:'2-digit', month:'short', year:'numeric' }).format(d); }
+    function normalizeSessionTime(value) { const match = String(value || '').match(/^(\d{1,2}):(\d{2})/); if (!match) return ''; const hours = Math.min(23, Math.max(0, Number(match[1]))); const minutes = Math.min(59, Math.max(0, Number(match[2]))); return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0'); }
+    function sessionTimeSortValue(session) { return normalizeSessionTime(session?.time || session?.sessionTime || session?.hour) || '23:59'; }
+    function formatSessionDateTime(session) { const time = normalizeSessionTime(session?.time || session?.sessionTime || session?.hour); return formatDate(session.date) + (time ? ' · ' + time : ''); }
+    function compareSessionsAsc(a, b) { return toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)) || sessionTimeSortValue(a).localeCompare(sessionTimeSortValue(b)) || String(a.createdAt || '').localeCompare(String(b.createdAt || '')); }
+    function compareSessionsDesc(a, b) { return toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)) || sessionTimeSortValue(b).localeCompare(sessionTimeSortValue(a)) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')); }
     function workerCodeValue(value) { return String(value || '').trim().replace(/\s+/g, '').toUpperCase(); }
     function firebaseErrorMessage(error) {
       const code = error?.code || '';
@@ -346,7 +351,7 @@
     function getTaskLabel(task) {
       return getTaskDisplayLabel(task, currentLanguage());
     }
-    function taskSourceLabel(source) { if (source === 'recurring') return t('Récurrente'); if (source === 'punctual') return t('Ponctuelle'); if (source === 'manual') return t('Ajoutée'); return t('Base'); }
+    function taskSourceLabel(source) { if (source === 'punctual') return t('Ponctuelle'); if (source === 'manual') return t('Ajoutée'); return ''; }
     function euro(value) { return new Intl.NumberFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(), { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
     function normalizePhone(value) { let phone = String(value || '').replace(/[\s.\-()]/g, '').trim(); if (phone.startsWith('+')) phone = phone.slice(1); if (phone.startsWith('00')) phone = phone.slice(2); if (phone.startsWith('0')) phone = '33' + phone.slice(1); phone = phone.replace(/[^\d]/g, ''); return phone.length >= 8 ? phone : ''; }
     function homeInfoFromData(homeId, data = {}) { const settings = data.settings || {}; return { homeId: String(homeId), label: String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Domicile ' + String(homeId).slice(0, 6))), address: String(settings.address || data.address || ''), phone: String(settings.phone || data.phone || ''), accessNotes: String(settings.accessNotes || data.accessNotes || '') }; }
@@ -396,7 +401,7 @@
       const homeSummary = homeDueSummaries().find((home) => home.homeId === session.homeId);
       if (!directPaid && !status && !linkedPayments.length) return '<p>Aucun paiement associé à cette session.</p>' + (homeSummary ? '<p class="mt-2">Reste à payer du domicile : ' + euro(homeSummary.due) + (homeSummary.credit ? ' · avance : ' + euro(homeSummary.credit) : '') + '</p>' : '');
       const paidValue = totalPaidForSession(session);
-      return (directPaid || status ? '<p>Paiement session : ' + (directPaid ? euro(directPaid) : 'montant non précisé') + ' · ' + esc(status || 'statut non précisé') + '</p>' : '')
+      return (directPaid || status ? '<p>Paiement session : ' + (directPaid ? euro(directPaid) : 'montant non précisé') + (status ? ' · ' + esc(status) : '') + '</p>' : '')
         + (linkedPayments.length ? '<p class="mt-2 font-medium">Paiement(s) pris en compte pour cette session :</p><ul class="mt-1 list-disc pl-5 space-y-1">' + linkedHtml + '</ul>' : '')
         + (amount ? '<p class="mt-2">Reste théorique sur cette session : ' + euro(Math.max(amount - paidValue, 0)) + '</p>' : '')
         + (homeSummary ? '<p class="mt-1">Solde du domicile : ' + (homeSummary.balance > 0 ? euro(homeSummary.balance) + ' dus' : homeSummary.balance < 0 ? euro(homeSummary.credit) + ' d’avance' : 'à jour') + '</p>' : '');
@@ -450,13 +455,13 @@
     }
 
     function workerProfileRef(uid = state.currentUser?.uid) { return doc(db, WORKER_PROFILES_COLLECTION, String(uid || '')); }
-    function normalizeWorkerInfo(data = {}) { return { firstName: String(data.firstName || '').trim(), phone: String(data.phone || '').trim() }; }
+    function normalizeWorkerInfo(data = {}) { return { firstName: String(data.firstName || '').trim(), phone: String(data.phone || '').trim(), package: String(data.package || data.packageName || data.forfait || data.rate || '').trim(), defaultDay: String(data.defaultDay || data.day || '').trim(), defaultTime: normalizeSessionTime(data.defaultTime || data.time || '') }; }
     async function ensureWorkerProfileDocument(firebaseUser) {
       if (!firebaseUser) return { firstName: '', phone: '' };
       const ref = workerProfileRef(firebaseUser.uid);
       const snapshot = await getDoc(ref);
       if (!snapshot.exists()) {
-        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', firstName: '', phone: '', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
         await setDoc(ref, profile, { merge: true });
         return normalizeWorkerInfo(profile);
       }
@@ -475,10 +480,13 @@
       if (!state.currentUser) return;
       const firstName = (els.workerFirstNameInput?.value || '').trim();
       const phone = (els.workerPhoneInput?.value || '').trim();
+      const packageText = (els.workerPackageInput?.value || '').trim();
+      const defaultDay = (els.workerDefaultDayInput?.value || '').trim();
+      const defaultTime = normalizeSessionTime(els.workerDefaultTimeInput?.value || '');
       els.saveWorkerInfoBtn.disabled = true; els.saveWorkerInfoBtn.classList.add('opacity-60');
       try {
-        await setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName, phone, updatedAt: serverTimestamp() }, { merge: true });
-        state.workerInfo = { firstName, phone };
+        await setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName, phone, package: packageText, defaultDay, defaultTime, updatedAt: serverTimestamp() }, { merge: true });
+        state.workerInfo = { firstName, phone, package: packageText, defaultDay, defaultTime };
         showToast('✅ Informations enregistrées.');
         renderSettings();
       } catch (error) { console.error(error); showToast(firebaseErrorMessage(error)); }
@@ -535,7 +543,7 @@
       const snapshot = await getDocs(collection(db, 'users', homeId, 'entries'));
       return snapshot.docs.map((d) => {
         const entry = d.data() || {}; const type = String(entry.type || 'payment');
-        const base = { id: String(entry.id || d.id), type, date: toISODateOnly(entry.date || entry.paidAt || entry.createdAt), amount: Number(entry.amount || entry.expectedAmount || entry.price || entry.total || entry.value || entry.payment?.amount || 0), createdAt: entry.createdAt || nowISO() };
+        const base = { id: String(entry.id || d.id), type, date: toISODateOnly(entry.date || entry.paidAt || entry.createdAt), time: type === 'session' ? normalizeSessionTime(entry.time || entry.sessionTime || entry.hour) : '', amount: Number(entry.amount || entry.expectedAmount || entry.price || entry.total || entry.value || entry.payment?.amount || 0), createdAt: entry.createdAt || nowISO() };
         if (type !== 'session') return { ...base, sessionId: String(entry.sessionId || entry.entryId || entry.session?.id || entry.payment?.sessionId || ''), note: String(entry.note || entry.comment || entry.label || ''), status: String(entry.status || entry.paymentStatus || '') };
         return {
           ...base,
@@ -644,8 +652,8 @@
       });
     }
 
-    function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && e.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date))); }
-    function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || e.status === 'terminee_intervenante')).sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date))); }
+    function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && e.status !== 'terminee_intervenante').sort(compareSessionsAsc); }
+    function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || e.status === 'terminee_intervenante')).sort(compareSessionsDesc); }
 
     async function loadWorkerHomes() {
       if (!state.currentUser) return;
@@ -664,9 +672,9 @@
           entries.filter((entry) => entry.type === 'session').forEach((session) => state.allSessions.push({ ...session, homeId, homeLabel: label, homeInfo, homeSettings: settings }));
           nextSessionsForEntries(entries).forEach((session) => state.allUpcomingSessions.push({ ...session, homeId, homeLabel: label, homeInfo, homeSettings: settings }));
         }
-        state.allUpcomingSessions.sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
-        state.allSessions.sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
-        state.allPayments.sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)));
+        state.allUpcomingSessions.sort(compareSessionsAsc);
+        state.allSessions.sort(compareSessionsAsc);
+        state.allPayments.sort(compareSessionsDesc);
         if (!state.currentHomeId && state.homeLabels.length) state.currentHomeId = state.homeLabels[0].homeId;
         if (state.currentHomeId && !state.homeLabels.some((h) => h.homeId === state.currentHomeId) && state.homeLabels.length) state.currentHomeId = state.homeLabels[0].homeId;
         localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || '');
@@ -684,19 +692,26 @@
     }
     function taskChecklistHtml(session) {
       const tasks = normalizeSessionTasks(session.tasks);
-      return '<div class="space-y-2"><p class="font-medium text-sm">Tâches</p>' + (tasks.length ? tasks.map((task) => '<label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span>' + esc(getTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc(taskSourceLabel(task.source)) + ' · ' + (task.done ? 'Terminée' : 'À faire') + '</span></span></label>').join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche renseignée pour cette session.</div>') + '</div>';
+      return '<div class="space-y-2"><p class="font-medium text-sm">Tâches</p>' + (tasks.length ? tasks.map((task) => {
+        const sourceLabel = taskSourceLabel(task.source);
+        const doneClasses = task.done ? ' border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-500' : ' border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950';
+        return '<label class="flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm transition' + doneClasses + '"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through' : '') + '">' + esc(getTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc([sourceLabel, task.done ? 'Terminée' : 'À faire'].filter(Boolean).join(' · ')) + '</span></span></label>';
+      }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche renseignée pour cette session.</div>') + '</div>';
     }
     function sessionDetailHtml(session) {
       const address = session.homeInfo?.address || '';
-      return '<div class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3"><div class="text-sm text-slate-600 dark:text-slate-300 space-y-1"><p><span class="font-medium">Date :</span> ' + esc(formatDate(session.date)) + '</p><p><span class="font-medium">Durée :</span> ' + esc(session.duration || 0) + 'h</p><p><span class="font-medium">Domicile :</span> ' + esc(session.homeLabel || 'Domicile') + '</p>' + (address ? '<p><span class="font-medium">Adresse :</span> ' + esc(address) + '</p>' : '') + '<p><span class="font-medium">Montant prévu :</span> ' + euro(sessionExpectedAmount(session)) + '</p><p><span class="font-medium">Statut :</span> ' + esc(t(session.status || 'prévue')) + '</p></div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(session) + '</div>' + taskChecklistHtml(session) + (session.notes || session.intervenanteComment ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Notes</p>' + (session.notes ? '<p class="whitespace-pre-wrap">' + esc(session.notes) + '</p>' : '') + (session.intervenanteComment ? '<p class="whitespace-pre-wrap mt-1">' + esc(session.intervenanteComment) + '</p>' : '') + '</div>' : '') + '</div>';
+      const statusLine = session.status ? '<p><span class="font-medium">Statut :</span> ' + esc(t(session.status)) + '</p>' : '';
+      return '<div class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3"><div class="text-sm text-slate-600 dark:text-slate-300 space-y-1"><p><span class="font-medium">Date :</span> ' + esc(formatSessionDateTime(session)) + '</p><p><span class="font-medium">Durée :</span> ' + esc(session.duration || 0) + 'h</p><p><span class="font-medium">Domicile :</span> ' + esc(session.homeLabel || 'Domicile') + '</p>' + (address ? '<p><span class="font-medium">Adresse :</span> ' + esc(address) + '</p>' : '') + '<p><span class="font-medium">Montant prévu :</span> ' + euro(sessionExpectedAmount(session)) + '</p>' + statusLine + '</div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(session) + '</div>' + taskChecklistHtml(session) + (session.notes || session.intervenanteComment ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Notes</p>' + (session.notes ? '<p class="whitespace-pre-wrap">' + esc(session.notes) + '</p>' : '') + (session.intervenanteComment ? '<p class="whitespace-pre-wrap mt-1">' + esc(session.intervenanteComment) + '</p>' : '') + '</div>' : '') + '</div>';
     }
     function sessionCardHtml(session, context = 'sessions') {
       const tasks = normalizeSessionTasks(session.tasks); const done = tasks.filter((t) => t.done).length;
       const taskLabels = tasks.length ? tasks.map((task) => esc(getTaskLabel(task))).join(', ') : t('Aucune tâche prévue');
       const paid = totalPaidForSession(session);
-      const paymentSummary = paid || sessionPaymentStatus(session) ? t('Paiement :') + ' ' + (paid ? euro(paid) : t('montant non précisé')) + ' · ' + esc(t(sessionPaymentStatus(session) || 'statut non précisé')) : t('Paiement non renseigné');
+      const paymentStatus = sessionPaymentStatus(session);
+      const paymentSummary = paid ? t('Paiement :') + ' ' + euro(paid) + (paymentStatus ? ' · ' + esc(t(paymentStatus)) : '') : (paymentStatus ? t('Paiement :') + ' ' + esc(t(paymentStatus)) : '');
+      const statusSummary = session.status ? ' · Statut : ' + esc(t(session.status)) : '';
       const expanded = state.expandedSessionKey === sessionKey(session);
-      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatDate(session.date)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(sessionExpectedAmount(session)) + ' · Statut : ' + esc(t(session.status || 'prévue')) + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p></div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-context="' + esc(context) + '" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button></div>' + (expanded ? sessionDetailHtml(session) : '') + '</article>';
+      return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatSessionDateTime(session)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(sessionExpectedAmount(session)) + statusSummary + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p>' + (paymentSummary ? '<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p>' : '') + '</div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-context="' + esc(context) + '" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button></div>' + (expanded ? sessionDetailHtml(session) : '') + '</article>';
     }
     function renderHomes() {
       const list = state.homeLabels.length ? state.homeLabels.map((home) => {
@@ -720,8 +735,8 @@
 
     function renderSessionsPage() {
       const today = todayISO();
-      const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort((a,b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)));
-      const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort((a,b) => toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)));
+      const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort(compareSessionsAsc);
+      const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort(compareSessionsDesc);
       [...upcoming.slice(0, 10), ...history.slice(0, 10)].forEach(scheduleMissingTaskTranslations);
       const groups = byId('sessionGroups');
       if (groups) groups.innerHTML = dueSummaryHtml() + sessionListHtml('À venir', upcoming, 'Aucune session à venir.', 'sessions') + sessionListHtml('Historique', history, 'Aucune session passée.', 'sessions');
@@ -730,13 +745,12 @@
     }
 
     function renderSettings() {
-      els.homeSelect.innerHTML = state.homeLabels.length ? state.homeLabels.map((home) => '<option value="' + esc(home.homeId) + '" ' + (home.homeId === state.currentHomeId ? 'selected' : '') + '>' + esc(home.label) + '</option>').join('') : '<option value="">Aucun domicile ajouté</option>';
-      els.homeSelect.disabled = !state.homeLabels.length;
-      const active = state.homeLabels.find((h) => h.homeId === state.currentHomeId);
-      els.activeHomeInfo.textContent = active ? t('Domicile actif') + ' : ' + active.label : t('Aucun domicile sélectionné.');
       els.accountText.textContent = state.currentUser?.email || 'Compte intervenante';
       if (els.workerFirstNameInput && document.activeElement !== els.workerFirstNameInput) els.workerFirstNameInput.value = state.workerInfo?.firstName || '';
       if (els.workerPhoneInput && document.activeElement !== els.workerPhoneInput) els.workerPhoneInput.value = state.workerInfo?.phone || '';
+      if (els.workerPackageInput && document.activeElement !== els.workerPackageInput) els.workerPackageInput.value = state.workerInfo?.package || '';
+      if (els.workerDefaultDayInput && document.activeElement !== els.workerDefaultDayInput) els.workerDefaultDayInput.value = state.workerInfo?.defaultDay || '';
+      if (els.workerDefaultTimeInput && document.activeElement !== els.workerDefaultTimeInput) els.workerDefaultTimeInput.value = state.workerInfo?.defaultTime || '';
       const lang = state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; els.languageSelect.value = lang;
     }
     function findSession(homeId, sessionId) { return state.allSessions.find((s) => s.homeId === homeId && s.id === sessionId) || state.allUpcomingSessions.find((s) => s.homeId === homeId && s.id === sessionId); }
@@ -762,6 +776,7 @@
       const previousTasks = normalizeSessionTasks(session.tasks);
       const tasks = previousTasks.map((task) => task.id === taskId ? { ...task, done: checkbox.checked } : task);
       refreshSessionInState(homeId, sessionId, (s) => ({ ...s, tasks }));
+      rerenderCurrentLists();
       try {
         await setDoc(doc(db, 'users', homeId, 'entries', sessionId), { tasks, updatedAt: serverTimestamp() }, { merge: true });
         showToast('✅ Tâche mise à jour.');
@@ -783,7 +798,7 @@
       els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
       els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
       els.authSubmitBtn.addEventListener('click', submitAuth); els.passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
-      els.logoutBtn.addEventListener('click', async () => { stopWorkerProfileListener(); await signOut(auth); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '' }; showAuth(); showToast('Déconnectée.'); });
+      els.logoutBtn.addEventListener('click', async () => { stopWorkerProfileListener(); await signOut(auth); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '' }; showAuth(); showToast('Déconnectée.'); });
       els.refreshBtn.addEventListener('click', loadWorkerHomes);
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
       els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
@@ -791,7 +806,6 @@
       els.saveWorkerInfoBtn.addEventListener('click', saveWorkerInfo);
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
-      els.homeSelect.addEventListener('change', () => { state.currentHomeId = els.homeSelect.value; localStorage.setItem('cleanAppWorkerCurrentHomeId', state.currentHomeId || ''); renderSettings(); showToast('Domicile actif modifié.'); });
       els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); renderAll(); setCurrentPage(state.currentPage); applyTranslations(); });
       document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
     }
@@ -830,7 +844,7 @@
 
     bindEvents(); renderAuthMode(); showAuth(); applyTranslations();
     onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '' }; showAuth(); return; }
+      if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '' }; showAuth(); return; }
       try {
         const profile = await ensureWorkerUserDocument(firebaseUser);
         if (profile.role !== 'intervenante') { state.currentUser = firebaseUser; state.workerProfile = profile; showAuth(); showAuthError('Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.'); return; }
