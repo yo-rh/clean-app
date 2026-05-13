@@ -680,7 +680,13 @@
                 </div>
               </div>
 
-              <div id="adminSyncCard" class="hidden"></div>
+              <div id="adminSyncCard" class="hidden rounded-2xl border border-apple-200 bg-apple-50 p-4 space-y-3 dark:border-apple-900 dark:bg-apple-950/30">
+                <div>
+                  <h3 class="font-semibold text-apple-900 dark:text-apple-100">Administration</h3>
+                  <p class="mt-1 text-sm text-apple-700 dark:text-apple-200">Accédez au dashboard réservé aux comptes administrateurs.</p>
+                </div>
+                <button id="adminDashboardBtn" type="button" class="w-full rounded-2xl bg-apple-600 px-4 py-3 font-medium text-white hover:bg-apple-700">Ouvrir le dashboard admin</button>
+              </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -1188,6 +1194,7 @@
     pullNowBtn: byId('pullNowBtn'),
     syncStatusText: byId('syncStatusText'),
     adminSyncCard: byId('adminSyncCard'),
+    adminDashboardBtn: byId('adminDashboardBtn'),
     accountEmailText: byId('accountEmailText'),
     accountRoleText: byId('accountRoleText'),
     generateWorkerCodeBtn: byId('generateWorkerCodeBtn'),
@@ -1544,7 +1551,7 @@
         updatedAt: serverTimestamp()
       });
 
-      return { uid: firebaseUser.uid, email, role: fallbackRole };
+      return { uid: firebaseUser.uid, email, role: fallbackRole, isAdmin: fallbackRole === 'admin' };
     }
 
     const data = snapshot.data() || {};
@@ -1586,7 +1593,7 @@
       updatedAt: serverTimestamp()
     }, { merge: true });
 
-    return { uid: firebaseUser.uid, email, role };
+    return { uid: firebaseUser.uid, email, role, isAdmin: data.isAdmin === true };
   }
 
   async function saveUserSettings() {
@@ -1748,7 +1755,8 @@
   }
 
   function isAdmin() {
-    return Boolean(state.auth && state.auth.user && state.auth.user.role === 'admin');
+    const user = state.auth && state.auth.user;
+    return Boolean(user && (user.role === 'admin' || user.isAdmin === true));
   }
 
   function setAuthMode(mode) {
@@ -2999,7 +3007,7 @@
     if (els.workerAccessCodeDisplay) els.workerAccessCodeDisplay.textContent = state.settings.intervenanteAccessCode || '—';
     if (els.generateWorkerCodeBtn) els.generateWorkerCodeBtn.textContent = state.settings.intervenanteAccessCode ? t('Renouveler le code intervenante') : t('Générer un code intervenante');
     renderLinkedWorkerCard();
-    if (els.adminSyncCard) els.adminSyncCard.classList.add('hidden');
+    if (els.adminSyncCard) els.adminSyncCard.classList.toggle('hidden', !isAdmin());
   }
 
   function renderSummary(sorted) {
@@ -3597,6 +3605,7 @@
     els.sessionDateInput.addEventListener('change', () => { state.ui.sessionRemovedTaskIds = []; saveState(); renderSessionTaskPreview(); });
   }
 
+  if (els.adminDashboardBtn) els.adminDashboardBtn.addEventListener('click', () => { window.location.href = 'admin.html'; });
   if (els.syncNowBtn) els.syncNowBtn.addEventListener('click', () => syncBidirectional(true));
   if (els.pullNowBtn) els.pullNowBtn.addEventListener('click', () => pullOnly(true));
   if (els.refreshBtn) els.refreshBtn.addEventListener('click', () => pullOnly(true));

@@ -103,52 +103,67 @@
         <div id="statsGrid" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
       </section>
 
-      <section aria-labelledby="accountsTitle" class="app-card p-4 space-y-4">
-        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+      <section aria-labelledby="periodTitle" class="app-card p-4 space-y-4">
+        <div>
+          <h2 id="periodTitle" class="text-2xl font-semibold tracking-tight">Filtre de période</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Le filtre conserve tous les comptes affichés et limite uniquement les statistiques.</p>
+        </div>
+        <div class="grid gap-3 md:grid-cols-[14rem_1fr_1fr]">
           <div>
-            <h2 id="accountsTitle" class="text-2xl font-semibold tracking-tight">Comptes</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Recherche, filtre et envoi sécurisé d’email de réinitialisation.</p>
+            <label for="periodFilterSelect" class="mb-1 block text-sm font-medium">Période</label>
+            <select id="periodFilterSelect" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950">
+              <option value="week">Cette semaine</option>
+              <option value="month" selected>Ce mois</option>
+              <option value="year">Cette année</option>
+              <option value="custom">Date à date</option>
+              <option value="all">Toutes les données</option>
+            </select>
           </div>
-          <div class="grid gap-2 sm:grid-cols-[minmax(16rem,1fr)_12rem] lg:min-w-[32rem]">
-            <div>
-              <label for="accountSearchInput" class="sr-only">Recherche email</label>
-              <input id="accountSearchInput" type="search" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Rechercher par email" />
-            </div>
-            <div>
-              <label for="roleFilterSelect" class="sr-only">Filtrer par rôle</label>
-              <select id="roleFilterSelect" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950">
-                <option value="all">Tous les rôles</option>
-                <option value="client">Client</option>
-                <option value="intervenante">Intervenante</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+          <div>
+            <label for="periodStartInput" class="mb-1 block text-sm font-medium">Date de début</label>
+            <input id="periodStartInput" type="date" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" />
+          </div>
+          <div>
+            <label for="periodEndInput" class="mb-1 block text-sm font-medium">Date de fin</label>
+            <input id="periodEndInput" type="date" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" />
           </div>
         </div>
-        <div id="accountsTableWrap" class="overflow-x-auto"></div>
       </section>
 
       <section aria-labelledby="homesTitle" class="app-card p-4 space-y-4">
         <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h2 id="homesTitle" class="text-2xl font-semibold tracking-tight">Foyers</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Foyers détectés depuis les paramètres, liens intervenantes et sessions, y compris les comptes admin foyers.</p>
+            <h2 id="homesTitle" class="text-2xl font-semibold tracking-tight">Clients / foyers</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Foyers détectés par paramètres, liens intervenantes et entries, sans exclure les comptes admin foyers.</p>
           </div>
           <div class="lg:min-w-[22rem]">
             <label for="homeSearchInput" class="sr-only">Recherche foyer</label>
-            <input id="homeSearchInput" type="search" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Rechercher par nom de foyer" />
+            <input id="homeSearchInput" type="search" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Rechercher foyer ou email" />
           </div>
         </div>
         <div id="homesTableWrap" class="overflow-x-auto"></div>
       </section>
 
-      <section aria-labelledby="sessionStatsTitle" class="space-y-4">
+      <section aria-labelledby="workersTitle" class="app-card p-4 space-y-4">
         <div>
-          <h2 id="sessionStatsTitle" class="text-2xl font-semibold tracking-tight">Statistiques sessions</h2>
-          <p class="text-sm text-slate-500 dark:text-slate-400">Synthèse par foyer, par intervenante, sessions passées/futures, heures et montants estimés.</p>
+          <h2 id="workersTitle" class="text-2xl font-semibold tracking-tight">Intervenantes</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Comptes intervenantes détectés via rôle, profils cleanerProfiles et liens workerHomes.</p>
         </div>
-        <div id="sessionStatsWrap" class="grid grid-cols-1 gap-4 lg:grid-cols-2"></div>
-        <div id="sessionsTableWrap" class="overflow-x-auto"></div>
+        <div id="workersTableWrap" class="overflow-x-auto"></div>
+      </section>
+
+      <section aria-labelledby="accountsTitle" class="app-card p-4 space-y-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 id="accountsTitle" class="text-2xl font-semibold tracking-tight">Administration · Tous les comptes</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Recherche, filtre et envoi sécurisé d’email de réinitialisation.</p>
+          </div>
+          <div class="grid gap-2 sm:grid-cols-[minmax(16rem,1fr)_12rem] lg:min-w-[32rem]">
+            <input id="accountSearchInput" type="search" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Rechercher par email" />
+            <select id="roleFilterSelect" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950"><option value="all">Tous les rôles</option><option value="client">Client</option><option value="intervenante">Intervenante</option><option value="admin">Admin</option></select>
+          </div>
+        </div>
+        <div id="accountsTableWrap" class="overflow-x-auto"></div>
       </section>
     </main>
   </section>
@@ -210,6 +225,10 @@
       statsGrid: document.getElementById('statsGrid'),
       accountsTableWrap: document.getElementById('accountsTableWrap'),
       homesTableWrap: document.getElementById('homesTableWrap'),
+      workersTableWrap: document.getElementById('workersTableWrap'),
+      periodFilterSelect: document.getElementById('periodFilterSelect'),
+      periodStartInput: document.getElementById('periodStartInput'),
+      periodEndInput: document.getElementById('periodEndInput'),
       sessionStatsWrap: document.getElementById('sessionStatsWrap'),
       sessionsTableWrap: document.getElementById('sessionsTableWrap'),
       accountSearchInput: document.getElementById('accountSearchInput'),
@@ -222,7 +241,9 @@
       currentAdmin: null,
       accounts: [],
       homes: [],
+      workers: [],
       sessions: [],
+      period: { mode: 'month', start: '', end: '' },
       workerProfiles: new Map(),
       workerHomeLinks: [],
       loadingData: false
@@ -446,12 +467,34 @@
       );
     }
 
+    function firstNumeric(...values) {
+      for (const value of values) {
+        if (value !== undefined && value !== null && value !== '') {
+          const number = Number(value);
+          if (Number.isFinite(number)) return number;
+        }
+      }
+      return null;
+    }
+
+    function expectedSessionAmount(session) {
+      const direct = firstNumeric(session.expectedAmount, session.price);
+      if (direct !== null) return direct;
+      const duration = sessionDuration(session);
+      const rate = firstNumeric(session.rate, session.hourlyRate);
+      return rate !== null ? duration * rate : 0;
+    }
+
+    function paidEntryAmount(entry) {
+      const direct = firstNumeric(entry.paidAmount, entry.amount, entry.price, entry.expectedAmount);
+      if (direct !== null) return direct;
+      const duration = sessionDuration(entry);
+      const rate = firstNumeric(entry.rate, entry.hourlyRate);
+      return rate !== null ? duration * rate : 0;
+    }
+
     function sessionAmount(session) {
-      const amount = Number(session.amount ?? session.expectedAmount ?? session.price ?? session.total ?? session.value ?? 0);
-      if (Number.isFinite(amount) && amount > 0) return amount;
-      const duration = Number(session.duration || 0);
-      const rate = Number(session.rate ?? session.hourlyRate ?? 0);
-      return Number.isFinite(duration * rate) ? duration * rate : 0;
+      return paidEntryAmount(session) || expectedSessionAmount(session);
     }
 
     function sessionDuration(session) {
@@ -466,10 +509,65 @@
       return time ? `${formatDate(date)} · ${time}` : formatDate(date);
     }
 
+    function sessionDateKey(session) {
+      return toISODateOnly(session.date || session.sessionDate || session.startAt || session.createdAt || session.paymentDate || session.paidAt);
+    }
+
     function isFutureSession(session) {
-      const date = toISODateOnly(session.date || session.sessionDate || session.startAt || session.createdAt);
+      const date = sessionDateKey(session);
       if (!date) return false;
-      return date >= dateKey(new Date());
+      return date > dateKey(new Date());
+    }
+
+    function isCompletedSession(session) {
+      if (!isSessionEntry(session)) return false;
+      const status = String(session.status || session.state || session.validationStatus || '').trim().toLowerCase();
+      if (['done', 'completed', 'complete', 'finished', 'terminee', 'terminée', 'validee', 'validée', 'paid', 'payee', 'payée'].includes(status)) return true;
+      const date = sessionDateKey(session);
+      return Boolean(date && date <= dateKey(new Date()));
+    }
+
+    function syncPeriodInputs() {
+      const now = new Date();
+      const mode = els.periodFilterSelect?.value || state.period.mode || 'month';
+      let start = '';
+      let end = '';
+      if (mode === 'week') {
+        const day = (now.getDay() + 6) % 7;
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - day);
+        start = dateKey(monday);
+        end = dateKey(now);
+      } else if (mode === 'month') {
+        start = dateKey(new Date(now.getFullYear(), now.getMonth(), 1));
+        end = dateKey(now);
+      } else if (mode === 'year') {
+        start = dateKey(new Date(now.getFullYear(), 0, 1));
+        end = dateKey(now);
+      } else if (mode === 'custom') {
+        start = els.periodStartInput?.value || state.period.start || '';
+        end = els.periodEndInput?.value || state.period.end || '';
+      }
+      if (els.periodStartInput) els.periodStartInput.disabled = mode !== 'custom';
+      if (els.periodEndInput) els.periodEndInput.disabled = mode !== 'custom';
+      if (mode !== 'custom') {
+        if (els.periodStartInput) els.periodStartInput.value = start;
+        if (els.periodEndInput) els.periodEndInput.value = end;
+      }
+      state.period = { mode, start, end };
+      console.log('[admin] Période sélectionnée :', state.period);
+    }
+
+    function isInSelectedPeriod(entry) {
+      const { mode, start, end } = state.period;
+      if (mode === 'all') return true;
+      const date = sessionDateKey(entry);
+      if (!date) return false;
+      return (!start || date >= start) && (!end || date <= end);
+    }
+
+    function filteredCompletedSessions(sessions) {
+      return sessions.filter((session) => isCompletedSession(session) && isInSelectedPeriod(session));
     }
 
     function workerInfo(workerUid) {
@@ -651,12 +749,105 @@
           isAdminHome: account.role === 'admin',
           workerUids,
           sessions: homeSessions,
+          role: account.role,
+          entries: account.entries || [],
           nextSession
         };
       });
       console.log('[admin] Foyers détectés :', homes.length);
       console.log('[admin] Liste des homeIds détectés comme foyers :', homes.map((home) => home.id));
       return homes;
+    }
+
+
+    function linkedHomeIdsForWorker(workerUid) {
+      const uid = String(workerUid || '').trim();
+      if (!uid) return [];
+      const ids = new Set();
+      state.workerHomeLinks.forEach((link) => {
+        if (link.active === false) return;
+        if (workerUidFromLink(link) === uid && link.homeId) ids.add(String(link.homeId));
+      });
+      state.homes.forEach((home) => {
+        if ((home.workerUids || []).map(String).includes(uid)) ids.add(String(home.id));
+      });
+      return Array.from(ids);
+    }
+
+    function buildWorkers(accounts) {
+      const workerIds = new Set();
+      accounts.filter((account) => account.role === 'intervenante').forEach((account) => workerIds.add(account.uid || account.id));
+      state.workerProfiles.forEach((_, uid) => workerIds.add(uid));
+      state.workerHomeLinks.forEach((link) => {
+        const uid = workerUidFromLink(link);
+        if (uid) workerIds.add(uid);
+      });
+      const workers = Array.from(workerIds).filter(Boolean).map((uid) => {
+        const info = workerInfo(uid) || { uid };
+        const linkedHomeIds = linkedHomeIdsForWorker(uid);
+        const linkedSessions = linkedHomeIds.flatMap((homeId) => state.sessions.filter((session) => String(session.homeId) === String(homeId)));
+        return { ...info, uid, linkedHomeIds, sessions: dedupeSessions(linkedSessions) };
+      }).sort((a, b) => (a.displayName || a.email || a.uid).localeCompare(b.displayName || b.email || b.uid));
+      console.log('[admin] Intervenantes détectées :', workers.length);
+      return workers;
+    }
+
+    function dedupeSessions(sessions) {
+      const map = new Map();
+      sessions.forEach((session) => {
+        const key = `${session.homeId || ''}:${session.id || sessionDateKey(session) || JSON.stringify(session)}`;
+        if (!map.has(key)) map.set(key, session);
+      });
+      return Array.from(map.values());
+    }
+
+    function paymentTotalForHome(home) {
+      const sessionIds = new Set((home.sessions || []).map((session) => String(session.id || '')).filter(Boolean));
+      const paymentEntries = (home.entries || []).filter((entry) => isPaymentEntry(entry) && !isSessionEntry(entry));
+      const standalonePayments = paymentEntries.filter((entry) => {
+        const linkedSessionId = String(entry.sessionId || entry.sessionUid || entry.entryId || '');
+        return !linkedSessionId || !sessionIds.has(linkedSessionId);
+      });
+      const sessionPayments = (home.sessions || []).filter(isInSelectedPeriod).reduce((sum, session) => sum + paidEntryAmount(session), 0);
+      const extraPayments = standalonePayments.filter(isInSelectedPeriod).reduce((sum, entry) => sum + paidEntryAmount(entry), 0);
+      return sessionPayments + extraPayments;
+    }
+
+    function monthLabel(date) {
+      const parsed = firebaseDateToDate(`${date}-01T00:00:00`);
+      return parsed ? new Intl.DateTimeFormat('fr-FR', { month: 'long', year: 'numeric' }).format(parsed).replace(/^./, (c) => c.toUpperCase()) : date;
+    }
+
+    function monthlyHoursLabel(sessions) {
+      const map = new Map();
+      filteredCompletedSessions(sessions).forEach((session) => {
+        const key = sessionDateKey(session).slice(0, 7);
+        map.set(key, (map.get(key) || 0) + sessionDuration(session));
+      });
+      const rows = Array.from(map.entries()).sort(([a], [b]) => a.localeCompare(b)).map(([month, hours]) => `${monthLabel(month)} : ${numberText(hours, 2)} h`);
+      return rows.length ? rows.join('<br>') : 'Non renseigné';
+    }
+
+    function workerNamesHtml(workerUids) {
+      return workerUids.length ? workerUids.map(workerDetailsHtml).join('') : '<span class="text-slate-500 dark:text-slate-400">Aucune intervenante liée</span>';
+    }
+
+    function homeStats(home) {
+      const completed = filteredCompletedSessions(home.sessions || []);
+      const expected = completed.reduce((sum, session) => sum + expectedSessionAmount(session), 0);
+      const paid = paymentTotalForHome(home);
+      const due = Math.max(0, expected - paid);
+      console.log('[admin] Montants calculés foyer', home.id, { paid, expected, due });
+      return { completed, paid, expected, due };
+    }
+
+    function workerStats(worker) {
+      const completed = filteredCompletedSessions(worker.sessions || []);
+      const amount = completed.reduce((sum, session) => sum + sessionAmount(session), 0);
+      const homesCount = worker.linkedHomeIds.length;
+      const average = homesCount ? amount / homesCount : 0;
+      console.log('[admin] Montants calculés intervenante', worker.uid, { amount, average, homesCount });
+      return { completed, amount, average, homesCount };
     }
 
     function compareSessionAsc(a, b) {
@@ -677,7 +868,9 @@
         const { accounts, sessions } = await loadAccountsAndEntries();
         state.accounts = accounts;
         state.sessions = sessions;
+        syncPeriodInputs();
         state.homes = buildHomes(accounts, sessions);
+        state.workers = buildWorkers(accounts);
         renderAll();
         els.lastUpdatedText.textContent = `Actualisé le ${new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date())}`;
         els.globalMessage.textContent = '';
@@ -694,18 +887,17 @@
 
     function stats() {
       const accounts = state.accounts;
-      const sessions = state.sessions;
-      const future = sessions.filter(isFutureSession).length;
-      const finished = sessions.length - future;
+      const periodSessions = filteredCompletedSessions(state.sessions);
+      const future = state.sessions.filter(isFutureSession).length;
       return [
         ['Nombre total de comptes', accounts.length],
-        ['Nombre de comptes clients', accounts.filter((account) => account.role === 'client').length],
-        ['Nombre de comptes intervenantes', accounts.filter((account) => account.role === 'intervenante').length],
-        ['Nombre total de foyers', state.homes.length],
-        ['Nombre total de sessions', sessions.length],
-        ['Nombre de sessions à venir', future],
-        ['Nombre de sessions terminées', finished],
-        ['Total estimé', money(sessions.reduce((sum, session) => sum + sessionAmount(session), 0))]
+        ['Clients / foyers détectés', state.homes.length],
+        ['Intervenantes détectées', state.workers.length],
+        ['Sessions réalisées période', periodSessions.length],
+        ['Sessions à venir', future],
+        ['Heures réalisées période', `${numberText(periodSessions.reduce((sum, session) => sum + sessionDuration(session), 0), 2)} h`],
+        ['Montant payé période', money(periodSessions.reduce((sum, session) => sum + paidEntryAmount(session), 0))],
+        ['Montant attendu période', money(periodSessions.reduce((sum, session) => sum + expectedSessionAmount(session), 0))]
       ];
     }
 
@@ -767,31 +959,68 @@
 
     function filteredHomes() {
       const search = els.homeSearchInput.value.trim().toLowerCase();
-      return state.homes.filter((home) => home.name.toLowerCase().includes(search));
+      return state.homes.filter((home) => `${home.name} ${home.ownerEmail} ${home.role}`.toLowerCase().includes(search));
     }
 
     function renderHomes() {
       const homes = filteredHomes();
       if (!homes.length) {
-        els.homesTableWrap.innerHTML = emptyState('Aucun foyer disponible.');
+        els.homesTableWrap.innerHTML = emptyState('Aucun client / foyer disponible.');
         return;
       }
       els.homesTableWrap.innerHTML = `
         <table class="admin-table">
-          <thead><tr><th>Nom du foyer</th><th>Propriétaire / client</th><th>Intervenante(s)</th><th>Sessions</th><th>Prochaine session</th></tr></thead>
+          <thead><tr><th>Nom du foyer</th><th>Email</th><th>Rôle</th><th>Intervenante liée</th><th>Sessions réalisées</th><th>Payé</th><th>Dû</th><th>Prochaine session</th><th>Heures / mois</th></tr></thead>
           <tbody>
-            ${homes.map((home) => `
-              <tr>
-                <td data-label="Nom du foyer"><span class="font-medium">${esc(home.name)}</span></td>
-                <td data-label="Propriétaire / client"><span>${esc(home.owner)}</span><span class="mt-1 block break-all text-xs text-slate-500 dark:text-slate-400">${esc(home.ownerEmail)}</span></td>
-                <td data-label="Intervenante(s)">${home.workerUids.length ? home.workerUids.map(workerDetailsHtml).join('') : '<span class="text-slate-500 dark:text-slate-400">Aucune intervenante liée</span>'}</td>
-                <td data-label="Sessions">${esc(home.sessions.length)}</td>
-                <td data-label="Prochaine session">${esc(home.nextSession ? sessionDateTimeLabel(home.nextSession) : 'Non renseigné')}</td>
-              </tr>
-            `).join('')}
+            ${homes.map((home) => {
+              const stats = homeStats(home);
+              return `
+                <tr>
+                  <td data-label="Nom du foyer"><span class="font-medium">${esc(home.name)}</span></td>
+                  <td data-label="Email"><span class="break-all">${esc(home.ownerEmail)}</span></td>
+                  <td data-label="Rôle">${accountRoleHtml({ role: home.role, isHome: true })}</td>
+                  <td data-label="Intervenante liée">${workerNamesHtml(home.workerUids)}</td>
+                  <td data-label="Sessions réalisées">${esc(stats.completed.length)}</td>
+                  <td data-label="Montant total payé">${esc(money(stats.paid))}</td>
+                  <td data-label="Montant dû">${esc(money(stats.due))}</td>
+                  <td data-label="Prochaine session">${esc(home.nextSession ? sessionDateTimeLabel(home.nextSession) : 'Aucune session prévue')}</td>
+                  <td data-label="Heures par mois">${monthlyHoursLabel(home.sessions)}</td>
+                </tr>`;
+            }).join('')}
           </tbody>
         </table>
       `;
+      console.log('[admin] Nombre de clients détectés :', homes.length);
+    }
+
+    function renderWorkers() {
+      const workers = state.workers;
+      if (!workers.length) {
+        els.workersTableWrap.innerHTML = emptyState('Aucune intervenante disponible.');
+        return;
+      }
+      els.workersTableWrap.innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th>Nom / prénom</th><th>Email</th><th>Téléphone</th><th>Foyers reliés</th><th>Sessions réalisées</th><th>Montant perçu</th><th>Moyenne par foyer</th></tr></thead>
+          <tbody>
+            ${workers.map((worker) => {
+              const stats = workerStats(worker);
+              const name = nonEmpty(worker.displayName || [worker.firstName, worker.lastName].filter(Boolean).join(' '), worker.uid);
+              return `
+                <tr>
+                  <td data-label="Nom / prénom"><span class="font-medium">${esc(name)}</span><span class="mt-1 block break-all text-xs text-slate-500 dark:text-slate-400">UID : ${esc(worker.uid)}</span></td>
+                  <td data-label="Email"><span class="break-all">${esc(nonEmpty(worker.email, 'Non renseigné'))}</span></td>
+                  <td data-label="Téléphone">${esc(nonEmpty(worker.phone, 'Non renseigné'))}</td>
+                  <td data-label="Foyers reliés">${esc(stats.homesCount)}</td>
+                  <td data-label="Sessions réalisées">${esc(stats.completed.length)}</td>
+                  <td data-label="Montant perçu">${esc(money(stats.amount))}</td>
+                  <td data-label="Moyenne par foyer">${esc(stats.homesCount ? money(stats.average) : 'Non disponible')}</td>
+                </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+      console.log('[admin] Nombre d’intervenantes détectées :', workers.length);
     }
 
     function groupByHome() {
@@ -934,8 +1163,7 @@
       renderStats();
       renderAccounts();
       renderHomes();
-      renderSessionStats();
-      renderSessions();
+      renderWorkers();
     }
 
     async function handlePasswordReset(email, button) {
@@ -1003,6 +1231,9 @@
     els.accountSearchInput.addEventListener('input', renderAccounts);
     els.roleFilterSelect.addEventListener('change', renderAccounts);
     els.homeSearchInput.addEventListener('input', renderHomes);
+    els.periodFilterSelect?.addEventListener('change', () => { syncPeriodInputs(); renderAll(); });
+    els.periodStartInput?.addEventListener('change', () => { state.period.start = els.periodStartInput.value; syncPeriodInputs(); renderAll(); });
+    els.periodEndInput?.addEventListener('change', () => { state.period.end = els.periodEndInput.value; syncPeriodInputs(); renderAll(); });
     document.addEventListener('click', (event) => {
       const resetButton = event.target.closest('[data-reset-email]');
       if (resetButton) handlePasswordReset(resetButton.dataset.resetEmail, resetButton);
@@ -1017,6 +1248,7 @@
         lastLoginUpdatedFor = '';
         state.accounts = [];
         state.homes = [];
+        state.workers = [];
         state.sessions = [];
         showView('auth');
         return;
