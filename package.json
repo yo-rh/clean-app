@@ -1,9 +1,0 @@
-{
-  "scripts": {
-    "test:e2e": "playwright test",
-    "test:install": "npx playwright install --with-deps chromium"
-  },
-  "devDependencies": {
-    "@playwright/test": "^1.55.0"
-  }
-}
