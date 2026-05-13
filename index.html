@@ -833,7 +833,7 @@
   const functions = getFunctions(firebaseApp, "europe-west1");
   const translateTaskCallable = httpsCallable(functions, "translateTask");
 
-  const STORAGE_KEY = 'cleanAppFirebaseV1';
+  const STORAGE_KEY_PREFIX = 'cleanAppFirebaseV1';
   const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
   const WORKER_PROFILES_COLLECTION = 'cleanerProfiles';
   const SUPPORTED_TASK_LANGUAGES = ['fr', 'es', 'en', 'pt', 'ar'];
@@ -1007,15 +1007,23 @@
     );
   }
 
+  function getStorageKey() {
+    if (!auth.currentUser || !auth.currentUser.uid) {
+      throw new Error("Impossible d’accéder au localStorage sans utilisateur connecté");
+    }
+    return `${STORAGE_KEY_PREFIX}_${auth.currentUser.uid}`;
+  }
+
   function loadState() {
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
+      const raw = localStorage.getItem(getStorageKey());
       if (!raw) return clone(defaultState);
       const parsed = JSON.parse(raw);
 
       return {
         settings: {
           homeName: String(parsed?.settings?.homeName ?? ''),
+          userFirstName: String(parsed?.settings?.userFirstName ?? ''),
           address: String(parsed?.settings?.address ?? ''),
           phone: String(parsed?.settings?.phone ?? ''),
           accessNotes: String(parsed?.settings?.accessNotes ?? ''),
@@ -1070,7 +1078,7 @@
     }
   }
 
-  let state = loadState();
+  let state = clone(defaultState);
   let authLoading = true;
 
   function byId(id) {
@@ -1392,7 +1400,8 @@
   const quickMessageButtons = Array.from(document.querySelectorAll('.quick-message-btn'));
 
   function saveState() {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    if (!auth.currentUser || !auth.currentUser.uid) return;
+    localStorage.setItem(getStorageKey(), JSON.stringify(state));
   }
 
   function euro(value) {
@@ -1506,7 +1515,7 @@
   }
 
   function currentUid() {
-    return auth.currentUser?.uid || state.auth.token || '';
+    return auth.currentUser?.uid || '';
   }
 
   function userRoleForEmail(email) {
@@ -1989,6 +1998,7 @@
         ? await createUserWithEmailAndPassword(auth, email, password)
         : await signInWithEmailAndPassword(auth, email, password);
 
+      state = loadState();
       const userProfile = await ensureUserDocument(credential.user);
       state.auth.token = credential.user.uid;
       state.auth.user = userProfile;
@@ -3764,23 +3774,19 @@
   applySessionDefaults(true);
 
   renderShellVisibility();
-  renderFull();
-  if (isWorkerUser()) loadWorkerHomes();
 
   onAuthStateChanged(auth, async (firebaseUser) => {
     try {
       if (!firebaseUser) {
         stopHomeSettingsListener();
         stopLinkedWorkerListener();
-        state.auth = { token: '', user: null };
-        state.entries = [];
-        saveState();
+        state = clone(defaultState);
         authLoading = false;
         renderShellVisibility();
-        renderFull();
         return;
       }
 
+      state = loadState();
       const preferredRole = state.ui.accessMode === 'intervenante' ? 'intervenante' : 'user';
       const userProfile = await ensureUserDocument(firebaseUser, preferredRole);
       state.auth.token = firebaseUser.uid;
