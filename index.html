@@ -553,14 +553,6 @@
                   <label for="homeAccessNotesInput" class="block text-sm font-medium mb-1">Informations d’accès et consignes</label>
                   <textarea id="homeAccessNotesInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Étage, digicode, instructions d’entrée, consignes particulières…"></textarea>
                 </div>
-                <div>
-                  <label for="hourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
-                  <input id="hourlyRateInput" type="number" min="0" step="0.01" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
-                </div>
-                <div>
-                  <label for="defaultDurationInput" class="block text-sm font-medium mb-1">Durée par défaut (heures)</label>
-                  <input id="defaultDurationInput" type="number" min="0" step="0.25" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
-                </div>
                 <button id="saveHomeInfoBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Enregistrer</button>
               </div>
 
@@ -588,7 +580,33 @@
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <div class="flex items-start justify-between gap-3"><div><h3 class="font-semibold">Intervenante</h3><p id="linkedWorkerStatus" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Aucune intervenante liée pour le moment.</p></div></div>
                 <div id="linkedWorkerInfo" class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm space-y-3"></div>
-                <a id="linkedWorkerContactBtn" href="#" class="hidden w-full rounded-2xl bg-green-600 text-white px-4 py-3 text-center font-medium">Contacter</a>
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label for="hourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
+                    <input id="hourlyRateInput" type="number" min="0" step="0.01" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                  </div>
+                  <div>
+                    <label for="defaultDurationInput" class="block text-sm font-medium mb-1">Durée par défaut (heures)</label>
+                    <input id="defaultDurationInput" type="number" min="0" step="0.25" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                  </div>
+                  <div>
+                    <label for="defaultVisitDayInput" class="block text-sm font-medium mb-1">Jour de passage par défaut</label>
+                    <select id="defaultVisitDayInput" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
+                      <option value="">Aucun jour par défaut</option>
+                      <option value="1">Lundi</option>
+                      <option value="2">Mardi</option>
+                      <option value="3">Mercredi</option>
+                      <option value="4">Jeudi</option>
+                      <option value="5">Vendredi</option>
+                      <option value="6">Samedi</option>
+                      <option value="0">Dimanche</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label for="defaultVisitTimeInput" class="block text-sm font-medium mb-1">Heure de passage par défaut</label>
+                    <input id="defaultVisitTimeInput" type="time" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                  </div>
+                </div>
               </div>
 
               <div id="adminSyncCard" class="hidden"></div>
@@ -758,6 +776,8 @@
       accessNotes: '',
       hourlyRate: 15,
       defaultDuration: 2,
+      defaultVisitDay: '',
+      defaultVisitTime: '',
       contactPhone: '',
       contactName: '',
       translationLanguage: 'fr',
@@ -929,6 +949,8 @@
           accessNotes: String(parsed?.settings?.accessNotes ?? ''),
           hourlyRate: Number(parsed?.settings?.hourlyRate ?? defaultState.settings.hourlyRate),
           defaultDuration: Number(parsed?.settings?.defaultDuration ?? defaultState.settings.defaultDuration),
+          defaultVisitDay: String(parsed?.settings?.defaultVisitDay ?? defaultState.settings.defaultVisitDay),
+          defaultVisitTime: normalizeSessionTime(parsed?.settings?.defaultVisitTime ?? defaultState.settings.defaultVisitTime),
           contactPhone: String(parsed?.settings?.contactPhone ?? defaultState.settings.contactPhone),
           contactName: String(parsed?.settings?.contactName ?? defaultState.settings.contactName),
           translationLanguage: String(parsed?.settings?.translationLanguage ?? defaultState.settings.translationLanguage),
@@ -1042,6 +1064,8 @@
     saveHomeInfoBtn: byId('saveHomeInfoBtn'),
     hourlyRateInput: byId('hourlyRateInput'),
     defaultDurationInput: byId('defaultDurationInput'),
+    defaultVisitDayInput: byId('defaultVisitDayInput'),
+    defaultVisitTimeInput: byId('defaultVisitTimeInput'),
     contactPhoneInput: byId('contactPhoneInput'),
     contactNameInput: byId('contactNameInput'),
     translationPromptTemplateInput: byId('translationPromptTemplateInput'),
@@ -1081,7 +1105,6 @@
     workerAccessCodeDisplay: byId('workerAccessCodeDisplay'),
     linkedWorkerStatus: byId('linkedWorkerStatus'),
     linkedWorkerInfo: byId('linkedWorkerInfo'),
-    linkedWorkerContactBtn: byId('linkedWorkerContactBtn'),
     defaultTaskInput: byId('defaultTaskInput'),
     addDefaultTaskBtn: byId('addDefaultTaskBtn'),
     defaultTasksList: byId('defaultTasksList'),
@@ -1361,6 +1384,19 @@
     return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
   }
 
+  function nextDateForDefaultVisitDay(value) {
+    const raw = String(value || '').trim().toLowerCase();
+    if (!raw) return '';
+    const dayMap = { dimanche: 0, sunday: 0, lundi: 1, monday: 1, mardi: 2, tuesday: 2, mercredi: 3, wednesday: 3, jeudi: 4, thursday: 4, vendredi: 5, friday: 5, samedi: 6, saturday: 6 };
+    const target = /^\d+$/.test(raw) ? Number(raw) : dayMap[raw];
+    if (!Number.isInteger(target) || target < 0 || target > 6) return '';
+    const now = new Date();
+    const date = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const diff = (target - date.getDay() + 7) % 7;
+    date.setDate(date.getDate() + diff);
+    return date.getFullYear() + '-' + String(date.getMonth() + 1).padStart(2, '0') + '-' + String(date.getDate()).padStart(2, '0');
+  }
+
   function sessionTimeSortValue(entry) {
     return normalizeSessionTime(entry?.time || entry?.sessionTime || entry?.hour) || '23:59';
   }
@@ -1435,6 +1471,8 @@
       accessNotes: String(remoteSettings.accessNotes ?? state.settings.accessNotes ?? ''),
       hourlyRate: Number(remoteSettings.hourlyRate ?? state.settings.hourlyRate),
       defaultDuration: Number(remoteSettings.defaultDuration ?? state.settings.defaultDuration),
+      defaultVisitDay: String(remoteSettings.defaultVisitDay ?? state.settings.defaultVisitDay ?? ''),
+      defaultVisitTime: normalizeSessionTime(remoteSettings.defaultVisitTime ?? state.settings.defaultVisitTime ?? ''),
       contactPhone: String(remoteSettings.contactPhone ?? state.settings.contactPhone ?? ''),
       contactName: String(remoteSettings.contactName ?? state.settings.contactName ?? ''),
       translationLanguage: String(remoteSettings.translationLanguage ?? state.settings.translationLanguage ?? 'fr'),
@@ -1486,6 +1524,7 @@
     return {
       firstName: String(data.firstName || '').trim(),
       phone: String(data.phone || '').trim(),
+      language: String(data.language || data.settings?.language || data.translationLanguage || '').trim(),
       package: String(data.package || data.packageName || data.forfait || data.rate || '').trim(),
       defaultDay: String(data.defaultDay || data.day || '').trim(),
       defaultTime: String(data.defaultTime || data.time || '').trim()
@@ -1526,6 +1565,14 @@
   function workerWhatsappPhone() {
     return normalizePhone(workerPhoneValue());
   }
+  function workerLanguageValue() {
+    return String(state.ui.linkedWorkerProfile?.language || '').trim();
+  }
+  function languageLabel(code) {
+    const labels = { fr: 'français', es: 'espagnol', en: 'anglais', pt: 'portugais', ar: 'arabe', it: 'italien', ro: 'roumain' };
+    const key = String(code || '').trim();
+    return labels[key] || key || '';
+  }
   function renderContactWorkerInfo() {
     if (!els.contactWorkerInfo || !els.openWhatsappBtn) return;
     const workerUid = String(state.settings.workerUid || '').trim();
@@ -1533,9 +1580,11 @@
     const firstName = workerDisplayName();
     const phone = workerPhoneValue();
     const normalizedPhone = workerWhatsappPhone();
-    els.openWhatsappBtn.disabled = !normalizedPhone;
-    els.openWhatsappBtn.classList.toggle('opacity-50', !normalizedPhone);
-    els.openWhatsappBtn.classList.toggle('cursor-not-allowed', !normalizedPhone);
+    const language = workerLanguageValue();
+    const canSend = Boolean(workerUid && normalizedPhone);
+    els.openWhatsappBtn.disabled = !canSend;
+    els.openWhatsappBtn.classList.toggle('opacity-50', !canSend);
+    els.openWhatsappBtn.classList.toggle('cursor-not-allowed', !canSend);
     if (!workerUid) {
       els.contactWorkerInfo.textContent = 'Aucune intervenante liée pour le moment.';
       return;
@@ -1546,27 +1595,24 @@
     }
     els.contactWorkerInfo.innerHTML = '<p class="font-medium text-slate-900 dark:text-slate-100">' + esc(firstName || 'Intervenante') + '</p>'
       + '<p class="mt-1 text-slate-500 dark:text-slate-400">' + (phone ? esc(phone) : 'Numéro de téléphone non renseigné.') + '</p>'
-      + (firstName ? '<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Le message sera envoyé à ' + esc(firstName) + '.</p>' : '');
+      + '<p class="mt-1 text-slate-500 dark:text-slate-400">Langue : ' + esc(languageLabel(language) || 'non renseignée, français utilisé par défaut') + '</p>'
+      + '<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Le message sera envoyé à ' + esc(firstName || 'votre intervenante') + '.</p>';
   }
   function renderLinkedWorkerCard() {
-    if (!els.linkedWorkerStatus || !els.linkedWorkerInfo || !els.linkedWorkerContactBtn) return;
+    if (!els.linkedWorkerStatus || !els.linkedWorkerInfo) return;
     const workerUid = String(state.settings.workerUid || '').trim();
     const profile = state.ui.linkedWorkerProfile || null;
     const firstName = workerDisplayName();
     const phone = workerPhoneValue();
-    const packageText = String(profile?.package || '').trim();
-    const defaultDay = String(profile?.defaultDay || '').trim();
-    const defaultTime = String(profile?.defaultTime || '').trim();
+    const language = workerLanguageValue();
     els.linkedWorkerInfo.classList.add('hidden');
-    els.linkedWorkerContactBtn.classList.add('hidden');
-    els.linkedWorkerContactBtn.removeAttribute('href');
     if (!workerUid) {
       els.linkedWorkerStatus.textContent = 'Aucune intervenante liée pour le moment.';
       els.linkedWorkerInfo.innerHTML = '';
       renderContactWorkerInfo();
       return;
     }
-    if (!profile || (!firstName && !phone && !packageText && !defaultDay && !defaultTime)) {
+    if (!profile || (!firstName && !phone && !language)) {
       els.linkedWorkerStatus.textContent = 'Informations intervenante non renseignées.';
       els.linkedWorkerInfo.innerHTML = '';
       renderContactWorkerInfo();
@@ -1576,13 +1622,7 @@
     els.linkedWorkerInfo.classList.remove('hidden');
     els.linkedWorkerInfo.innerHTML = '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Informations générales</p><p class="mt-1 font-medium">' + esc(firstName || 'Non renseigné') + '</p></div>'
       + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Coordonnées</p><p class="mt-1 font-medium">' + esc(phone || 'Numéro de téléphone non renseigné.') + '</p></div>'
-      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Forfait</p><p class="mt-1 font-medium">' + esc(packageText || 'Non renseigné') + '</p></div>'
-      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Jour et heure de passage par défaut</p><p class="mt-1 font-medium">' + esc([defaultDay, defaultTime].filter(Boolean).join(' · ') || 'Non renseigné') + '</p></div>';
-    const normalizedPhone = normalizePhone(phone);
-    if (normalizedPhone) {
-      els.linkedWorkerContactBtn.href = '#';
-      els.linkedWorkerContactBtn.classList.remove('hidden');
-    }
+      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Langue de traduction</p><p class="mt-1 font-medium">' + esc(languageLabel(language) || 'Non renseignée (français par défaut)') + '</p></div>';
     renderContactWorkerInfo();
   }
   let homeSettingsUnsubscribe = null;
@@ -2019,7 +2059,9 @@
       ro: 'roumain'
     };
 
-    const language = languageLabels[state.settings.translationLanguage] || state.settings.translationLanguage || 'français';
+    const targetLanguageCode = workerLanguageValue();
+    if (!String(state.settings.workerUid || '').trim()) throw new Error('Aucune intervenante liée pour le moment.');
+    const language = languageLabels[targetLanguageCode] || targetLanguageCode || 'français';
     const contactName = workerDisplayName() || state.settings.contactName || 'mon employée de maison';
     const template = state.settings.translationPromptTemplate || defaultState.settings.translationPromptTemplate;
 
@@ -2719,6 +2761,10 @@
       }
     }
 
+    const defaultVisitDate = nextDateForDefaultVisitDay(state.settings.defaultVisitDay);
+    if (els.sessionDateInput && (force || !els.sessionDateInput.value)) els.sessionDateInput.value = defaultVisitDate || todayISO();
+    if (els.sessionTimeInput && (force || !els.sessionTimeInput.value)) els.sessionTimeInput.value = normalizeSessionTime(state.settings.defaultVisitTime || '');
+
     if (els.sessionRateInput && (force || !els.sessionRateInput.dataset.userEdited)) {
       els.sessionRateInput.value = defaultRate || '';
       els.sessionRateInput.dataset.userEdited = '';
@@ -2786,6 +2832,8 @@
     if (els.homeAccessNotesInput) els.homeAccessNotesInput.value = state.settings.accessNotes || '';
     if (els.hourlyRateInput) els.hourlyRateInput.value = state.settings.hourlyRate;
     if (els.defaultDurationInput) els.defaultDurationInput.value = state.settings.defaultDuration;
+    if (els.defaultVisitDayInput) els.defaultVisitDayInput.value = state.settings.defaultVisitDay || '';
+    if (els.defaultVisitTimeInput) els.defaultVisitTimeInput.value = normalizeSessionTime(state.settings.defaultVisitTime || '');
     if (els.contactPhoneInput) els.contactPhoneInput.value = state.settings.contactPhone;
     if (els.contactNameInput) els.contactNameInput.value = state.settings.contactName;
     if (els.translationLanguageSelect) els.translationLanguageSelect.value = state.settings.translationLanguage;
@@ -3149,7 +3197,7 @@
 
   if (els.quickAddTodayBtn) {
     els.quickAddTodayBtn.addEventListener('click', () => {
-      addSession(todayISO(), state.settings.defaultDuration, state.settings.hourlyRate);
+      addSession(nextDateForDefaultVisitDay(state.settings.defaultVisitDay) || todayISO(), state.settings.defaultDuration, state.settings.hourlyRate, [], state.settings.defaultVisitTime);
       if (els.sessionRateInput) {
         els.sessionRateInput.value = state.settings.hourlyRate;
         els.sessionRateInput.dataset.userEdited = '';
@@ -3190,6 +3238,24 @@
   if (els.defaultDurationInput) {
     els.defaultDurationInput.addEventListener('change', () => {
       state.settings.defaultDuration = Number(Math.max(0, Number(els.defaultDurationInput.value || 0)).toFixed(2));
+      applySessionDefaults(true);
+      saveState();
+      saveUserSettings().catch(console.error);
+    });
+  }
+
+  if (els.defaultVisitDayInput) {
+    els.defaultVisitDayInput.addEventListener('change', () => {
+      state.settings.defaultVisitDay = String(els.defaultVisitDayInput.value || '');
+      applySessionDefaults(true);
+      saveState();
+      saveUserSettings().catch(console.error);
+    });
+  }
+
+  if (els.defaultVisitTimeInput) {
+    els.defaultVisitTimeInput.addEventListener('change', () => {
+      state.settings.defaultVisitTime = normalizeSessionTime(els.defaultVisitTimeInput.value || '');
       applySessionDefaults(true);
       saveState();
       saveUserSettings().catch(console.error);
@@ -3426,8 +3492,8 @@
       state.ui.sessionRemovedTaskIds = [];
       state.ui.sessionTaskPreviewVisible = false;
 
-      if (els.sessionDateInput) els.sessionDateInput.value = todayISO();
-      if (els.sessionTimeInput) els.sessionTimeInput.value = '';
+      if (els.sessionDateInput) els.sessionDateInput.value = nextDateForDefaultVisitDay(state.settings.defaultVisitDay) || todayISO();
+      if (els.sessionTimeInput) els.sessionTimeInput.value = normalizeSessionTime(state.settings.defaultVisitTime || '');
       if (els.sessionRateInput) {
         els.sessionRateInput.value = state.settings.hourlyRate;
         els.sessionRateInput.dataset.userEdited = '';
@@ -3524,13 +3590,6 @@
     });
   }
 
-
-  if (els.linkedWorkerContactBtn) {
-    els.linkedWorkerContactBtn.addEventListener('click', (event) => {
-      event.preventDefault();
-      setCurrentPage('contact');
-    });
-  }
 
   if (els.addMenuBtn) els.addMenuBtn.addEventListener('click', openAddMenu);
 

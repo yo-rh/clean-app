@@ -22,9 +22,9 @@
     .hidden-view { display: none !important; }
     .page { display: none; }
     .page.active { display: block; }
-    .safe-bottom { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
-    .app-main, .page { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
-    .scroll-safe-bottom { padding-bottom: calc(140px + env(safe-area-inset-bottom)); }
+    .safe-bottom { padding-bottom: calc(180px + env(safe-area-inset-bottom)); }
+    .app-main, .page { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
+    .scroll-safe-bottom { padding-bottom: calc(160px + env(safe-area-inset-bottom)); }
     input, select, textarea { width: 100%; min-width: 0; max-width: 100%; box-sizing: border-box; }
     .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; z-index: 50; pointer-events: none; }
     #toast {
@@ -132,18 +132,6 @@
             <label for="workerPhoneInput" class="block text-sm font-medium mb-1">Téléphone</label>
             <input id="workerPhoneInput" type="tel" autocomplete="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
           </div>
-          <div>
-            <label for="workerPackageInput" class="block text-sm font-medium mb-1">Forfait ou tarif</label>
-            <input id="workerPackageInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 15 €/h ou forfait 60 €" />
-          </div>
-          <div>
-            <label for="workerDefaultDayInput" class="block text-sm font-medium mb-1">Jour de passage par défaut</label>
-            <input id="workerDefaultDayInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Mercredi" />
-          </div>
-          <div>
-            <label for="workerDefaultTimeInput" class="block text-sm font-medium mb-1">Heure de passage par défaut</label>
-            <input id="workerDefaultTimeInput" type="time" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
-          </div>
           <button id="saveWorkerInfoBtn" type="button" class="w-full rounded-2xl bg-apple-600 text-white px-4 py-3 font-medium">Enregistrer mes informations</button>
         </section>
 
@@ -223,7 +211,7 @@
     const translateTaskCallable = httpsCallable(functions, "translateTask");
 
     const state = {
-      authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '' }, workerProfileUnsubscribe: null,
+      authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '', language: 'fr' }, workerProfileUnsubscribe: null,
       homeLinks: [], homeLabels: [], allUpcomingSessions: [], allSessions: [], allPayments: [],
       currentHomeId: localStorage.getItem('cleanAppWorkerCurrentHomeId') || '',
       currentSession: null, currentHomeSettings: null, currentPage: 'home', expandedSessionKey: '', pendingTaskTranslations: new Set()
@@ -236,7 +224,7 @@
       authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
       homeSummary: byId('homeSummary'), upcomingSessionsList: byId('upcomingSessionsList'), sessionDetailCard: byId('sessionDetailCard'),
       homesList: byId('homesList'), homeCodeInput: byId('homeCodeInput'), addHomeBtn: byId('addHomeBtn'), addHomeMessage: byId('addHomeMessage'),
-      workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), workerPackageInput: byId('workerPackageInput'), workerDefaultDayInput: byId('workerDefaultDayInput'), workerDefaultTimeInput: byId('workerDefaultTimeInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
+      workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
       homeSelect: byId('homeSelect'), activeHomeInfo: byId('activeHomeInfo'), languageSelect: byId('languageSelect'), logoutBtn: byId('logoutBtn'), toast: byId('toast')
     };
 
@@ -247,7 +235,7 @@
     };
     UI_TRANSLATIONS.pt = { ...UI_TRANSLATIONS.en, "Langue":"Idioma", "Accueil":"Início", "Réglages":"Definições", "Domiciles":"Domicílios", "Connexion":"Entrar", "Créer":"Criar", "Se connecter":"Entrar", "Se déconnecter":"Sair", "Ajouter un domicile":"Adicionar domicílio", "Fermer":"Fechar", "Voir":"Ver", "Aspirateur":"Aspirador", "Serpillière":"Lavar o chão", "Salle de bain":"Casa de banho", "Cuisine":"Cozinha", "Changer les draps":"Trocar os lençóis" };
     UI_TRANSLATIONS.ar = { ...UI_TRANSLATIONS.en, "Langue":"اللغة", "Accueil":"الرئيسية", "Réglages":"الإعدادات", "Domiciles":"المنازل", "Connexion":"تسجيل الدخول", "Créer":"إنشاء", "Se connecter":"تسجيل الدخول", "Se déconnecter":"تسجيل الخروج", "Ajouter un domicile":"إضافة منزل", "Fermer":"إغلاق", "Voir":"عرض", "Aspirateur":"تنظيف بالمكنسة", "Serpillière":"مسح الأرض", "Salle de bain":"الحمام", "Cuisine":"المطبخ", "Changer les draps":"تغيير الملاءات" };
-    function currentLanguage() { return state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; }
+    function currentLanguage() { return state.workerInfo?.language || state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; }
     function t(text) {
       const source = String(text ?? ''); const lang = currentLanguage();
       let translated = lang === 'fr' ? source : (UI_TRANSLATIONS[lang]?.[source] || source);
@@ -286,6 +274,7 @@
     function normalizeSessionTime(value) { const match = String(value || '').match(/^(\d{1,2}):(\d{2})/); if (!match) return ''; const hours = Math.min(23, Math.max(0, Number(match[1]))); const minutes = Math.min(59, Math.max(0, Number(match[2]))); return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0'); }
     function sessionTimeSortValue(session) { return normalizeSessionTime(session?.time || session?.sessionTime || session?.hour) || '23:59'; }
     function formatSessionDateTime(session) { const time = normalizeSessionTime(session?.time || session?.sessionTime || session?.hour); return formatDate(session.date) + (time ? ' · ' + time : ''); }
+    function defaultVisitDayLabel(value) { const labels = { '0': 'Dimanche', '1': 'Lundi', '2': 'Mardi', '3': 'Mercredi', '4': 'Jeudi', '5': 'Vendredi', '6': 'Samedi' }; const raw = String(value || '').trim(); return labels[raw] || raw; }
     function compareSessionsAsc(a, b) { return toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)) || sessionTimeSortValue(a).localeCompare(sessionTimeSortValue(b)) || String(a.createdAt || '').localeCompare(String(b.createdAt || '')); }
     function compareSessionsDesc(a, b) { return toISODateOnly(b.date).localeCompare(toISODateOnly(a.date)) || sessionTimeSortValue(b).localeCompare(sessionTimeSortValue(a)) || String(b.createdAt || '').localeCompare(String(a.createdAt || '')); }
     function workerCodeValue(value) { return String(value || '').trim().replace(/\s+/g, '').toUpperCase(); }
@@ -354,7 +343,7 @@
     function taskSourceLabel(source) { if (source === 'punctual') return t('Ponctuelle'); if (source === 'manual') return t('Ajoutée'); return ''; }
     function euro(value) { return new Intl.NumberFormat(currentLanguage() === 'fr' ? 'fr-FR' : currentLanguage(), { style: 'currency', currency: 'EUR' }).format(Number(value || 0)); }
     function normalizePhone(value) { let phone = String(value || '').replace(/[\s.\-()]/g, '').trim(); if (phone.startsWith('+')) phone = phone.slice(1); if (phone.startsWith('00')) phone = phone.slice(2); if (phone.startsWith('0')) phone = '33' + phone.slice(1); phone = phone.replace(/[^\d]/g, ''); return phone.length >= 8 ? phone : ''; }
-    function homeInfoFromData(homeId, data = {}) { const settings = data.settings || {}; return { homeId: String(homeId), label: String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Domicile ' + String(homeId).slice(0, 6))), address: String(settings.address || data.address || ''), phone: String(settings.phone || data.phone || ''), accessNotes: String(settings.accessNotes || data.accessNotes || '') }; }
+    function homeInfoFromData(homeId, data = {}) { const settings = data.settings || {}; return { homeId: String(homeId), label: String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Domicile ' + String(homeId).slice(0, 6))), address: String(settings.address || data.address || ''), phone: String(settings.phone || data.phone || ''), accessNotes: String(settings.accessNotes || data.accessNotes || ''), hourlyRate: Number(settings.hourlyRate || 0), defaultDuration: Number(settings.defaultDuration || 0), defaultVisitDay: String(settings.defaultVisitDay || ''), defaultVisitTime: normalizeSessionTime(settings.defaultVisitTime || '') }; }
     function moneyValue(value) { return Number(Number(value || 0).toFixed(2)); }
     function sessionExpectedAmount(session) {
       const explicit = Number(session.amount || session.expectedAmount || session.price || 0);
@@ -455,13 +444,13 @@
     }
 
     function workerProfileRef(uid = state.currentUser?.uid) { return doc(db, WORKER_PROFILES_COLLECTION, String(uid || '')); }
-    function normalizeWorkerInfo(data = {}) { return { firstName: String(data.firstName || '').trim(), phone: String(data.phone || '').trim(), package: String(data.package || data.packageName || data.forfait || data.rate || '').trim(), defaultDay: String(data.defaultDay || data.day || '').trim(), defaultTime: normalizeSessionTime(data.defaultTime || data.time || '') }; }
+    function normalizeWorkerInfo(data = {}) { return { firstName: String(data.firstName || '').trim(), phone: String(data.phone || '').trim(), language: String(data.language || data.settings?.language || state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr').trim() || 'fr' }; }
     async function ensureWorkerProfileDocument(firebaseUser) {
       if (!firebaseUser) return { firstName: '', phone: '' };
       const ref = workerProfileRef(firebaseUser.uid);
       const snapshot = await getDoc(ref);
       if (!snapshot.exists()) {
-        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const profile = { uid: firebaseUser.uid, email: firebaseUser.email || '', firstName: '', phone: '', language: state.workerProfile?.settings?.language || 'fr', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
         await setDoc(ref, profile, { merge: true });
         return normalizeWorkerInfo(profile);
       }
@@ -480,13 +469,11 @@
       if (!state.currentUser) return;
       const firstName = (els.workerFirstNameInput?.value || '').trim();
       const phone = (els.workerPhoneInput?.value || '').trim();
-      const packageText = (els.workerPackageInput?.value || '').trim();
-      const defaultDay = (els.workerDefaultDayInput?.value || '').trim();
-      const defaultTime = normalizeSessionTime(els.workerDefaultTimeInput?.value || '');
+      const language = currentLanguage();
       els.saveWorkerInfoBtn.disabled = true; els.saveWorkerInfoBtn.classList.add('opacity-60');
       try {
-        await setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName, phone, package: packageText, defaultDay, defaultTime, updatedAt: serverTimestamp() }, { merge: true });
-        state.workerInfo = { firstName, phone, package: packageText, defaultDay, defaultTime };
+        await setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName, phone, language, updatedAt: serverTimestamp() }, { merge: true });
+        state.workerInfo = { firstName, phone, language };
         showToast('✅ Informations enregistrées.');
         renderSettings();
       } catch (error) { console.error(error); showToast(firebaseErrorMessage(error)); }
@@ -693,7 +680,7 @@
     function taskChecklistHtml(session) {
       const tasks = normalizeSessionTasks(session.tasks);
       return '<div class="space-y-2"><p class="font-medium text-sm">Tâches</p>' + (tasks.length ? tasks.map((task) => {
-        const sourceLabel = taskSourceLabel(task.source);
+        const sourceLabel = '';
         const doneClasses = task.done ? ' border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-500' : ' border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950';
         return '<label class="flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm transition' + doneClasses + '"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through' : '') + '">' + esc(getTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc([sourceLabel, task.done ? 'Terminée' : 'À faire'].filter(Boolean).join(' · ')) + '</span></span></label>';
       }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche renseignée pour cette session.</div>') + '</div>';
@@ -722,6 +709,7 @@
         const gridClass = actionCount >= 3 ? 'grid grid-cols-3 gap-2 pt-1' : 'grid grid-cols-2 gap-2 pt-1';
         return '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm space-y-2"><div><span class="font-medium">' + esc(home.label) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400 mt-1">Domicile lié</span></div>'
           + (hasInfo ? '<div class="space-y-1 text-slate-600 dark:text-slate-300">' + (home.address ? '<p>📍 ' + esc(home.address) + '</p>' : '') + (home.phone ? '<p>☎️ ' + esc(home.phone) + '</p>' : '') + (home.accessNotes ? '<p class="whitespace-pre-wrap">📝 ' + esc(home.accessNotes) + '</p>' : '') + '</div>' : '<p class="text-slate-500 dark:text-slate-400">Informations du domicile non renseignées.</p>')
+          + '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-xs text-slate-600 dark:text-slate-300 space-y-1"><p class="font-medium text-slate-800 dark:text-slate-100">Paramètres définis par le client</p><p>Taux horaire : ' + (home.hourlyRate ? euro(home.hourlyRate) + ' / h' : 'Non renseigné') + '</p><p>Durée par défaut : ' + (home.defaultDuration ? esc(home.defaultDuration) + 'h' : 'Non renseignée') + '</p><p>Jour par défaut : ' + esc(defaultVisitDayLabel(home.defaultVisitDay) || 'Non renseigné') + '</p><p>Heure par défaut : ' + esc(home.defaultVisitTime || 'Non renseignée') + '</p></div>'
           + (phone || mapsUrl ? '<div class="' + gridClass + '">' + (phone ? '<a class="rounded-2xl border border-slate-200 dark:border-slate-700 px-3 py-2 text-center font-medium" href="tel:+' + esc(phone) + '">Appeler</a><a class="rounded-2xl bg-green-600 text-white px-3 py-2 text-center font-medium" target="_blank" rel="noopener" href="https://wa.me/' + esc(phone) + '">WhatsApp</a>' : '') + (mapsUrl ? '<a class="rounded-2xl bg-apple-600 text-white px-3 py-2 text-center font-medium" target="_blank" rel="noopener" href="' + esc(mapsUrl) + '">Itinéraire</a>' : '') + '</div>' : '')
           + '</div>';
       }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucun domicile ajouté pour le moment.</div>';
@@ -748,10 +736,7 @@
       els.accountText.textContent = state.currentUser?.email || 'Compte intervenante';
       if (els.workerFirstNameInput && document.activeElement !== els.workerFirstNameInput) els.workerFirstNameInput.value = state.workerInfo?.firstName || '';
       if (els.workerPhoneInput && document.activeElement !== els.workerPhoneInput) els.workerPhoneInput.value = state.workerInfo?.phone || '';
-      if (els.workerPackageInput && document.activeElement !== els.workerPackageInput) els.workerPackageInput.value = state.workerInfo?.package || '';
-      if (els.workerDefaultDayInput && document.activeElement !== els.workerDefaultDayInput) els.workerDefaultDayInput.value = state.workerInfo?.defaultDay || '';
-      if (els.workerDefaultTimeInput && document.activeElement !== els.workerDefaultTimeInput) els.workerDefaultTimeInput.value = state.workerInfo?.defaultTime || '';
-      const lang = state.workerProfile?.settings?.language || state.workerProfile?.settings?.translationLanguage || 'fr'; els.languageSelect.value = lang;
+      const lang = currentLanguage(); els.languageSelect.value = lang;
     }
     function findSession(homeId, sessionId) { return state.allSessions.find((s) => s.homeId === homeId && s.id === sessionId) || state.allUpcomingSessions.find((s) => s.homeId === homeId && s.id === sessionId); }
     function refreshSessionInState(homeId, sessionId, updater) {
@@ -798,7 +783,7 @@
       els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
       els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
       els.authSubmitBtn.addEventListener('click', submitAuth); els.passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
-      els.logoutBtn.addEventListener('click', async () => { stopWorkerProfileListener(); await signOut(auth); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '' }; showAuth(); showToast('Déconnectée.'); });
+      els.logoutBtn.addEventListener('click', async () => { stopWorkerProfileListener(); await signOut(auth); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', language: 'fr' }; showAuth(); showToast('Déconnectée.'); });
       els.refreshBtn.addEventListener('click', loadWorkerHomes);
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
       els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
@@ -806,7 +791,7 @@
       els.saveWorkerInfoBtn.addEventListener('click', saveWorkerInfo);
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
-      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const settings = { ...(state.workerProfile?.settings || {}), language: els.languageSelect.value }; await setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }); state.workerProfile = { ...(state.workerProfile || {}), settings }; showToast('✅ Langue enregistrée.'); renderAll(); setCurrentPage(state.currentPage); applyTranslations(); });
+      els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const language = els.languageSelect.value; const settings = { ...(state.workerProfile?.settings || {}), language }; await Promise.all([setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }), setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName: state.workerInfo?.firstName || '', phone: state.workerInfo?.phone || '', language, updatedAt: serverTimestamp() }, { merge: true })]); state.workerProfile = { ...(state.workerProfile || {}), settings }; state.workerInfo = { ...(state.workerInfo || {}), language }; showToast('✅ Langue enregistrée.'); renderAll(); setCurrentPage(state.currentPage); applyTranslations(); });
       document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
     }
 
@@ -844,7 +829,7 @@
 
     bindEvents(); renderAuthMode(); showAuth(); applyTranslations();
     onAuthStateChanged(auth, async (firebaseUser) => {
-      if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', package: '', defaultDay: '', defaultTime: '' }; showAuth(); return; }
+      if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', language: 'fr' }; showAuth(); return; }
       try {
         const profile = await ensureWorkerUserDocument(firebaseUser);
         if (profile.role !== 'intervenante') { state.currentUser = firebaseUser; state.workerProfile = profile; showAuth(); showAuthError('Vous êtes connecté avec un compte client. Connectez-vous avec un compte intervenante ou créez-en un avec un autre email.'); return; }
