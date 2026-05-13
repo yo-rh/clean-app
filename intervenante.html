@@ -139,7 +139,7 @@
           <label for="setupHomeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout</label>
           <input id="setupHomeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
         </div>
-        <button id="setupAddHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter le foyer</button>
+        <button id="setupAddHomeBtn" type="button" data-action="add-home-by-code" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter le foyer</button>
         <button id="setupSkipHomeBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Passer cette étape pour le moment</button>
       </div>
 
@@ -222,7 +222,7 @@
             <label for="homeCodeInput" class="block text-sm font-medium mb-1">Code d’ajout</label>
             <input id="homeCodeInput" type="text" inputmode="text" autocomplete="one-time-code" class="uppercase rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="A7K92P" />
           </div>
-          <button id="addHomeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter le foyer</button>
+          <button id="addHomeBtn" type="button" data-action="add-home-by-code" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Ajouter le foyer</button>
           <p id="addHomeMessage" class="hidden text-sm"></p>
         </section>
 
@@ -701,17 +701,39 @@
       if (isValidWorkerAccess(access, cleanedCode)) return access;
       throw new Error('Code invalide ou inactif.');
     }
+    function showAddHomeMessage(message, isError = false) {
+      if (els.addHomeMessage) {
+        els.addHomeMessage.textContent = message;
+        els.addHomeMessage.classList.remove('hidden', 'text-red-500', 'text-emerald-600', 'dark:text-emerald-400');
+        els.addHomeMessage.classList.add(isError ? 'text-red-500' : 'text-emerald-600', isError ? 'text-red-500' : 'dark:text-emerald-400');
+      }
+      showToast(message);
+    }
+
     async function addWorkerHomeWithCode(sourceInput = els.homeCodeInput, sourceButton = els.addHomeBtn, afterAdd = () => setCurrentPage('home')) {
-      if (!state.currentUser) { showToast('Connectez-vous comme intervenante.'); return; }
-      const code = workerCodeValue(sourceInput?.value || ''); if (!code) return;
+      console.log('Clic Ajouter foyer détecté');
+      showAddHomeMessage('Vérification du code…');
+      if (!state.currentUser) { showAddHomeMessage('Connectez-vous comme intervenante.', true); return; }
+      const code = workerCodeValue(sourceInput?.value || '');
+      console.log('Code foyer saisi :', code);
+      if (!code) { showAddHomeMessage('Veuillez renseigner un code.', true); return; }
       if (sourceButton) { sourceButton.disabled = true; sourceButton.classList.add('opacity-60'); }
       try {
         const access = await resolveWorkerAccessCode(code); const homeId = String(access.homeId || ''); if (!homeId) throw new Error('Code invalide.');
         await setDoc(workerHomeLinkRef(state.currentUser.uid, homeId), { homeId, code, role: 'intervenante', active: true, addedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
         await setDoc(doc(db, 'users', homeId), { settings: { workerUid: state.currentUser.uid }, updatedAt: serverTimestamp() }, { merge: true });
-        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); if (sourceInput) sourceInput.value = ''; showToast('✅ Foyer ajouté.'); await loadWorkerHomes(); afterAdd?.();
-      } catch (error) { console.error(error); showToast(firebaseErrorMessage(error) || 'Code invalide.'); }
+        state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); if (sourceInput) sourceInput.value = ''; showAddHomeMessage('Foyer ajouté avec succès'); await loadWorkerHomes(); afterAdd?.();
+      } catch (error) { console.error(error); showAddHomeMessage(firebaseErrorMessage(error) || 'Code invalide.', true); }
       finally { if (sourceButton) { sourceButton.disabled = false; sourceButton.classList.remove('opacity-60'); } }
+    }
+
+    async function addHomeByCode(button) {
+      const isSetupButton = button?.id === 'setupAddHomeBtn';
+      return addWorkerHomeWithCode(
+        isSetupButton ? els.setupHomeCodeInput : els.homeCodeInput,
+        isSetupButton ? els.setupAddHomeBtn : els.addHomeBtn,
+        isSetupButton ? () => { state.setupStep = 4; renderSetup(); } : () => setCurrentPage('home')
+      );
     }
 
     async function fetchWorkerHomeLinks() {
@@ -984,15 +1006,18 @@
       els.refreshBtn.addEventListener('click', loadWorkerHomes);
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });
       els.homeCodeInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') addWorkerHomeWithCode(); });
-      els.addHomeBtn.addEventListener('click', addWorkerHomeWithCode);
       els.setupNextBtn?.addEventListener('click', () => nextSetupStep().catch((error) => showToast(firebaseErrorMessage(error))));
       els.setupBackBtn?.addEventListener('click', backSetupStep);
       els.setupSkipBtn?.addEventListener('click', () => finishSetup().catch((error) => showToast(firebaseErrorMessage(error))));
       els.setupLanguageSelect?.addEventListener('change', async () => { collectSetupValues(); try { await saveWorkerLanguage(state.workerInfo.language || 'fr'); renderSetup(); } catch (error) { showToast(firebaseErrorMessage(error)); } });
       els.setupHomeCodeInput?.addEventListener('input', () => { els.setupHomeCodeInput.value = workerCodeValue(els.setupHomeCodeInput.value); });
       els.setupHomeCodeInput?.addEventListener('keydown', (event) => { if (event.key === 'Enter') addWorkerHomeWithCode(els.setupHomeCodeInput, els.setupAddHomeBtn, () => { state.setupStep = 4; renderSetup(); }); });
-      els.setupAddHomeBtn?.addEventListener('click', () => addWorkerHomeWithCode(els.setupHomeCodeInput, els.setupAddHomeBtn, () => { state.setupStep = 4; renderSetup(); }));
       els.setupSkipHomeBtn?.addEventListener('click', () => { state.setupStep = 4; renderSetup(); });
+      document.addEventListener('click', async (event) => {
+        const button = event.target.closest("[data-action='add-home-by-code']");
+        if (!button) return;
+        await addHomeByCode(button);
+      });
       els.saveWorkerInfoBtn.addEventListener('click', saveWorkerInfo);
       byId('closePaymentModalBtn')?.addEventListener('click', closePaymentModal);
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
