@@ -421,6 +421,10 @@
               <input id="sessionDateInput" type="date" class="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
             </div>
             <div>
+              <label for="sessionTimeInput" class="block text-sm font-medium mb-1">Heure</label>
+              <input id="sessionTimeInput" type="time" class="block rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+            </div>
+            <div>
               <p class="block text-sm font-medium mb-2">Durée</p>
               <div class="grid grid-cols-2 gap-3">
                 <button type="button" class="duration-option rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm font-medium" data-value="2">2h</button>
@@ -499,6 +503,7 @@
             <p class="text-sm text-slate-500 dark:text-slate-400">Préparez un message et envoyez-le directement.</p>
           </div>
           <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
+            <div id="contactWorkerInfo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-600 dark:text-slate-300">Chargement de l’intervenante…</div>
             <div>
               <label for="contactMessageInput" class="block text-sm font-medium mb-1">Message en français</label>
               <div class="flex flex-wrap gap-2 mb-3">
@@ -530,14 +535,6 @@
           <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft">
             <div class="space-y-5">
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <h3 class="font-semibold">Compte</h3>
-                <div class="text-sm text-slate-500 dark:text-slate-400 space-y-1">
-                  <p id="accountEmailText">Compte : —</p>
-                  <p id="accountRoleText">Rôle : —</p>
-                </div>
-              </div>
-
-              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
                 <h3 class="font-semibold">Mes informations</h3>
                 <p class="text-sm text-slate-500 dark:text-slate-400">Ces informations seront visibles côté client et côté intervenante.</p>
                 <div>
@@ -556,44 +553,15 @@
                   <label for="homeAccessNotesInput" class="block text-sm font-medium mb-1">Informations d’accès et consignes</label>
                   <textarea id="homeAccessNotesInput" rows="4" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Étage, digicode, instructions d’entrée, consignes particulières…"></textarea>
                 </div>
+                <div>
+                  <label for="hourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
+                  <input id="hourlyRateInput" type="number" min="0" step="0.01" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                </div>
+                <div>
+                  <label for="defaultDurationInput" class="block text-sm font-medium mb-1">Durée par défaut (heures)</label>
+                  <input id="defaultDurationInput" type="number" min="0" step="0.25" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
+                </div>
                 <button id="saveHomeInfoBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Enregistrer</button>
-              </div>
-
-              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <h3 class="font-semibold">Contact</h3>
-                <div>
-                  <label for="contactNameInput" class="block text-sm font-medium mb-1">Prénom de la femme de ménage</label>
-                  <input id="contactNameInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Diana" />
-                </div>
-                <div>
-                  <label for="contactPhoneInput" class="block text-sm font-medium mb-1">Contact WhatsApp</label>
-                  <input id="contactPhoneInput" type="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 33612345678" />
-                </div>
-              </div>
-
-              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 class="font-semibold">Intervenante</h3>
-                    <p id="linkedWorkerStatus" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Aucune intervenante liée pour le moment.</p>
-                  </div>
-                </div>
-                <div id="linkedWorkerInfo" class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm space-y-2"></div>
-                <a id="linkedWorkerContactBtn" href="#" target="_blank" rel="noopener" class="hidden w-full rounded-2xl bg-green-600 text-white px-4 py-3 text-center font-medium">Contacter</a>
-              </div>
-
-              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <div class="flex items-start justify-between gap-3">
-                  <div>
-                    <h3 class="font-semibold">Accès intervenante</h3>
-                    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Générez un code à transmettre à votre intervenante.</p>
-                  </div>
-                </div>
-                <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3">
-                  <p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Code d’accès</p>
-                  <p id="workerAccessCodeDisplay" class="mt-1 break-all text-lg font-semibold tracking-wide sm:text-xl">—</p>
-                </div>
-                <button id="generateWorkerCodeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Générer un code intervenante</button>
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
@@ -611,26 +579,26 @@
                 </div>
               </div>
 
-              <div id="adminSyncCard" class="hidden"></div>
+              <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
+                <div class="flex items-start justify-between gap-3"><div><h3 class="font-semibold">Accès intervenante</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Générez un code à transmettre à votre intervenante.</p></div></div>
+                <div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Code d’accès</p><p id="workerAccessCodeDisplay" class="mt-1 break-all text-lg font-semibold tracking-wide sm:text-xl">—</p></div>
+                <button id="generateWorkerCodeBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Générer un code intervenante</button>
+              </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <h3 class="font-semibold">Général</h3>
-                <div>
-                  <label for="hourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
-                  <input id="hourlyRateInput" type="number" min="0" step="0.01" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
-                </div>
-                <div>
-                  <label for="defaultDurationInput" class="block text-sm font-medium mb-1">Durée par défaut (heures)</label>
-                  <input id="defaultDurationInput" type="number" min="0" step="0.25" inputmode="decimal" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" />
-                </div>
+                <div class="flex items-start justify-between gap-3"><div><h3 class="font-semibold">Intervenante</h3><p id="linkedWorkerStatus" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Aucune intervenante liée pour le moment.</p></div></div>
+                <div id="linkedWorkerInfo" class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm space-y-3"></div>
+                <a id="linkedWorkerContactBtn" href="#" class="hidden w-full rounded-2xl bg-green-600 text-white px-4 py-3 text-center font-medium">Contacter</a>
               </div>
+
+              <div id="adminSyncCard" class="hidden"></div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-4">
                 <div class="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                   <div class="min-w-0">
                     <div class="flex items-center gap-2">
                       <span class="flex h-9 w-9 items-center justify-center rounded-2xl bg-apple-100 text-lg dark:bg-apple-950/60">🧹</span>
-                      <h3 class="font-semibold">Tâches du domicile</h3>
+                      <h3 class="font-semibold">Paramétrage des tâches</h3>
                     </div>
                     <p id="taskSettingsSummary" class="text-sm text-slate-500 dark:text-slate-400 mt-2">Configurez les tâches qui s’ajoutent automatiquement aux sessions.</p>
                   </div>
@@ -1080,6 +1048,7 @@
     translationLanguageSelect: byId('translationLanguageSelect'),
     quickAddTodayBtn: byId('quickAddTodayBtn'),
     sessionDateInput: byId('sessionDateInput'),
+    sessionTimeInput: byId('sessionTimeInput'),
     sessionRateInput: byId('sessionRateInput'),
     customDurationWrap: byId('customDurationWrap'),
     customDurationInput: byId('customDurationInput'),
@@ -1094,6 +1063,7 @@
     translateMessageBtn: byId('translateMessageBtn'),
     translateStatusText: byId('translateStatusText'),
     openWhatsappBtn: byId('openWhatsappBtn'),
+    contactWorkerInfo: byId('contactWorkerInfo'),
     addMenuBtn: byId('addMenuBtn'),
     addMenuModal: byId('addMenuModal'),
     addSessionQuick: byId('addSessionQuick'),
@@ -1383,6 +1353,23 @@
     return phone;
   }
 
+  function normalizeSessionTime(value) {
+    const match = String(value || '').match(/^(\d{1,2}):(\d{2})/);
+    if (!match) return '';
+    const hours = Math.min(23, Math.max(0, Number(match[1])));
+    const minutes = Math.min(59, Math.max(0, Number(match[2])));
+    return String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0');
+  }
+
+  function sessionTimeSortValue(entry) {
+    return normalizeSessionTime(entry?.time || entry?.sessionTime || entry?.hour) || '23:59';
+  }
+
+  function formatSessionDateTime(entry) {
+    const time = normalizeSessionTime(entry?.time || entry?.sessionTime || entry?.hour);
+    return formatDate(entry.date) + (time ? ' · ' + time : '');
+  }
+
   function esc(str) {
     return String(str ?? '')
       .replace(/&/g, '&amp;')
@@ -1498,7 +1485,10 @@
   function normalizeWorkerProfile(data = {}) {
     return {
       firstName: String(data.firstName || '').trim(),
-      phone: String(data.phone || '').trim()
+      phone: String(data.phone || '').trim(),
+      package: String(data.package || data.packageName || data.forfait || data.rate || '').trim(),
+      defaultDay: String(data.defaultDay || data.day || '').trim(),
+      defaultTime: String(data.defaultTime || data.time || '').trim()
     };
   }
   function stopLinkedWorkerListener() {
@@ -1527,35 +1517,74 @@
       renderLinkedWorkerCard();
     });
   }
+  function workerDisplayName() {
+    return String(state.ui.linkedWorkerProfile?.firstName || '').trim();
+  }
+  function workerPhoneValue() {
+    return String(state.ui.linkedWorkerProfile?.phone || '').trim();
+  }
+  function workerWhatsappPhone() {
+    return normalizePhone(workerPhoneValue());
+  }
+  function renderContactWorkerInfo() {
+    if (!els.contactWorkerInfo || !els.openWhatsappBtn) return;
+    const workerUid = String(state.settings.workerUid || '').trim();
+    const profile = state.ui.linkedWorkerProfile || null;
+    const firstName = workerDisplayName();
+    const phone = workerPhoneValue();
+    const normalizedPhone = workerWhatsappPhone();
+    els.openWhatsappBtn.disabled = !normalizedPhone;
+    els.openWhatsappBtn.classList.toggle('opacity-50', !normalizedPhone);
+    els.openWhatsappBtn.classList.toggle('cursor-not-allowed', !normalizedPhone);
+    if (!workerUid) {
+      els.contactWorkerInfo.textContent = 'Aucune intervenante liée pour le moment.';
+      return;
+    }
+    if (!profile || (!firstName && !phone)) {
+      els.contactWorkerInfo.textContent = 'Informations intervenante non renseignées.';
+      return;
+    }
+    els.contactWorkerInfo.innerHTML = '<p class="font-medium text-slate-900 dark:text-slate-100">' + esc(firstName || 'Intervenante') + '</p>'
+      + '<p class="mt-1 text-slate-500 dark:text-slate-400">' + (phone ? esc(phone) : 'Numéro de téléphone non renseigné.') + '</p>'
+      + (firstName ? '<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Le message sera envoyé à ' + esc(firstName) + '.</p>' : '');
+  }
   function renderLinkedWorkerCard() {
     if (!els.linkedWorkerStatus || !els.linkedWorkerInfo || !els.linkedWorkerContactBtn) return;
     const workerUid = String(state.settings.workerUid || '').trim();
     const profile = state.ui.linkedWorkerProfile || null;
-    const firstName = String(profile?.firstName || '').trim();
-    const phone = String(profile?.phone || '').trim();
+    const firstName = workerDisplayName();
+    const phone = workerPhoneValue();
+    const packageText = String(profile?.package || '').trim();
+    const defaultDay = String(profile?.defaultDay || '').trim();
+    const defaultTime = String(profile?.defaultTime || '').trim();
     els.linkedWorkerInfo.classList.add('hidden');
     els.linkedWorkerContactBtn.classList.add('hidden');
     els.linkedWorkerContactBtn.removeAttribute('href');
     if (!workerUid) {
       els.linkedWorkerStatus.textContent = 'Aucune intervenante liée pour le moment.';
       els.linkedWorkerInfo.innerHTML = '';
+      renderContactWorkerInfo();
       return;
     }
-    if (!firstName && !phone) {
+    if (!profile || (!firstName && !phone && !packageText && !defaultDay && !defaultTime)) {
       els.linkedWorkerStatus.textContent = 'Informations intervenante non renseignées.';
       els.linkedWorkerInfo.innerHTML = '';
+      renderContactWorkerInfo();
       return;
     }
     els.linkedWorkerStatus.textContent = 'Informations de votre intervenante liée.';
     els.linkedWorkerInfo.classList.remove('hidden');
-    els.linkedWorkerInfo.innerHTML = '<p><span class="text-slate-500 dark:text-slate-400">Prénom</span><span class="block font-medium">' + esc(firstName || 'Non renseigné') + '</span></p><p><span class="text-slate-500 dark:text-slate-400">Téléphone</span><span class="block font-medium">' + esc(phone || 'Non renseigné') + '</span></p>';
+    els.linkedWorkerInfo.innerHTML = '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Informations générales</p><p class="mt-1 font-medium">' + esc(firstName || 'Non renseigné') + '</p></div>'
+      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Coordonnées</p><p class="mt-1 font-medium">' + esc(phone || 'Numéro de téléphone non renseigné.') + '</p></div>'
+      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Forfait</p><p class="mt-1 font-medium">' + esc(packageText || 'Non renseigné') + '</p></div>'
+      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Jour et heure de passage par défaut</p><p class="mt-1 font-medium">' + esc([defaultDay, defaultTime].filter(Boolean).join(' · ') || 'Non renseigné') + '</p></div>';
     const normalizedPhone = normalizePhone(phone);
     if (normalizedPhone) {
-      els.linkedWorkerContactBtn.href = 'https://wa.me/' + normalizedPhone;
+      els.linkedWorkerContactBtn.href = '#';
       els.linkedWorkerContactBtn.classList.remove('hidden');
     }
+    renderContactWorkerInfo();
   }
-
   let homeSettingsUnsubscribe = null;
   let homeSettingsUid = '';
   function stopHomeSettingsListener() {
@@ -1889,6 +1918,8 @@
     return state.entries.slice().sort((a, b) => {
       const byDate = toISODateOnly(b.date).localeCompare(toISODateOnly(a.date));
       if (byDate !== 0) return byDate;
+      const byTime = sessionTimeSortValue(b).localeCompare(sessionTimeSortValue(a));
+      if (byTime !== 0) return byTime;
       return String(b.createdAt || '').localeCompare(String(a.createdAt || ''));
     });
   }
@@ -1906,6 +1937,7 @@
       id: entry.id,
       type: entry.type,
       date: toISODateOnly(entry.date),
+      time: entry.type === 'session' ? normalizeSessionTime(entry.time || entry.sessionTime || entry.hour) : '',
       duration: entry.type === 'session' ? Number(entry.duration || 0) : '',
       rate: entry.type === 'session' ? Number(entry.rate || 0) : '',
       amount: Number(entry.amount || 0),
@@ -1943,6 +1975,7 @@
         id: String(entry.id || documentSnapshot.id || crypto.randomUUID()),
         type,
         date: toISODateOnly(entry.date),
+        time: type === 'session' ? normalizeSessionTime(entry.time || entry.sessionTime || entry.hour) : '',
         duration: type === 'session' ? Number(entry.duration || 0) : undefined,
         rate: type === 'session' ? Number(entry.rate || 0) : undefined,
         amount: Number(entry.amount || 0),
@@ -1987,7 +2020,7 @@
     };
 
     const language = languageLabels[state.settings.translationLanguage] || state.settings.translationLanguage || 'français';
-    const contactName = state.settings.contactName || 'mon employée de maison';
+    const contactName = workerDisplayName() || state.settings.contactName || 'mon employée de maison';
     const template = state.settings.translationPromptTemplate || defaultState.settings.translationPromptTemplate;
 
     const prompt = template
@@ -2300,6 +2333,7 @@
         id: String(entry.id || documentSnapshot.id),
         type,
         date: toISODateOnly(entry.date),
+        time: type === 'session' ? normalizeSessionTime(entry.time || entry.sessionTime || entry.hour) : '',
         duration: type === 'session' ? Number(entry.duration || 0) : undefined,
         amount: Number(entry.amount || 0),
         tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : [],
@@ -2335,7 +2369,7 @@
     const today = todayISO();
     return entries
       .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today && entry.status !== 'terminee_intervenante')
-      .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)))[0] || null;
+      .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)) || sessionTimeSortValue(a).localeCompare(sessionTimeSortValue(b)))[0] || null;
   }
 
   function renderWorkerView(home, remoteSettings, entries) {
@@ -2698,7 +2732,7 @@
     const today = todayISO();
     return sorted
       .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today)
-      .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)))[0] || null;
+      .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)) || sessionTimeSortValue(a).localeCompare(sessionTimeSortValue(b)))[0] || null;
   }
 
 
@@ -2732,7 +2766,7 @@
     const doneCount = tasks.filter((task) => task.done).length;
     els.nextSessionCard.classList.remove('hidden');
     if (els.nextSessionSummary) {
-      els.nextSessionSummary.textContent = formatDate(next.date) + ' · ' + next.duration + 'h · ' + euro(next.amount) + ' · ' + tasks.length + ' tâche(s) prévue(s)';
+      els.nextSessionSummary.textContent = formatSessionDateTime(next) + ' · ' + next.duration + 'h · ' + euro(next.amount) + ' · ' + tasks.length + ' tâche(s) prévue(s)';
     }
     if (els.toggleNextSessionTasksBtn) {
       els.toggleNextSessionTasksBtn.textContent = state.ui.nextSessionTasksExpanded ? 'Réduire' : 'Voir';
@@ -2757,6 +2791,7 @@
     if (els.translationLanguageSelect) els.translationLanguageSelect.value = state.settings.translationLanguage;
     if (els.translationPromptTemplateInput) els.translationPromptTemplateInput.value = state.settings.translationPromptTemplate;
     if (els.sessionDateInput && !els.sessionDateInput.value) els.sessionDateInput.value = todayISO();
+    if (els.sessionTimeInput && !els.sessionTimeInput.value) els.sessionTimeInput.value = normalizeSessionTime(state.ui.sessionDraftTime || '');
     if (els.paymentDateInput && !els.paymentDateInput.value) els.paymentDateInput.value = todayISO();
     if (els.sessionRateInput && !els.sessionRateInput.value) els.sessionRateInput.value = state.settings.hourlyRate;
     if (els.punctualTaskDateInput && !els.punctualTaskDateInput.value) els.punctualTaskDateInput.value = todayISO();
@@ -2800,7 +2835,7 @@
 
     if (els.lastSessionDisplay) {
       els.lastSessionDisplay.textContent = lastSession
-        ? formatDate(lastSession.date) + ' · ' + lastSession.duration + 'h'
+        ? formatSessionDateTime(lastSession) + ' · ' + lastSession.duration + 'h'
         : t('Aucune');
     }
 
@@ -2835,7 +2870,7 @@
         + '<div class="flex-1 min-w-0">'
         + '<div class="flex items-start justify-between gap-3">'
         + '<div><div class="flex items-center gap-2 flex-wrap"><p class="font-medium">' + esc(title) + '</p>'
-        + '<span class="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800">' + esc(formatDate(entry.date)) + '</span></div>'
+        + '<span class="text-xs px-2 py-1 rounded-full bg-slate-100 dark:bg-slate-800">' + esc(formatSessionDateTime(entry)) + '</span></div>'
         + '<p class="text-sm text-slate-500 dark:text-slate-400 mt-1">' + detail + '</p></div>'
         + '<div class="text-right shrink-0"><p class="font-semibold whitespace-nowrap">' + prefix + ' ' + euro(entry.amount) + '</p></div>'
         + '</div>'
@@ -2942,11 +2977,12 @@
     applyTranslations();
   }
 
-  function addSession(date, duration, rate, extraTasks = []) {
+  function addSession(date, duration, rate, extraTasks = [], time = '') {
     const entry = {
       id: crypto.randomUUID(),
       type: 'session',
       date: toISODateOnly(date),
+      time: normalizeSessionTime(time),
       duration: Number(duration),
       rate: Number(rate),
       amount: Number((Number(duration) * Number(rate)).toFixed(2)),
@@ -3378,18 +3414,20 @@
       const date = toISODateOnly((els.sessionDateInput && els.sessionDateInput.value) || todayISO());
       const duration = Number(getSelectedDuration());
       const rate = Number((els.sessionRateInput && els.sessionRateInput.value) || 0);
+      const time = normalizeSessionTime((els.sessionTimeInput && els.sessionTimeInput.value) || '');
 
       if (duration <= 0 || rate <= 0) {
         alert('Merci de renseigner une durée valide et un taux horaire supérieur à 0.');
         return;
       }
 
-      addSession(date, duration, rate, state.ui.sessionDraftTasks || []);
+      addSession(date, duration, rate, state.ui.sessionDraftTasks || [], time);
       state.ui.sessionDraftTasks = [];
       state.ui.sessionRemovedTaskIds = [];
       state.ui.sessionTaskPreviewVisible = false;
 
       if (els.sessionDateInput) els.sessionDateInput.value = todayISO();
+      if (els.sessionTimeInput) els.sessionTimeInput.value = '';
       if (els.sessionRateInput) {
         els.sessionRateInput.value = state.settings.hourlyRate;
         els.sessionRateInput.dataset.userEdited = '';
@@ -3464,11 +3502,10 @@
 
   if (els.openWhatsappBtn) {
     els.openWhatsappBtn.addEventListener('click', () => {
-      const phone = normalizePhone(state.settings.contactPhone);
+      const phone = workerWhatsappPhone();
 
       if (!phone) {
-        setCurrentPage('settings');
-        alert('Merci de renseigner un numéro WhatsApp valide dans les paramètres.');
+        alert(state.settings.workerUid ? 'Numéro de téléphone non renseigné.' : 'Aucune intervenante liée pour le moment.');
         return;
       }
 
@@ -3484,6 +3521,14 @@
       }
 
       window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
+    });
+  }
+
+
+  if (els.linkedWorkerContactBtn) {
+    els.linkedWorkerContactBtn.addEventListener('click', (event) => {
+      event.preventDefault();
+      setCurrentPage('contact');
     });
   }
 
