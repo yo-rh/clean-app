@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Admin · Clean' App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'media',
+      theme: {
+        extend: {
+          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.08)' },
+          colors: { apple: { 500: '#2563eb', 600: '#1d4ed8', 700: '#1e40af' } }
+        }
+      }
+    };
+  </script>
+  <style>
+    html { -webkit-tap-highlight-color: transparent; height: 100%; }
+    body { font-feature-settings: 'ss01' on, 'cv01' on, 'cv11' on; min-height: 100%; overflow-x: hidden; }
+    input, select, button { font: inherit; }
+    input, select { width: 100%; min-width: 0; box-sizing: border-box; }
+    .safe-bottom { padding-bottom: max(6rem, calc(env(safe-area-inset-bottom) + 5rem)); }
+    .app-card { border-radius: 1.5rem; border: 1px solid rgb(226 232 240); background: white; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+    @media (prefers-color-scheme: dark) { .app-card { border-color: rgb(30 41 59); background: rgb(15 23 42); } }
+    .admin-table { width: 100%; border-collapse: separate; border-spacing: 0 .75rem; }
+    .admin-table th { padding: 0 .75rem; text-align: left; font-size: .75rem; font-weight: 700; color: rgb(100 116 139); text-transform: uppercase; letter-spacing: .04em; }
+    .admin-table td { padding: .9rem .75rem; background: rgb(248 250 252); border-top: 1px solid rgb(226 232 240); border-bottom: 1px solid rgb(226 232 240); vertical-align: top; }
+    .admin-table td:first-child { border-left: 1px solid rgb(226 232 240); border-radius: 1rem 0 0 1rem; }
+    .admin-table td:last-child { border-right: 1px solid rgb(226 232 240); border-radius: 0 1rem 1rem 0; }
+    @media (prefers-color-scheme: dark) {
+      .admin-table td { background: rgb(2 6 23); border-color: rgb(30 41 59); }
+      .admin-table td:first-child, .admin-table td:last-child { border-color: rgb(30 41 59); }
+    }
+    @media (max-width: 767px) {
+      .admin-table, .admin-table thead, .admin-table tbody, .admin-table tr, .admin-table th, .admin-table td { display: block; width: 100%; }
+      .admin-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+      .admin-table tr { margin-bottom: .9rem; border-radius: 1.25rem; border: 1px solid rgb(226 232 240); background: rgb(248 250 252); overflow: hidden; }
+      .admin-table td { border: 0; border-bottom: 1px solid rgb(226 232 240); border-radius: 0 !important; display: grid; grid-template-columns: minmax(7.5rem, 38%) 1fr; gap: .75rem; align-items: start; }
+      .admin-table td::before { content: attr(data-label); font-size: .72rem; font-weight: 700; color: rgb(100 116 139); text-transform: uppercase; letter-spacing: .04em; }
+      .admin-table td:last-child { border-bottom: 0; }
+      @media (prefers-color-scheme: dark) { .admin-table tr { background: rgb(2 6 23); border-color: rgb(30 41 59); } .admin-table td { border-color: rgb(30 41 59); } }
+    }
+  </style>
+  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Clean' Admin" />
+  <meta name="theme-color" content="#2563eb" />
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+  <div id="toast" class="fixed left-1/2 top-4 z-50 hidden -translate-x-1/2 rounded-full bg-slate-900/95 px-4 py-2 text-sm font-medium text-white shadow-soft dark:bg-white dark:text-slate-900"></div>
+
+  <section id="loadingScreen" class="min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center text-center">
+    <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 h-20 w-20 rounded-3xl object-cover shadow-soft" />
+    <p class="text-sm text-slate-500 dark:text-slate-400">Chargement de l’espace admin…</p>
+  </section>
+
+  <section id="authScreen" class="hidden min-h-screen max-w-md mx-auto px-4 py-8 flex flex-col justify-center">
+    <div class="mb-8 text-center">
+      <img src="icons/icon-180.png" alt="Clean' App" class="mx-auto mb-4 h-20 w-20 rounded-3xl object-cover shadow-soft" />
+      <p class="text-sm text-slate-500 dark:text-slate-400">Clean' App</p>
+      <h1 class="text-3xl font-semibold tracking-tight">Administration</h1>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Connectez-vous avec un compte administrateur.</p>
+    </div>
+
+    <form id="loginForm" class="app-card p-4 space-y-4">
+      <div>
+        <label for="emailInput" class="mb-1 block text-sm font-medium">Email admin</label>
+        <input id="emailInput" type="email" autocomplete="email" required class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="admin@mail.com" />
+      </div>
+      <div>
+        <label for="passwordInput" class="mb-1 block text-sm font-medium">Mot de passe</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" required class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Votre mot de passe" />
+      </div>
+      <button id="loginBtn" type="submit" class="w-full rounded-2xl bg-apple-600 px-4 py-3 font-medium text-white hover:bg-apple-700">Se connecter</button>
+      <p id="authMessage" class="hidden rounded-2xl border px-4 py-3 text-sm"></p>
+    </form>
+  </section>
+
+  <section id="adminShell" class="hidden min-h-screen mx-auto max-w-7xl px-4 py-5 safe-bottom sm:px-6 lg:px-8">
+    <header class="mb-6 flex flex-col gap-4 rounded-[2rem] bg-gradient-to-br from-apple-500 to-apple-700 p-5 text-white shadow-soft sm:flex-row sm:items-end sm:justify-between">
+      <div>
+        <p class="text-sm text-white/75">Dashboard MVP</p>
+        <h1 class="text-3xl font-semibold tracking-tight">Administration Clean' App</h1>
+        <p id="adminIdentity" class="mt-2 text-sm text-white/80">Compte admin</p>
+      </div>
+      <div class="flex flex-col gap-2 sm:flex-row">
+        <button id="refreshBtn" type="button" class="rounded-2xl bg-white/15 px-4 py-3 text-sm font-medium text-white backdrop-blur hover:bg-white/25">↻ Actualiser</button>
+        <button id="logoutBtn" type="button" class="rounded-2xl bg-white px-4 py-3 text-sm font-medium text-apple-700 hover:bg-slate-100">Déconnexion</button>
+      </div>
+    </header>
+
+    <main class="space-y-6">
+      <section aria-labelledby="overviewTitle" class="space-y-3">
+        <div class="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 id="overviewTitle" class="text-2xl font-semibold tracking-tight">Vue d’ensemble</h2>
+            <p id="lastUpdatedText" class="text-sm text-slate-500 dark:text-slate-400">Non actualisé</p>
+          </div>
+          <p id="globalMessage" class="text-sm text-slate-500 dark:text-slate-400"></p>
+        </div>
+        <div id="statsGrid" class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4"></div>
+      </section>
+
+      <section aria-labelledby="accountsTitle" class="app-card p-4 space-y-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 id="accountsTitle" class="text-2xl font-semibold tracking-tight">Comptes</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Recherche, filtre et envoi sécurisé d’email de réinitialisation.</p>
+          </div>
+          <div class="grid gap-2 sm:grid-cols-[minmax(16rem,1fr)_12rem] lg:min-w-[32rem]">
+            <div>
+              <label for="accountSearchInput" class="sr-only">Recherche email</label>
+              <input id="accountSearchInput" type="search" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Rechercher par email" />
+            </div>
+            <div>
+              <label for="roleFilterSelect" class="sr-only">Filtrer par rôle</label>
+              <select id="roleFilterSelect" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950">
+                <option value="all">Tous les rôles</option>
+                <option value="client">Client</option>
+                <option value="intervenante">Intervenante</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="accountsTableWrap" class="overflow-x-auto"></div>
+      </section>
+
+      <section aria-labelledby="homesTitle" class="app-card p-4 space-y-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div>
+            <h2 id="homesTitle" class="text-2xl font-semibold tracking-tight">Foyers</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Foyers détectés depuis les comptes clients et leurs sessions.</p>
+          </div>
+          <div class="lg:min-w-[22rem]">
+            <label for="homeSearchInput" class="sr-only">Recherche foyer</label>
+            <input id="homeSearchInput" type="search" class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500 dark:border-slate-700 dark:bg-slate-950" placeholder="Rechercher par nom de foyer" />
+          </div>
+        </div>
+        <div id="homesTableWrap" class="overflow-x-auto"></div>
+      </section>
+
+      <section aria-labelledby="sessionStatsTitle" class="space-y-4">
+        <div>
+          <h2 id="sessionStatsTitle" class="text-2xl font-semibold tracking-tight">Statistiques sessions</h2>
+          <p class="text-sm text-slate-500 dark:text-slate-400">Synthèse par foyer, par intervenante, sessions passées/futures, heures et montants estimés.</p>
+        </div>
+        <div id="sessionStatsWrap" class="grid grid-cols-1 gap-4 lg:grid-cols-2"></div>
+      </section>
+    </main>
+  </section>
+
+  <script type="module">
+    'use strict';
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+      sendPasswordResetEmail
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      collectionGroup,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
+      authDomain: "clean-app-5de06.firebaseapp.com",
+      projectId: "clean-app-5de06",
+      storageBucket: "clean-app-5de06.firebasestorage.app",
+      messagingSenderId: "82379739846",
+      appId: "1:82379739846:web:8ad0fce19cc89958d97dc7",
+      measurementId: "G-VLH9KQB80W"
+    };
+
+    const WORKER_PROFILES_COLLECTION = 'cleanerProfiles';
+    const USERS_COLLECTION = 'users';
+    const ENTRIES_COLLECTION = 'entries';
+    const WORKER_HOMES_COLLECTION = 'workerHomes';
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const els = {
+      loadingScreen: document.getElementById('loadingScreen'),
+      authScreen: document.getElementById('authScreen'),
+      adminShell: document.getElementById('adminShell'),
+      loginForm: document.getElementById('loginForm'),
+      emailInput: document.getElementById('emailInput'),
+      passwordInput: document.getElementById('passwordInput'),
+      loginBtn: document.getElementById('loginBtn'),
+      authMessage: document.getElementById('authMessage'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      refreshBtn: document.getElementById('refreshBtn'),
+      adminIdentity: document.getElementById('adminIdentity'),
+      lastUpdatedText: document.getElementById('lastUpdatedText'),
+      globalMessage: document.getElementById('globalMessage'),
+      statsGrid: document.getElementById('statsGrid'),
+      accountsTableWrap: document.getElementById('accountsTableWrap'),
+      homesTableWrap: document.getElementById('homesTableWrap'),
+      sessionStatsWrap: document.getElementById('sessionStatsWrap'),
+      accountSearchInput: document.getElementById('accountSearchInput'),
+      roleFilterSelect: document.getElementById('roleFilterSelect'),
+      homeSearchInput: document.getElementById('homeSearchInput'),
+      toast: document.getElementById('toast')
+    };
+
+    const state = {
+      currentAdmin: null,
+      accounts: [],
+      homes: [],
+      sessions: [],
+      workerProfiles: new Map(),
+      workerHomeLinks: [],
+      loadingData: false
+    };
+
+    let toastTimer = null;
+
+    function showView(view) {
+      els.loadingScreen.classList.toggle('hidden', view !== 'loading');
+      els.authScreen.classList.toggle('hidden', view !== 'auth');
+      els.adminShell.classList.toggle('hidden', view !== 'admin');
+    }
+
+    function showToast(message) {
+      if (!els.toast) return;
+      els.toast.textContent = message;
+      els.toast.classList.remove('hidden');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => els.toast.classList.add('hidden'), 2800);
+    }
+
+    function setAuthMessage(message, isError = true) {
+      els.authMessage.textContent = message;
+      els.authMessage.classList.remove('hidden', 'border-red-200', 'bg-red-50', 'text-red-700', 'border-emerald-200', 'bg-emerald-50', 'text-emerald-700');
+      els.authMessage.classList.add(isError ? 'border-red-200' : 'border-emerald-200', isError ? 'bg-red-50' : 'bg-emerald-50', isError ? 'text-red-700' : 'text-emerald-700');
+    }
+
+    function clearAuthMessage() {
+      els.authMessage.classList.add('hidden');
+      els.authMessage.textContent = '';
+    }
+
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[char]));
+    }
+
+    function nonEmpty(value, fallback = 'Non renseigné') {
+      const text = String(value ?? '').trim();
+      return text || fallback;
+    }
+
+    function normalizeRole(role, data = {}) {
+      if (data?.isAdmin === true) return 'admin';
+      const normalized = String(role || '').trim().toLowerCase();
+      if (['admin', 'administrateur'].includes(normalized)) return 'admin';
+      if (['intervenante', 'worker', 'cleaner'].includes(normalized)) return 'intervenante';
+      if (['client', 'user', 'utilisateur', 'customer', ''].includes(normalized)) return 'client';
+      return normalized;
+    }
+
+    function isAdminProfile(profile) {
+      const role = normalizeRole(profile?.role, profile || {});
+      return role === 'admin' || profile?.isAdmin === true;
+    }
+
+    function firebaseDateToDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      if (typeof value?.toDate === 'function') return value.toDate();
+      if (typeof value === 'number') return new Date(value);
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }
+      if (typeof value?.seconds === 'number') return new Date(value.seconds * 1000);
+      return null;
+    }
+
+    function formatDate(value, includeTime = false) {
+      const date = firebaseDateToDate(value);
+      if (!date) return 'Non renseigné';
+      return new Intl.DateTimeFormat('fr-FR', includeTime ? { dateStyle: 'short', timeStyle: 'short' } : { dateStyle: 'medium' }).format(date);
+    }
+
+    function dateKey(value) {
+      const date = firebaseDateToDate(value);
+      if (!date) return '';
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function toISODateOnly(value) {
+      if (!value) return '';
+      if (typeof value === 'string' && /^\d{4}-\d{2}-\d{2}/.test(value)) return value.slice(0, 10);
+      return dateKey(value);
+    }
+
+    function normalizeTime(value) {
+      const text = String(value || '').trim();
+      const match = text.match(/^(\d{1,2})[:hH]?(\d{2})?$/);
+      if (!match) return text;
+      const hours = Math.min(23, Number(match[1] || 0));
+      const minutes = Math.min(59, Number(match[2] || 0));
+      return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+    }
+
+    function money(value) {
+      const number = Number(value || 0);
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(Number.isFinite(number) ? number : 0);
+    }
+
+    function numberText(value, digits = 0) {
+      const number = Number(value || 0);
+      return new Intl.NumberFormat('fr-FR', { maximumFractionDigits: digits }).format(Number.isFinite(number) ? number : 0);
+    }
+
+    function accountEmail(account) {
+      return nonEmpty(account.email || account.data?.email || account.data?.profile?.email || account.data?.settings?.email);
+    }
+
+    function accountCreatedAt(account) {
+      return account.createdAt || account.data?.createdAt || account.data?.metadata?.creationTime || account.data?.creationTime;
+    }
+
+    function accountLastLogin(account) {
+      return account.lastLoginAt || account.data?.lastLoginAt || account.data?.lastLogin || account.data?.lastSignInTime || account.data?.metadata?.lastSignInTime;
+    }
+
+    function homeNameFromAccount(account) {
+      const settings = account.data?.settings || {};
+      return nonEmpty(settings.homeName || settings.householdName || settings.domicileName || settings.name || account.data?.homeName || account.data?.name, 'Foyer sans nom');
+    }
+
+    function isHomeAccount(account) {
+      const role = normalizeRole(account.role, account.data || {});
+      if (role === 'intervenante' || role === 'admin') return false;
+      const settings = account.data?.settings || {};
+      return Boolean(role === 'client' || settings.homeName || settings.householdName || settings.userFirstName || account.entries?.length);
+    }
+
+    function sessionAmount(session) {
+      const amount = Number(session.amount ?? session.expectedAmount ?? session.price ?? session.total ?? session.value ?? 0);
+      if (Number.isFinite(amount) && amount > 0) return amount;
+      const duration = Number(session.duration || 0);
+      const rate = Number(session.rate ?? session.hourlyRate ?? 0);
+      return Number.isFinite(duration * rate) ? duration * rate : 0;
+    }
+
+    function sessionDuration(session) {
+      const duration = Number(session.duration ?? session.hours ?? session.durationHours ?? 0);
+      return Number.isFinite(duration) ? duration : 0;
+    }
+
+    function sessionDateTimeLabel(session) {
+      const date = toISODateOnly(session.date || session.sessionDate || session.startAt || session.createdAt);
+      const time = normalizeTime(session.time || session.sessionTime || session.hour || '');
+      if (!date) return 'Non renseigné';
+      return time ? `${formatDate(date)} · ${time}` : formatDate(date);
+    }
+
+    function isFutureSession(session) {
+      const date = toISODateOnly(session.date || session.sessionDate || session.startAt || session.createdAt);
+      if (!date) return false;
+      return date >= dateKey(new Date());
+    }
+
+    function workerLabel(workerUid) {
+      const uid = String(workerUid || '').trim();
+      if (!uid) return 'Non renseigné';
+      const profile = state.workerProfiles.get(uid) || state.accounts.find((account) => account.id === uid)?.data || {};
+      return nonEmpty(profile.firstName || profile.displayName || profile.name || profile.email || uid);
+    }
+
+    async function safeGetDoc(ref, label) {
+      try {
+        console.log(`[admin] Lecture document ${label}`);
+        return await getDoc(ref);
+      } catch (error) {
+        console.error(`[admin] Impossible de lire ${label}`, error);
+        return null;
+      }
+    }
+
+    async function safeGetDocs(ref, label) {
+      try {
+        console.log(`[admin] Lecture collection ${label}`);
+        return await getDocs(ref);
+      } catch (error) {
+        console.error(`[admin] Impossible de lire ${label}`, error);
+        return null;
+      }
+    }
+
+    async function loadWorkerProfiles() {
+      const profiles = new Map();
+      const snapshot = await safeGetDocs(collection(db, WORKER_PROFILES_COLLECTION), WORKER_PROFILES_COLLECTION);
+      if (snapshot) {
+        snapshot.docs.forEach((item) => profiles.set(item.id, { id: item.id, ...(item.data() || {}) }));
+      }
+      state.workerProfiles = profiles;
+      console.log('[admin] Profils intervenantes chargés :', profiles.size);
+    }
+
+    async function loadWorkerHomeLinks() {
+      const links = [];
+      const snapshot = await safeGetDocs(collectionGroup(db, WORKER_HOMES_COLLECTION), `collectionGroup(${WORKER_HOMES_COLLECTION})`);
+      if (snapshot) {
+        snapshot.docs.forEach((item) => {
+          const workerUid = item.ref?.parent?.parent?.id || '';
+          links.push({ id: item.id, workerUid, ...(item.data() || {}) });
+        });
+      }
+      state.workerHomeLinks = links;
+      console.log('[admin] Liens intervenantes/foyers chargés :', links.length);
+    }
+
+    async function verifyAdmin(firebaseUser) {
+      if (!firebaseUser) return null;
+      const snapshot = await safeGetDoc(doc(db, USERS_COLLECTION, firebaseUser.uid), `users/${firebaseUser.uid}`);
+      const data = snapshot?.exists() ? snapshot.data() : null;
+      if (!isAdminProfile(data)) {
+        console.warn('[admin] Accès refusé, le compte n’est pas admin :', firebaseUser.email);
+        return null;
+      }
+      return { uid: firebaseUser.uid, email: firebaseUser.email || data.email || '', ...(data || {}) };
+    }
+
+    async function loadAccountsAndEntries() {
+      console.log('[admin] Début du chargement des comptes et sessions');
+      const accounts = [];
+      const sessions = [];
+      const usersSnapshot = await safeGetDocs(collection(db, USERS_COLLECTION), USERS_COLLECTION);
+      if (!usersSnapshot) return { accounts, sessions };
+
+      for (const documentSnapshot of usersSnapshot.docs) {
+        const data = documentSnapshot.data() || {};
+        const role = normalizeRole(data.role, data);
+        const account = { id: documentSnapshot.id, uid: documentSnapshot.id, data, role, entries: [], linkedHomesCount: 0 };
+        accounts.push(account);
+      }
+
+      await Promise.all(accounts.map(async (account) => {
+        const entriesSnapshot = await safeGetDocs(collection(db, USERS_COLLECTION, account.id, ENTRIES_COLLECTION), `users/${account.id}/${ENTRIES_COLLECTION}`);
+        if (!entriesSnapshot) return;
+        account.entries = entriesSnapshot.docs.map((item) => ({ id: item.id, homeId: account.id, homeUid: account.id, homeName: homeNameFromAccount(account), ...(item.data() || {}) }));
+        account.entries
+          .filter((entry) => String(entry.type || '').toLowerCase() === 'session')
+          .forEach((entry) => sessions.push(entry));
+      }));
+
+      accounts.forEach((account) => {
+        const ownHomeLinks = state.workerHomeLinks.filter((link) => String(link.workerUid || link.uid || link.intervenanteUid || '') === account.id && link.active !== false && link.homeId);
+        account.linkedHomesCount = account.role === 'intervenante' ? ownHomeLinks.length : 0;
+      });
+
+      console.log('[admin] Comptes chargés :', accounts.length, 'Sessions :', sessions.length);
+      return { accounts, sessions };
+    }
+
+    function buildHomes(accounts, sessions) {
+      const homes = accounts.filter(isHomeAccount).map((account) => {
+        const settings = account.data?.settings || {};
+        const homeSessions = sessions.filter((session) => session.homeId === account.id);
+        const nextSession = homeSessions.filter(isFutureSession).sort(compareSessionAsc)[0] || null;
+        const linkedWorkers = new Set();
+        if (settings.workerUid) linkedWorkers.add(String(settings.workerUid));
+        state.workerHomeLinks.filter((link) => String(link.homeId || '') === account.id && link.active !== false).forEach((link) => {
+          if (link.workerUid) linkedWorkers.add(String(link.workerUid));
+          if (link.uid) linkedWorkers.add(String(link.uid));
+          if (link.intervenanteUid) linkedWorkers.add(String(link.intervenanteUid));
+        });
+        homeSessions.forEach((session) => {
+          const workerUid = session.workerUid || session.intervenanteUid || session.cleanerUid;
+          if (workerUid) linkedWorkers.add(String(workerUid));
+        });
+        return {
+          id: account.id,
+          name: homeNameFromAccount(account),
+          owner: nonEmpty(settings.userFirstName || account.data?.displayName || accountEmail(account)),
+          ownerEmail: accountEmail(account),
+          workerUids: Array.from(linkedWorkers).filter(Boolean),
+          sessions: homeSessions,
+          nextSession
+        };
+      });
+      console.log('[admin] Foyers détectés :', homes.length);
+      return homes;
+    }
+
+    function compareSessionAsc(a, b) {
+      const aDate = toISODateOnly(a.date || a.sessionDate || a.startAt || a.createdAt);
+      const bDate = toISODateOnly(b.date || b.sessionDate || b.startAt || b.createdAt);
+      return aDate.localeCompare(bDate) || normalizeTime(a.time || a.sessionTime || '').localeCompare(normalizeTime(b.time || b.sessionTime || ''));
+    }
+
+    async function loadDashboardData() {
+      if (state.loadingData) return;
+      state.loadingData = true;
+      els.globalMessage.textContent = 'Chargement des données…';
+      els.refreshBtn.disabled = true;
+      els.refreshBtn.classList.add('opacity-60');
+      try {
+        await loadWorkerProfiles();
+        await loadWorkerHomeLinks();
+        const { accounts, sessions } = await loadAccountsAndEntries();
+        state.accounts = accounts;
+        state.sessions = sessions;
+        state.homes = buildHomes(accounts, sessions);
+        renderAll();
+        els.lastUpdatedText.textContent = `Actualisé le ${new Intl.DateTimeFormat('fr-FR', { dateStyle: 'short', timeStyle: 'short' }).format(new Date())}`;
+        els.globalMessage.textContent = '';
+        showToast('Données actualisées.');
+      } catch (error) {
+        console.error('[admin] Erreur globale de chargement', error);
+        els.globalMessage.textContent = 'Certaines données n’ont pas pu être chargées.';
+      } finally {
+        state.loadingData = false;
+        els.refreshBtn.disabled = false;
+        els.refreshBtn.classList.remove('opacity-60');
+      }
+    }
+
+    function stats() {
+      const accounts = state.accounts;
+      const sessions = state.sessions;
+      const future = sessions.filter(isFutureSession).length;
+      const finished = sessions.length - future;
+      return [
+        ['Nombre total de comptes', accounts.length],
+        ['Nombre de comptes clients', accounts.filter((account) => account.role === 'client').length],
+        ['Nombre de comptes intervenantes', accounts.filter((account) => account.role === 'intervenante').length],
+        ['Nombre total de foyers', state.homes.length],
+        ['Nombre total de sessions', sessions.length],
+        ['Nombre de sessions à venir', future],
+        ['Nombre de sessions terminées', finished],
+        ['Total estimé', money(sessions.reduce((sum, session) => sum + sessionAmount(session), 0))]
+      ];
+    }
+
+    function renderStats() {
+      els.statsGrid.innerHTML = stats().map(([label, value]) => `
+        <article class="app-card p-4">
+          <p class="text-sm text-slate-500 dark:text-slate-400">${esc(label)}</p>
+          <p class="mt-2 text-3xl font-semibold tracking-tight">${esc(value)}</p>
+        </article>
+      `).join('');
+    }
+
+    function filteredAccounts() {
+      const search = els.accountSearchInput.value.trim().toLowerCase();
+      const role = els.roleFilterSelect.value;
+      return state.accounts.filter((account) => {
+        const matchesEmail = accountEmail(account).toLowerCase().includes(search);
+        const matchesRole = role === 'all' || account.role === role;
+        return matchesEmail && matchesRole;
+      });
+    }
+
+    function renderAccounts() {
+      const accounts = filteredAccounts();
+      if (!accounts.length) {
+        els.accountsTableWrap.innerHTML = emptyState('Aucun compte à afficher.');
+        return;
+      }
+      els.accountsTableWrap.innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th>Email</th><th>Rôle</th><th>Création</th><th>Dernière connexion</th><th>Foyers liés</th><th>Action</th></tr></thead>
+          <tbody>
+            ${accounts.map((account) => `
+              <tr>
+                <td data-label="Email"><span class="break-all font-medium">${esc(accountEmail(account))}</span></td>
+                <td data-label="Rôle"><span class="rounded-full bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200">${esc(account.role || 'Non renseigné')}</span></td>
+                <td data-label="Création">${esc(formatDate(accountCreatedAt(account), true))}</td>
+                <td data-label="Dernière connexion">${esc(formatDate(accountLastLogin(account), true))}</td>
+                <td data-label="Foyers liés">${esc(account.linkedHomesCount || (account.role === 'client' ? 1 : 'Non renseigné'))}</td>
+                <td data-label="Action"><button type="button" data-reset-email="${esc(accountEmail(account))}" class="rounded-xl bg-apple-600 px-3 py-2 text-sm font-medium text-white hover:bg-apple-700">Réinitialiser le mot de passe</button></td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function filteredHomes() {
+      const search = els.homeSearchInput.value.trim().toLowerCase();
+      return state.homes.filter((home) => home.name.toLowerCase().includes(search));
+    }
+
+    function renderHomes() {
+      const homes = filteredHomes();
+      if (!homes.length) {
+        els.homesTableWrap.innerHTML = emptyState('Aucun foyer disponible.');
+        return;
+      }
+      els.homesTableWrap.innerHTML = `
+        <table class="admin-table">
+          <thead><tr><th>Nom du foyer</th><th>Propriétaire / client</th><th>Intervenante(s)</th><th>Sessions</th><th>Prochaine session</th></tr></thead>
+          <tbody>
+            ${homes.map((home) => `
+              <tr>
+                <td data-label="Nom du foyer"><span class="font-medium">${esc(home.name)}</span></td>
+                <td data-label="Propriétaire / client"><span>${esc(home.owner)}</span><span class="mt-1 block break-all text-xs text-slate-500 dark:text-slate-400">${esc(home.ownerEmail)}</span></td>
+                <td data-label="Intervenante(s)">${home.workerUids.length ? home.workerUids.map(workerLabel).map(esc).join('<br>') : 'Non renseigné'}</td>
+                <td data-label="Sessions">${esc(home.sessions.length)}</td>
+                <td data-label="Prochaine session">${esc(home.nextSession ? sessionDateTimeLabel(home.nextSession) : 'Non renseigné')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function groupByHome() {
+      return state.homes.map((home) => {
+        const totalHours = home.sessions.reduce((sum, session) => sum + sessionDuration(session), 0);
+        const totalAmount = home.sessions.reduce((sum, session) => sum + sessionAmount(session), 0);
+        return { label: home.name, count: home.sessions.length, hours: totalHours, amount: totalAmount };
+      }).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+    }
+
+    function groupByWorker() {
+      const map = new Map();
+      state.sessions.forEach((session) => {
+        const home = state.homes.find((item) => item.id === session.homeId);
+        const workerUid = session.workerUid || session.intervenanteUid || session.cleanerUid || home?.workerUids?.[0] || '';
+        const key = workerUid || 'unknown';
+        if (!map.has(key)) map.set(key, { label: workerUid ? workerLabel(workerUid) : 'Non renseigné', count: 0, hours: 0, amount: 0 });
+        const item = map.get(key);
+        item.count += 1;
+        item.hours += sessionDuration(session);
+        item.amount += sessionAmount(session);
+      });
+      return Array.from(map.values()).sort((a, b) => b.count - a.count || a.label.localeCompare(b.label));
+    }
+
+    function renderSessionStats() {
+      const passed = state.sessions.filter((session) => !isFutureSession(session)).length;
+      const future = state.sessions.filter(isFutureSession).length;
+      const totalHours = state.sessions.reduce((sum, session) => sum + sessionDuration(session), 0);
+      const totalAmount = state.sessions.reduce((sum, session) => sum + sessionAmount(session), 0);
+      els.sessionStatsWrap.innerHTML = `
+        ${statListCard('Sessions par foyer', groupByHome())}
+        ${statListCard('Sessions par intervenante', groupByWorker())}
+        <article class="app-card p-4 lg:col-span-2">
+          <h3 class="text-xl font-semibold tracking-tight">Totaux sessions</h3>
+          <div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            ${miniStat('Sessions passées', passed)}
+            ${miniStat('Sessions futures', future)}
+            ${miniStat('Total des heures', `${numberText(totalHours, 2)} h`)}
+            ${miniStat('Total estimé des montants', money(totalAmount))}
+          </div>
+        </article>
+      `;
+    }
+
+    function statListCard(title, rows) {
+      return `
+        <article class="app-card p-4">
+          <h3 class="text-xl font-semibold tracking-tight">${esc(title)}</h3>
+          <div class="mt-4 space-y-2">
+            ${rows.length ? rows.map((row) => `
+              <div class="rounded-2xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-950">
+                <div class="flex items-start justify-between gap-3">
+                  <p class="font-medium">${esc(row.label)}</p>
+                  <p class="rounded-full bg-white px-2.5 py-1 text-sm font-semibold text-slate-700 dark:bg-slate-900 dark:text-slate-200">${esc(row.count)} session(s)</p>
+                </div>
+                <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">${esc(numberText(row.hours, 2))} h · ${esc(money(row.amount))}</p>
+              </div>
+            `).join('') : emptyState('Aucune session disponible.')}
+          </div>
+        </article>
+      `;
+    }
+
+    function miniStat(label, value) {
+      return `<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950"><p class="text-sm text-slate-500 dark:text-slate-400">${esc(label)}</p><p class="mt-2 text-2xl font-semibold">${esc(value)}</p></div>`;
+    }
+
+    function emptyState(message) {
+      return `<div class="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-400">${esc(message)}</div>`;
+    }
+
+    function renderAll() {
+      renderStats();
+      renderAccounts();
+      renderHomes();
+      renderSessionStats();
+    }
+
+    async function handlePasswordReset(email, button) {
+      const cleanEmail = String(email || '').trim();
+      if (!cleanEmail || cleanEmail === 'Non renseigné') {
+        showToast('Impossible d’envoyer l’email de réinitialisation.');
+        return;
+      }
+      button.disabled = true;
+      button.classList.add('opacity-60');
+      try {
+        console.log('[admin] Envoi reset password pour :', cleanEmail);
+        await sendPasswordResetEmail(auth, cleanEmail);
+        showToast('Email de réinitialisation envoyé.');
+      } catch (error) {
+        console.error('[admin] Impossible d’envoyer le reset password', error);
+        showToast('Impossible d’envoyer l’email de réinitialisation.');
+      } finally {
+        button.disabled = false;
+        button.classList.remove('opacity-60');
+      }
+    }
+
+    els.loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      clearAuthMessage();
+      const email = els.emailInput.value.trim();
+      const password = els.passwordInput.value;
+      els.loginBtn.disabled = true;
+      els.loginBtn.classList.add('opacity-60');
+      try {
+        console.log('[admin] Tentative de connexion admin :', email);
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        const adminProfile = await verifyAdmin(credential.user);
+        if (!adminProfile) {
+          await signOut(auth);
+          setAuthMessage('Accès réservé aux administrateurs.');
+          showView('auth');
+          return;
+        }
+        state.currentAdmin = adminProfile;
+        showToast('Connexion admin réussie.');
+        showView('admin');
+        await loadDashboardData();
+      } catch (error) {
+        console.error('[admin] Erreur de connexion', error);
+        setAuthMessage(error?.code === 'permission-denied' ? 'Accès réservé aux administrateurs.' : 'Connexion impossible. Vérifiez vos identifiants.');
+      } finally {
+        els.loginBtn.disabled = false;
+        els.loginBtn.classList.remove('opacity-60');
+      }
+    });
+
+    els.logoutBtn.addEventListener('click', async () => {
+      try {
+        console.log('[admin] Déconnexion');
+        await signOut(auth);
+      } catch (error) {
+        console.error('[admin] Erreur de déconnexion', error);
+      }
+    });
+
+    els.refreshBtn.addEventListener('click', () => loadDashboardData());
+    els.accountSearchInput.addEventListener('input', renderAccounts);
+    els.roleFilterSelect.addEventListener('change', renderAccounts);
+    els.homeSearchInput.addEventListener('input', renderHomes);
+    document.addEventListener('click', (event) => {
+      const resetButton = event.target.closest('[data-reset-email]');
+      if (resetButton) handlePasswordReset(resetButton.dataset.resetEmail, resetButton);
+    });
+
+    onAuthStateChanged(auth, async (firebaseUser) => {
+      console.log('[admin] Changement état auth :', firebaseUser?.email || 'déconnecté');
+      showView('loading');
+      clearAuthMessage();
+      if (!firebaseUser) {
+        state.currentAdmin = null;
+        state.accounts = [];
+        state.homes = [];
+        state.sessions = [];
+        showView('auth');
+        return;
+      }
+      const adminProfile = await verifyAdmin(firebaseUser);
+      if (!adminProfile) {
+        await signOut(auth);
+        setAuthMessage('Accès réservé aux administrateurs.');
+        showView('auth');
+        return;
+      }
+      state.currentAdmin = adminProfile;
+      els.adminIdentity.textContent = `Connecté : ${adminProfile.email || firebaseUser.email || 'admin'}`;
+      showView('admin');
+      await loadDashboardData();
+    });
+  </script>
+</body>
+</html>
