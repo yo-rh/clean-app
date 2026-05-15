@@ -568,33 +568,38 @@
           </section>
         </section>
 
-        <section id="page-contact" class="page space-y-4">
+        <section id="page-contact" class="page space-y-4 pb-32">
           <div>
-            <h2 class="text-xl font-semibold tracking-tight">Contacter</h2>
-            <p class="text-sm text-slate-500 dark:text-slate-400">Préparez un message et envoyez-le directement.</p>
+            <h2 class="text-xl font-semibold tracking-tight">Contacter mon intervenante</h2>
+            <p class="text-sm text-slate-500 dark:text-slate-400">Rédigez votre demande, relisez le message préparé, puis envoyez-le sur WhatsApp.</p>
           </div>
           <section class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft space-y-4">
             <div id="contactWorkerInfo" class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm text-slate-600 dark:text-slate-300">Chargement de l’intervenante…</div>
             <div>
-              <label for="contactMessageInput" class="block text-sm font-medium mb-1">Message en français</label>
+              <label for="contactMessageInput" class="block text-sm font-medium mb-1">Que voulez-vous dire à votre intervenante ?</label>
+              <p class="mb-3 text-xs text-slate-500 dark:text-slate-400">Décrivez simplement votre besoin. Le message final sera préparé dans la langue de votre intervenante.</p>
               <div class="flex flex-wrap gap-2 mb-3">
                 <button type="button" class="quick-message-btn rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs font-medium" data-message="décaler la session à la semaine prochaine">Décaler</button>
                 <button type="button" class="quick-message-btn rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs font-medium" data-message="annuler la session de mercredi">Annuler</button>
                 <button type="button" class="quick-message-btn rounded-full border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-3 py-2 text-xs font-medium" data-message="lui préciser les tâches à faire aujourd'hui : changer les draps, passer l'aspirateur et étendre le linge">Tâches</button>
               </div>
-              <textarea id="contactMessageInput" rows="5" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Écrivez votre message..."></textarea>
+              <textarea id="contactMessageInput" rows="5" maxlength="600" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Écrivez votre message..." aria-describedby="contactMessageCounter"></textarea>
+              <div class="mt-2 flex items-center justify-between gap-3 text-xs">
+                <p id="contactMessageError" class="hidden text-red-600 dark:text-red-400"></p>
+                <p id="contactMessageCounter" class="ml-auto text-slate-500 dark:text-slate-400">0 / 600 caractères</p>
+              </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
-              <button id="translateMessageBtn" class="rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium text-sm">Traduire</button>
-              <button id="openWhatsappBtn" class="rounded-2xl text-white px-4 py-3 font-medium text-sm" style="background:#25D366;">WhatsApp</button>
-            </div>
+            <button id="translateMessageBtn" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium text-sm">Préparer le message</button>
 
-            <p id="translateStatusText" class="hidden text-sm text-slate-500 dark:text-slate-400">Traduction en cours...</p>
+            <p id="translateStatusText" class="hidden text-sm text-slate-500 dark:text-slate-400">Préparation du message…</p>
 
-            <div>
-              <label for="translatedMessageOutput" class="block text-sm font-medium mb-1">Message prêt à envoyer</label>
-              <textarea id="translatedMessageOutput" rows="6" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none" placeholder="La version finale apparaîtra ici..."></textarea>
+            <div id="contactResultBox" class="hidden space-y-3">
+              <div>
+                <label for="translatedMessageOutput" class="block text-sm font-medium mb-1">Message prêt à envoyer</label>
+                <textarea id="translatedMessageOutput" rows="6" readonly class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-4 py-3 outline-none" placeholder="La version finale apparaîtra ici..."></textarea>
+              </div>
+              <button id="openWhatsappBtn" class="w-full rounded-2xl text-white px-4 py-3 font-medium text-sm" style="background:#25D366;">Envoyer sur WhatsApp</button>
             </div>
           </section>
         </section>
@@ -649,8 +654,32 @@
               </div>
 
               <div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
-                <div class="flex items-start justify-between gap-3"><div><h3 class="font-semibold">Intervenante</h3><p id="linkedWorkerStatus" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Aucune intervenante liée pour le moment.</p></div></div>
+                <div class="flex items-start justify-between gap-3"><div><h3 class="font-semibold">Mon intervenante</h3><p id="linkedWorkerStatus" class="mt-1 text-sm text-slate-500 dark:text-slate-400">Renseignez les informations utiles pour préparer et envoyer vos messages, même si votre intervenante n’a pas encore de compte Clean’ App.</p></div></div>
                 <div id="linkedWorkerInfo" class="hidden rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm space-y-3"></div>
+                <div class="grid gap-3 sm:grid-cols-2">
+                  <div>
+                    <label for="contactNameInput" class="block text-sm font-medium mb-1">Prénom de l’intervenante</label>
+                    <input id="contactNameInput" type="text" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : Maria" />
+                  </div>
+                  <div>
+                    <label for="contactPhoneInput" class="block text-sm font-medium mb-1">Numéro WhatsApp de l’intervenante</label>
+                    <input id="contactPhoneInput" type="tel" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500" placeholder="Ex : 06 12 34 56 78" />
+                  </div>
+                  <div class="sm:col-span-2">
+                    <label for="contactLanguageInput" class="block text-sm font-medium mb-1">Langue de l’intervenante</label>
+                    <select id="contactLanguageInput" class="rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-4 py-3 outline-none focus:ring-2 focus:ring-apple-500">
+                      <option value="">Sélectionner une langue</option>
+                      <option value="fr">Français</option>
+                      <option value="es">Espagnol</option>
+                      <option value="en">Anglais</option>
+                      <option value="pt">Portugais</option>
+                      <option value="ar">Arabe</option>
+                      <option value="it">Italien</option>
+                      <option value="ro">Roumain</option>
+                    </select>
+                  </div>
+                </div>
+                <button id="saveWorkerContactBtn" type="button" class="w-full rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 px-4 py-3 font-medium">Enregistrer mon intervenante</button>
                 <div class="grid gap-3 sm:grid-cols-2">
                   <div>
                     <label for="hourlyRateInput" class="block text-sm font-medium mb-1">Taux horaire (€ / h)</label>
@@ -838,6 +867,7 @@
   const db = getFirestore(firebaseApp);
   const functions = getFunctions(firebaseApp, "europe-west1");
   const translateTaskCallable = httpsCallable(functions, "translateTask");
+  const generateContactMessageCallable = httpsCallable(functions, "generateContactMessage");
 
   const STORAGE_KEY_PREFIX = 'cleanAppFirebaseV1';
   const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
@@ -858,6 +888,7 @@
       defaultVisitTime: '',
       contactPhone: '',
       contactName: '',
+      contactLanguage: '',
       translationLanguage: 'fr',
       translationPromptTemplate: 'Prépare un message simple, poli et naturel à ma femme de ménage {prenom} en {langue} : {message}',
       setupCompleted: false,
@@ -1039,6 +1070,7 @@
           defaultVisitTime: normalizeSessionTime(parsed?.settings?.defaultVisitTime ?? defaultState.settings.defaultVisitTime),
           contactPhone: String(parsed?.settings?.contactPhone ?? defaultState.settings.contactPhone),
           contactName: String(parsed?.settings?.contactName ?? defaultState.settings.contactName),
+          contactLanguage: String(parsed?.settings?.contactLanguage ?? defaultState.settings.contactLanguage),
           translationLanguage: String(parsed?.settings?.translationLanguage ?? defaultState.settings.translationLanguage),
           translationPromptTemplate: String(parsed?.settings?.translationPromptTemplate ?? defaultState.settings.translationPromptTemplate),
           setupCompleted: Boolean(parsed?.settings?.setupCompleted ?? defaultState.settings.setupCompleted),
@@ -1163,6 +1195,11 @@
     defaultVisitTimeInput: byId('defaultVisitTimeInput'),
     contactPhoneInput: byId('contactPhoneInput'),
     contactNameInput: byId('contactNameInput'),
+    contactLanguageInput: byId('contactLanguageInput'),
+    saveWorkerContactBtn: byId('saveWorkerContactBtn'),
+    contactMessageCounter: byId('contactMessageCounter'),
+    contactMessageError: byId('contactMessageError'),
+    contactResultBox: byId('contactResultBox'),
     translationPromptTemplateInput: byId('translationPromptTemplateInput'),
     translationLanguageSelect: byId('translationLanguageSelect'),
     quickAddTodayBtn: byId('quickAddTodayBtn'),
@@ -1573,6 +1610,7 @@
       defaultVisitTime: normalizeSessionTime(remoteSettings.defaultVisitTime ?? state.settings.defaultVisitTime ?? ''),
       contactPhone: String(remoteSettings.contactPhone ?? state.settings.contactPhone ?? ''),
       contactName: String(remoteSettings.contactName ?? state.settings.contactName ?? ''),
+      contactLanguage: String(remoteSettings.contactLanguage ?? state.settings.contactLanguage ?? ''),
       translationLanguage: String(remoteSettings.translationLanguage ?? state.settings.translationLanguage ?? 'fr'),
       translationPromptTemplate: String(remoteSettings.translationPromptTemplate ?? state.settings.translationPromptTemplate ?? defaultState.settings.translationPromptTemplate),
       defaultTasks: normalizeTaskSettings(remoteSettings.defaultTasks, state.settings.defaultTasks || defaultState.settings.defaultTasks),
@@ -1655,16 +1693,16 @@
     });
   }
   function workerDisplayName() {
-    return String(state.ui.linkedWorkerProfile?.firstName || '').trim();
+    return String(state.ui.linkedWorkerProfile?.firstName || state.settings.contactName || '').trim();
   }
   function workerPhoneValue() {
-    return String(state.ui.linkedWorkerProfile?.phone || '').trim();
+    return String(state.ui.linkedWorkerProfile?.phone || state.settings.contactPhone || '').trim();
   }
   function workerWhatsappPhone() {
     return normalizePhone(workerPhoneValue());
   }
   function workerLanguageValue() {
-    return String(state.ui.linkedWorkerProfile?.language || '').trim();
+    return String(state.ui.linkedWorkerProfile?.language || state.settings.contactLanguage || '').trim();
   }
   function languageLabel(code) {
     const labels = { fr: 'français', es: 'espagnol', en: 'anglais', pt: 'portugais', ar: 'arabe', it: 'italien', ro: 'roumain' };
@@ -1672,29 +1710,21 @@
     return labels[key] || key || '';
   }
   function renderContactWorkerInfo() {
-    if (!els.contactWorkerInfo || !els.openWhatsappBtn) return;
-    const workerUid = String(state.settings.workerUid || '').trim();
-    const profile = state.ui.linkedWorkerProfile || null;
+    if (!els.contactWorkerInfo) return;
     const firstName = workerDisplayName();
     const phone = workerPhoneValue();
     const normalizedPhone = workerWhatsappPhone();
     const language = workerLanguageValue();
-    const canSend = Boolean(workerUid && normalizedPhone);
-    els.openWhatsappBtn.disabled = !canSend;
-    els.openWhatsappBtn.classList.toggle('opacity-50', !canSend);
-    els.openWhatsappBtn.classList.toggle('cursor-not-allowed', !canSend);
-    if (!workerUid) {
-      els.contactWorkerInfo.textContent = 'Aucune intervenante liée pour le moment.';
-      return;
+    const canSend = Boolean(normalizedPhone);
+    if (els.openWhatsappBtn) {
+      els.openWhatsappBtn.disabled = !canSend;
+      els.openWhatsappBtn.classList.toggle('opacity-50', !canSend);
+      els.openWhatsappBtn.classList.toggle('cursor-not-allowed', !canSend);
     }
-    if (!profile || (!firstName && !phone)) {
-      els.contactWorkerInfo.textContent = 'Informations intervenante non renseignées.';
-      return;
-    }
-    els.contactWorkerInfo.innerHTML = '<p class="font-medium text-slate-900 dark:text-slate-100">' + esc(firstName || 'Intervenante') + '</p>'
-      + '<p class="mt-1 text-slate-500 dark:text-slate-400">' + (phone ? esc(phone) : 'Numéro de téléphone non renseigné.') + '</p>'
-      + '<p class="mt-1 text-slate-500 dark:text-slate-400">Langue : ' + esc(languageLabel(language) || 'non renseignée, français utilisé par défaut') + '</p>'
-      + '<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Le message sera envoyé à ' + esc(firstName || 'votre intervenante') + '.</p>';
+    els.contactWorkerInfo.innerHTML = '<p class="font-medium text-slate-900 dark:text-slate-100">' + esc(firstName || 'Votre intervenante') + '</p>'
+      + '<p class="mt-1 text-slate-500 dark:text-slate-400">Langue : ' + esc(languageLabel(language) || 'non renseignée') + '</p>'
+      + '<p class="mt-1 text-slate-500 dark:text-slate-400">WhatsApp : ' + (phone ? esc(phone) : 'non renseigné') + '</p>'
+      + '<p class="mt-2 text-xs text-slate-500 dark:text-slate-400">Vous pourrez relire le message préparé avant de l’envoyer.</p>';
   }
   function renderLinkedWorkerCard() {
     if (!els.linkedWorkerStatus || !els.linkedWorkerInfo) return;
@@ -1705,13 +1735,15 @@
     const language = workerLanguageValue();
     els.linkedWorkerInfo.classList.add('hidden');
     if (!workerUid) {
-      els.linkedWorkerStatus.textContent = 'Aucune intervenante liée pour le moment.';
+      els.linkedWorkerStatus.textContent = firstName || phone || language
+        ? 'Informations saisies manuellement pour votre intervenante.'
+        : 'Renseignez les informations utiles pour préparer et envoyer vos messages.';
       els.linkedWorkerInfo.innerHTML = '';
       renderContactWorkerInfo();
       return;
     }
     if (!profile || (!firstName && !phone && !language)) {
-      els.linkedWorkerStatus.textContent = 'Informations intervenante non renseignées.';
+      els.linkedWorkerStatus.textContent = 'Compte intervenante lié, informations de contact à compléter si besoin.';
       els.linkedWorkerInfo.innerHTML = '';
       renderContactWorkerInfo();
       return;
@@ -2197,34 +2229,47 @@
     await Promise.all(entries.map((entry) => saveRemoteEntry(entry)));
   }
 
-  async function prepareTranslationPrompt() {
-    const message = (els.contactMessageInput && els.contactMessageInput.value.trim()) || '';
-    if (!message) throw new Error('Merci de rédiger un message à traduire.');
+  function setContactError(message) {
+    if (els.contactMessageError) {
+      els.contactMessageError.textContent = message || '';
+      els.contactMessageError.classList.toggle('hidden', !message);
+    }
+  }
 
-    const languageLabels = {
-      fr: 'français',
-      es: 'espagnol',
-      en: 'anglais',
-      pt: 'portugais',
-      ar: 'arabe',
-      it: 'italien',
-      ro: 'roumain'
-    };
+  function updateContactComposer() {
+    const message = els.contactMessageInput?.value || '';
+    const length = message.length;
+    if (els.contactMessageCounter) {
+      els.contactMessageCounter.textContent = length + ' / 600 caractères';
+      els.contactMessageCounter.classList.toggle('text-red-600', length > 600);
+      els.contactMessageCounter.classList.toggle('dark:text-red-400', length > 600);
+    }
+    const invalid = !message.trim() || length > 600;
+    if (els.translateMessageBtn && !els.translateMessageBtn.dataset.loading) {
+      els.translateMessageBtn.disabled = invalid;
+      els.translateMessageBtn.classList.toggle('opacity-50', invalid);
+      els.translateMessageBtn.classList.toggle('cursor-not-allowed', invalid);
+    }
+    if (length <= 600) setContactError('');
+    else setContactError('Votre message dépasse la limite de 600 caractères.');
+  }
 
-    const targetLanguageCode = workerLanguageValue();
-    if (!String(state.settings.workerUid || '').trim()) throw new Error('Aucune intervenante liée pour le moment.');
-    const language = languageLabels[targetLanguageCode] || targetLanguageCode || 'français';
-    const contactName = workerDisplayName() || state.settings.contactName || 'mon employée de maison';
-    const template = state.settings.translationPromptTemplate || defaultState.settings.translationPromptTemplate;
+  async function prepareContactMessage() {
+    const messageBrut = (els.contactMessageInput?.value || '').trim();
+    if (!messageBrut) throw new Error('Écrivez d’abord le message que vous souhaitez transmettre.');
+    if ((els.contactMessageInput?.value || '').length > 600) throw new Error('Votre message dépasse la limite de 600 caractères.');
 
-    const prompt = template
-      .replaceAll('{prenom}', contactName)
-      .replaceAll('{langue}', language)
-      .replaceAll('{message}', message)
-      + '\n\nRéponds uniquement avec le message final, sans explication.';
+    const langueIntervenante = workerLanguageValue();
+    if (!langueIntervenante) throw new Error('Renseignez d’abord la langue de votre intervenante dans les réglages.');
+    if (!workerWhatsappPhone()) throw new Error('Renseignez d’abord le numéro WhatsApp de votre intervenante dans les réglages.');
 
-    window.open('https://chat.openai.com/?q=' + encodeURIComponent(prompt), '_blank');
-    return prompt;
+    const result = await generateContactMessageCallable({
+      messageBrut,
+      langueIntervenante,
+      prenomIntervenante: workerDisplayName()
+    });
+
+    return String(result?.data?.messageFinal || '').trim();
   }
 
   async function syncBidirectional(showSuccess) {
@@ -2990,6 +3035,7 @@
     if (els.defaultVisitTimeInput) els.defaultVisitTimeInput.value = normalizeSessionTime(state.settings.defaultVisitTime || '');
     if (els.contactPhoneInput) els.contactPhoneInput.value = state.settings.contactPhone;
     if (els.contactNameInput) els.contactNameInput.value = state.settings.contactName;
+    if (els.contactLanguageInput) els.contactLanguageInput.value = state.settings.contactLanguage || '';
     if (els.translationLanguageSelect) els.translationLanguageSelect.value = state.settings.translationLanguage;
     if (els.translationPromptTemplateInput) els.translationPromptTemplateInput.value = state.settings.translationPromptTemplate;
     if (els.sessionDateInput && !els.sessionDateInput.value) els.sessionDateInput.value = todayISO();
@@ -3424,21 +3470,21 @@
     });
   }
 
-  if (els.contactPhoneInput) {
-    els.contactPhoneInput.addEventListener('change', () => {
-      state.settings.contactPhone = els.contactPhoneInput.value.trim();
-      saveState();
-      saveUserSettings().catch(console.error);
-    });
+  function saveWorkerContactInformation(showSuccess = false) {
+    state.settings.contactName = (els.contactNameInput?.value || '').trim();
+    state.settings.contactPhone = (els.contactPhoneInput?.value || '').trim();
+    state.settings.contactLanguage = (els.contactLanguageInput?.value || '').trim();
+    saveState();
+    renderContactWorkerInfo();
+    updateContactComposer();
+    saveUserSettings().catch(console.error);
+    if (showSuccess) showToast('✅ Informations intervenante enregistrées.');
   }
 
-  if (els.contactNameInput) {
-    els.contactNameInput.addEventListener('change', () => {
-      state.settings.contactName = els.contactNameInput.value.trim();
-      saveState();
-      saveUserSettings().catch(console.error);
-    });
-  }
+  if (els.saveWorkerContactBtn) els.saveWorkerContactBtn.addEventListener('click', () => saveWorkerContactInformation(true));
+  [els.contactPhoneInput, els.contactNameInput, els.contactLanguageInput].filter(Boolean).forEach((input) => {
+    input.addEventListener('change', () => saveWorkerContactInformation(false));
+  });
 
   if (els.translationLanguageSelect) {
     els.translationLanguageSelect.addEventListener('change', () => {
@@ -3696,35 +3742,58 @@
 
   quickMessageButtons.forEach((btn) => {
     btn.addEventListener('click', () => {
-      if (els.contactMessageInput) els.contactMessageInput.value = btn.dataset.message || '';
+      if (els.contactMessageInput) {
+        els.contactMessageInput.value = btn.dataset.message || '';
+        updateContactComposer();
+      }
     });
   });
+
+  if (els.contactMessageInput) {
+    els.contactMessageInput.addEventListener('input', () => {
+      if (els.translatedMessageOutput) els.translatedMessageOutput.value = '';
+      if (els.contactResultBox) els.contactResultBox.classList.add('hidden');
+      updateContactComposer();
+    });
+  }
 
   if (els.translateMessageBtn) {
     els.translateMessageBtn.addEventListener('click', async () => {
       try {
+        setContactError('');
         if (els.translateStatusText) {
-          els.translateStatusText.textContent = t('Préparation du prompt de traduction...');
+          els.translateStatusText.textContent = 'Préparation du message…';
           els.translateStatusText.classList.remove('hidden');
         }
+        els.translateMessageBtn.dataset.loading = '1';
         els.translateMessageBtn.disabled = true;
         els.translateMessageBtn.classList.add('opacity-60');
 
-        const prompt = await prepareTranslationPrompt();
+        const messageFinal = await prepareContactMessage();
 
-        if (els.translatedMessageOutput) {
-          els.translatedMessageOutput.value = prompt;
-        }
-
-        showToast('✅ Prompt ouvert dans ChatGPT.');
+        if (els.translatedMessageOutput) els.translatedMessageOutput.value = messageFinal;
+        if (els.contactResultBox) els.contactResultBox.classList.remove('hidden');
+        renderContactWorkerInfo();
+        showToast('✅ Message prêt à relire.');
       } catch (error) {
-        alert(error.message || 'Erreur de traduction.');
+        console.error('generateContactMessage error:', error);
+        const expectedMessages = [
+          'Écrivez d’abord le message que vous souhaitez transmettre.',
+          'Votre message dépasse la limite de 600 caractères.',
+          'Renseignez d’abord la langue de votre intervenante dans les réglages.',
+          'Renseignez d’abord le numéro WhatsApp de votre intervenante dans les réglages.'
+        ];
+        const message = expectedMessages.includes(error?.message)
+          ? error.message
+          : 'Impossible de préparer le message pour le moment. Réessayez dans quelques instants.';
+        setContactError(message);
+        alert(message);
       } finally {
-        if (els.translateStatusText) {
-          els.translateStatusText.classList.add('hidden');
-        }
+        if (els.translateStatusText) els.translateStatusText.classList.add('hidden');
+        delete els.translateMessageBtn.dataset.loading;
         els.translateMessageBtn.disabled = false;
         els.translateMessageBtn.classList.remove('opacity-60');
+        updateContactComposer();
       }
     });
   }
@@ -3734,24 +3803,25 @@
       const phone = workerWhatsappPhone();
 
       if (!phone) {
-        alert(state.settings.workerUid ? 'Numéro de téléphone non renseigné.' : 'Aucune intervenante liée pour le moment.');
+        const message = 'Renseignez d’abord le numéro WhatsApp de votre intervenante dans les réglages.';
+        setContactError(message);
+        alert(message);
         return;
       }
 
-      const text = (
-        (els.translatedMessageOutput && els.translatedMessageOutput.value) ||
-        (els.contactMessageInput && els.contactMessageInput.value) ||
-        ''
-      ).trim();
-
+      const text = (els.translatedMessageOutput?.value || '').trim();
       if (!text) {
-        alert("Merci de rédiger un message avant d'ouvrir WhatsApp.");
+        const message = 'Préparez d’abord le message avant de l’envoyer sur WhatsApp.';
+        setContactError(message);
+        alert(message);
         return;
       }
 
-      window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank');
+      window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
     });
   }
+
+  updateContactComposer();
 
 
   if (els.addMenuBtn) els.addMenuBtn.addEventListener('click', openAddMenu);
