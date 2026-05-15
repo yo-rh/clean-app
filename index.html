@@ -1689,14 +1689,27 @@
   let linkedWorkerUnsubscribe = null;
   let linkedWorkerUid = '';
   function normalizeWorkerProfile(data = {}) {
+    const settings = data.settings || {};
     return {
-      firstName: String(data.firstName || '').trim(),
-      phone: String(data.phone || '').trim(),
-      language: String(data.language || data.settings?.language || data.translationLanguage || '').trim(),
+      firstName: String(data.firstName || settings.firstName || settings.prenom || '').trim(),
+      phone: String(data.phone || data.whatsapp || settings.phone || settings.whatsapp || '').trim(),
+      language: String(data.language || settings.language || data.translationLanguage || settings.translationLanguage || '').trim(),
       package: String(data.package || data.packageName || data.forfait || data.rate || '').trim(),
       defaultDay: String(data.defaultDay || data.day || '').trim(),
       defaultTime: String(data.defaultTime || data.time || '').trim()
     };
+  }
+
+  function syncSettingsWithLinkedWorkerProfile(profile = state.ui.linkedWorkerProfile) {
+    if (!profile) return false;
+    let changed = false;
+    const firstName = String(profile.firstName || '').trim();
+    const phone = String(profile.phone || '').trim();
+    const language = String(profile.language || '').trim();
+    if (firstName && firstName !== state.settings.contactName) { state.settings.contactName = firstName; changed = true; }
+    if (phone && phone !== state.settings.contactPhone) { state.settings.contactPhone = phone; changed = true; }
+    if (language && language !== state.settings.contactLanguage) { state.settings.contactLanguage = language; changed = true; }
+    return changed;
   }
   function stopLinkedWorkerListener() {
     if (typeof linkedWorkerUnsubscribe === 'function') linkedWorkerUnsubscribe();
@@ -1716,8 +1729,12 @@
     linkedWorkerUid = workerUid;
     linkedWorkerUnsubscribe = onSnapshot(doc(db, WORKER_PROFILES_COLLECTION, workerUid), (snapshot) => {
       state.ui.linkedWorkerProfile = snapshot.exists() ? normalizeWorkerProfile(snapshot.data() || {}) : null;
+      const settingsChanged = syncSettingsWithLinkedWorkerProfile();
       saveState();
-      renderLinkedWorkerCard();
+      if (settingsChanged) saveUserSettings().catch(console.error);
+      renderSettings();
+      renderContactWorkerInfo();
+      renderContactComposerStep();
     }, (error) => {
       console.error('Profil intervenante non synchronisé :', error);
       state.ui.linkedWorkerProfile = null;
@@ -1725,19 +1742,19 @@
     });
   }
   function workerDisplayName() {
-    return String(state.ui.linkedWorkerProfile?.firstName || state.settings.contactName || '').trim();
+    return String(state.settings.contactName || state.ui.linkedWorkerProfile?.firstName || '').trim();
   }
   function workerPhoneValue() {
-    return String(state.ui.linkedWorkerProfile?.phone || state.settings.contactPhone || '').trim();
+    return String(state.settings.contactPhone || state.ui.linkedWorkerProfile?.phone || '').trim();
   }
   function workerWhatsappPhone() {
     return normalizePhone(workerPhoneValue());
   }
   function workerLanguageValue() {
-    return String(state.ui.linkedWorkerProfile?.language || state.settings.contactLanguage || '').trim();
+    return String(state.settings.contactLanguage || state.ui.linkedWorkerProfile?.language || '').trim();
   }
   function languageLabel(code) {
-    const labels = { fr: 'français', es: 'espagnol', en: 'anglais', pt: 'portugais', ar: 'arabe', it: 'italien', ro: 'roumain' };
+    const labels = { fr: 'Français', es: 'Espagnol', en: 'Anglais', pt: 'Portugais', ar: 'Arabe', it: 'Italien', ro: 'Roumain' };
     const key = String(code || '').trim();
     return labels[key] || key || '';
   }
@@ -1766,25 +1783,21 @@
     const phone = workerPhoneValue();
     const language = workerLanguageValue();
     els.linkedWorkerInfo.classList.add('hidden');
-    if (!workerUid) {
-      els.linkedWorkerStatus.textContent = firstName || phone || language
-        ? 'Informations saisies manuellement pour votre intervenante.'
+    if (!firstName && !phone && !language) {
+      els.linkedWorkerStatus.textContent = workerUid
+        ? 'Compte intervenante lié, informations de contact à compléter si besoin.'
         : 'Renseignez les informations utiles pour préparer et envoyer vos messages.';
       els.linkedWorkerInfo.innerHTML = '';
       renderContactWorkerInfo();
       return;
     }
-    if (!profile || (!firstName && !phone && !language)) {
-      els.linkedWorkerStatus.textContent = 'Compte intervenante lié, informations de contact à compléter si besoin.';
-      els.linkedWorkerInfo.innerHTML = '';
-      renderContactWorkerInfo();
-      return;
-    }
-    els.linkedWorkerStatus.textContent = 'Informations de votre intervenante liée.';
+    els.linkedWorkerStatus.textContent = workerUid && profile
+      ? 'Informations de votre intervenante liée.'
+      : 'Informations saisies manuellement pour votre intervenante.';
     els.linkedWorkerInfo.classList.remove('hidden');
-    els.linkedWorkerInfo.innerHTML = '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Informations générales</p><p class="mt-1 font-medium">' + esc(firstName || 'Non renseigné') + '</p></div>'
-      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Coordonnées</p><p class="mt-1 font-medium">' + esc(phone || 'Numéro de téléphone non renseigné.') + '</p></div>'
-      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Langue de traduction</p><p class="mt-1 font-medium">' + esc(languageLabel(language) || 'Non renseignée (français par défaut)') + '</p></div>';
+    els.linkedWorkerInfo.innerHTML = '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Prénom</p><p class="mt-1 font-medium">' + esc(firstName || 'Non renseigné') + '</p></div>'
+      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">WhatsApp</p><p class="mt-1 font-medium">' + esc(phone || 'Numéro WhatsApp non renseigné.') + '</p></div>'
+      + '<div><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">Langue de l’intervenante</p><p class="mt-1 font-medium">' + esc(languageLabel(language) || 'Non renseignée') + '</p></div>';
     renderContactWorkerInfo();
   }
   let homeSettingsUnsubscribe = null;
@@ -1804,13 +1817,19 @@
     stopHomeSettingsListener();
     homeSettingsUid = uid;
     homeSettingsUnsubscribe = onSnapshot(doc(db, 'users', uid), (snapshot) => {
-      const remoteWorkerUid = String((snapshot.exists() ? snapshot.data()?.settings?.workerUid : '') || '');
-      if (remoteWorkerUid === String(state.settings.workerUid || '')) return;
+      const remoteSettings = snapshot.exists() ? (snapshot.data()?.settings || {}) : {};
+      const remoteWorkerUid = String(remoteSettings.workerUid || '');
+      const previousWorkerUid = String(state.settings.workerUid || '');
+      state.settings.contactName = String(remoteSettings.contactName ?? state.settings.contactName ?? '');
+      state.settings.contactPhone = String(remoteSettings.contactPhone ?? state.settings.contactPhone ?? '');
+      state.settings.contactLanguage = String(remoteSettings.contactLanguage ?? state.settings.contactLanguage ?? '');
       state.settings.workerUid = remoteWorkerUid;
-      state.ui.linkedWorkerProfile = null;
+      if (remoteWorkerUid !== previousWorkerUid) state.ui.linkedWorkerProfile = null;
       saveState();
-      renderLinkedWorkerCard();
-      startLinkedWorkerListener();
+      renderSettings();
+      renderContactWorkerInfo();
+      renderContactComposerStep();
+      if (remoteWorkerUid !== previousWorkerUid) startLinkedWorkerListener();
     }, (error) => console.error('Lien intervenante non synchronisé :', error));
   }
 
@@ -2372,14 +2391,21 @@
     contactDraftFrench = (els.contactFrenchMessageInput?.value || '').trim();
     if (!contactDraftFrench) throw new Error('Relisez ou complétez le message proposé avant de le traduire.');
 
-    const langueIntervenante = workerLanguageValue();
-    if (!langueIntervenante) throw new Error('Renseignez d’abord la langue de votre intervenante dans les réglages.');
+    const workerLanguage = workerLanguageValue();
+    if (!workerLanguage) throw new Error('Renseignez d’abord la langue de votre intervenante dans les réglages.');
+    const langueIntervenante = languageLabel(workerLanguage) || workerLanguage;
+
+    const prenomIntervenante = workerDisplayName();
+    console.log('Contact translate data:', {
+      langueIntervenante,
+      prenomIntervenante
+    });
 
     const result = await generateContactMessageCallable({
       mode: 'translate',
       messageBrut: contactDraftFrench,
       langueIntervenante,
-      prenomIntervenante: workerDisplayName()
+      prenomIntervenante
     });
 
     return String(result?.data?.messageFinal || '').trim();
@@ -3660,7 +3686,10 @@
     state.settings.contactPhone = (els.contactPhoneInput?.value || '').trim();
     state.settings.contactLanguage = (els.contactLanguageInput?.value || '').trim();
     saveState();
+    renderSettings();
+    renderLinkedWorkerCard();
     renderContactWorkerInfo();
+    renderContactComposerStep();
     updateContactComposer();
     saveUserSettings().catch(console.error);
     if (showSuccess) showToast('✅ Informations intervenante enregistrées.');

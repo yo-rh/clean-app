@@ -574,6 +574,18 @@
       ]);
       state.workerProfile = { ...(state.workerProfile || {}), settings };
     }
+    function currentWorkerContactSettings() {
+      const contactName = String(state.workerInfo?.firstName || state.workerProfile?.firstName || '').trim();
+      const contactPhone = String(state.workerInfo?.phone || state.workerProfile?.phone || '').trim();
+      const contactLanguage = String(state.workerInfo?.language || state.workerProfile?.language || state.workerProfile?.settings?.language || '').trim();
+      return {
+        workerUid: state.currentUser?.uid || '',
+        ...(contactName ? { contactName } : {}),
+        ...(contactPhone ? { contactPhone } : {}),
+        ...(contactLanguage ? { contactLanguage } : {})
+      };
+    }
+
     async function saveSetupInfo() {
       collectSetupValues();
       if (!state.currentUser) return;
@@ -721,7 +733,7 @@
       try {
         const access = await resolveWorkerAccessCode(code); const homeId = String(access.homeId || ''); if (!homeId) throw new Error('Code invalide.');
         await setDoc(workerHomeLinkRef(state.currentUser.uid, homeId), { homeId, code, role: 'intervenante', active: true, addedAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true });
-        await setDoc(doc(db, 'users', homeId), { settings: { workerUid: state.currentUser.uid }, updatedAt: serverTimestamp() }, { merge: true });
+        await setDoc(doc(db, 'users', homeId), { settings: currentWorkerContactSettings(), updatedAt: serverTimestamp() }, { merge: true });
         state.currentHomeId = homeId; localStorage.setItem('cleanAppWorkerCurrentHomeId', homeId); if (sourceInput) sourceInput.value = ''; showAddHomeMessage('Foyer ajouté avec succès'); await loadWorkerHomes(); afterAdd?.();
       } catch (error) { console.error(error); showAddHomeMessage(firebaseErrorMessage(error) || 'Code invalide.', true); }
       finally { if (sourceButton) { sourceButton.disabled = false; sourceButton.classList.remove('opacity-60'); } }
