@@ -69,6 +69,7 @@
       </div>
       <p id="authError" class="hidden rounded-2xl bg-red-50 dark:bg-red-950/40 px-4 py-3 text-sm text-red-600 dark:text-red-300"></p>
       <button id="authSubmitBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
+      <button id="forgotPasswordBtn" type="button" class="w-full text-sm font-medium text-apple-600 dark:text-apple-500">Mot de passe oublié ?</button>
       <a href="./index.html" class="block w-full text-center rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Retour à l’espace principal</a>
     </section>
   </section>
@@ -294,7 +295,7 @@
     'use strict';
 
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
 
@@ -328,7 +329,7 @@
     const els = {
       authScreen: byId('authScreen'), setupScreen: byId('setupScreen'), appShell: byId('appShell'), bottomNav: byId('bottomNav'),
       loginTabBtn: byId('loginTabBtn'), registerTabBtn: byId('registerTabBtn'), emailInput: byId('emailInput'), passwordInput: byId('passwordInput'),
-      authSubmitBtn: byId('authSubmitBtn'), authError: byId('authError'), setupTitle: byId('setupTitle'), setupSubtitle: byId('setupSubtitle'), setupStepLabel: byId('setupStepLabel'), setupProgressBar: byId('setupProgressBar'), setupSkipBtn: byId('setupSkipBtn'), setupBackBtn: byId('setupBackBtn'), setupNextBtn: byId('setupNextBtn'), setupLanguageSelect: byId('setupLanguageSelect'), setupFirstNameInput: byId('setupFirstNameInput'), setupPhoneInput: byId('setupPhoneInput'), setupHomeCodeInput: byId('setupHomeCodeInput'), setupAddHomeBtn: byId('setupAddHomeBtn'), setupSkipHomeBtn: byId('setupSkipHomeBtn'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
+      authSubmitBtn: byId('authSubmitBtn'), forgotPasswordBtn: byId('forgotPasswordBtn'), authError: byId('authError'), setupTitle: byId('setupTitle'), setupSubtitle: byId('setupSubtitle'), setupStepLabel: byId('setupStepLabel'), setupProgressBar: byId('setupProgressBar'), setupSkipBtn: byId('setupSkipBtn'), setupBackBtn: byId('setupBackBtn'), setupNextBtn: byId('setupNextBtn'), setupLanguageSelect: byId('setupLanguageSelect'), setupFirstNameInput: byId('setupFirstNameInput'), setupPhoneInput: byId('setupPhoneInput'), setupHomeCodeInput: byId('setupHomeCodeInput'), setupAddHomeBtn: byId('setupAddHomeBtn'), setupSkipHomeBtn: byId('setupSkipHomeBtn'), accountText: byId('accountText'), pageTitle: byId('pageTitle'), refreshBtn: byId('refreshBtn'),
       homeSummary: byId('homeSummary'), upcomingSessionsList: byId('upcomingSessionsList'), sessionDetailCard: byId('sessionDetailCard'),
       homesList: byId('homesList'), homeCodeInput: byId('homeCodeInput'), addHomeBtn: byId('addHomeBtn'), addHomeMessage: byId('addHomeMessage'),
       workerFirstNameInput: byId('workerFirstNameInput'), workerPhoneInput: byId('workerPhoneInput'), saveWorkerInfoBtn: byId('saveWorkerInfoBtn'),
@@ -704,6 +705,26 @@
       finally { els.authSubmitBtn.disabled = false; els.authSubmitBtn.classList.remove('opacity-60'); }
     }
 
+    async function handleForgotPassword() {
+      clearAuthError();
+      const email = els.emailInput.value.trim();
+      if (!email) {
+        showAuthError('Veuillez saisir votre adresse email pour réinitialiser votre mot de passe.');
+        return;
+      }
+      try {
+        await sendPasswordResetEmail(auth, email);
+        showToast('Un email de réinitialisation vient de vous être envoyé.');
+      } catch (error) {
+        const code = error?.code || '';
+        if (code.includes('auth/user-not-found')) showAuthError('Email introuvable.');
+        else if (code.includes('auth/invalid-email')) showAuthError('Adresse email invalide.');
+        else if (code.includes('auth/too-many-requests')) showAuthError('Trop de tentatives. Réessayez plus tard.');
+        else if (code.includes('auth/network-request-failed')) showAuthError('Erreur réseau. Vérifiez votre connexion internet.');
+        else showAuthError('Impossible d’envoyer l’email de réinitialisation.');
+      }
+    }
+
     function isValidWorkerAccess(access, code) { return Boolean(access && access.active === true && access.role === 'intervenante' && access.homeId && String(access.code || '') === code); }
     function workerHomeLinkRef(workerUid, homeId) { return doc(db, 'users', workerUid, 'workerHomes', homeId); }
     async function resolveWorkerAccessCode(code) {
@@ -1014,6 +1035,7 @@
       els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
       els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
       els.authSubmitBtn.addEventListener('click', submitAuth); els.passwordInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') submitAuth(); });
+      els.forgotPasswordBtn.addEventListener('click', handleForgotPassword);
       els.logoutBtn.addEventListener('click', async () => { stopWorkerProfileListener(); await signOut(auth); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', language: 'fr' }; showAuth(); showToast('Déconnectée.'); });
       els.refreshBtn.addEventListener('click', loadWorkerHomes);
       els.homeCodeInput.addEventListener('input', () => { els.homeCodeInput.value = workerCodeValue(els.homeCodeInput.value); });

@@ -174,6 +174,7 @@
       </div>
 
       <button id="authSubmitBtn" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Se connecter</button>
+      <button id="forgotPasswordBtn" type="button" class="w-full text-sm font-medium text-apple-600 dark:text-apple-500">Mot de passe oublié ?</button>
       <button id="openWorkerAccessBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Accès intervenante</button>
 
       <p id="authHintText" class="text-sm text-slate-500 dark:text-slate-400 text-center">Créez votre compte pour commencer.</p>
@@ -850,6 +851,7 @@
     getAuth,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
+    sendPasswordResetEmail,
     signOut as firebaseSignOut,
     onAuthStateChanged
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
@@ -1171,6 +1173,7 @@
     authEmailInput: byId('authEmailInput'),
     authPasswordInput: byId('authPasswordInput'),
     authSubmitBtn: byId('authSubmitBtn'),
+    forgotPasswordBtn: byId('forgotPasswordBtn'),
     openWorkerAccessBtn: byId('openWorkerAccessBtn'),
     authHintText: byId('authHintText'),
     setupStepLabel: byId('setupStepLabel'),
@@ -2109,6 +2112,25 @@
         els.authSubmitBtn.disabled = false;
         els.authSubmitBtn.classList.remove('opacity-60');
       }
+    }
+  }
+
+  async function handleForgotPassword() {
+    const email = (els.authEmailInput && els.authEmailInput.value.trim()) || '';
+    if (!email) {
+      alert('Veuillez saisir votre adresse email pour réinitialiser votre mot de passe.');
+      return;
+    }
+    try {
+      await sendPasswordResetEmail(auth, email);
+      showToast('Un email de réinitialisation vient de vous être envoyé.');
+    } catch (error) {
+      const code = error?.code || '';
+      if (code.includes('auth/user-not-found')) alert('Email introuvable.');
+      else if (code.includes('auth/invalid-email')) alert('Adresse email invalide.');
+      else if (code.includes('auth/too-many-requests')) alert('Trop de tentatives. Réessayez plus tard.');
+      else if (code.includes('auth/network-request-failed')) alert('Erreur réseau. Vérifiez votre connexion internet.');
+      else alert('Impossible d’envoyer l’email de réinitialisation.');
     }
   }
 
@@ -3548,6 +3570,7 @@
   if (els.loginTabBtn) els.loginTabBtn.addEventListener('click', () => setAuthMode('login'));
   if (els.registerTabBtn) els.registerTabBtn.addEventListener('click', () => setAuthMode('register'));
   if (els.authSubmitBtn) els.authSubmitBtn.addEventListener('click', submitAuth);
+  if (els.forgotPasswordBtn) els.forgotPasswordBtn.addEventListener('click', handleForgotPassword);
   if (els.openWorkerAccessBtn) els.openWorkerAccessBtn.addEventListener('click', () => {
     window.location.href = './intervenante.html';
   });
