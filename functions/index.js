@@ -176,7 +176,12 @@ function sessionBalanceDue(session) {
 
 exports.notifySessionValidated = onCall({
   region: "europe-west1",
-  cors: ["https://yo-rh.github.io"],
+  cors: [
+    "https://yo-rh.github.io",
+    "http://localhost:5000",
+    "http://127.0.0.1:5000",
+    "http://localhost:5173",
+  ],
 }, async (request) => {
   console.log("notifySessionValidated appelée", {
     authUid: request.auth && request.auth.uid,
@@ -225,7 +230,7 @@ exports.notifySessionValidated = onCall({
   console.log("Nombre de tokens actifs", activeTokens.length);
 
   if (!activeTokens.length) {
-    return { success: false, reason: "NO_ACTIVE_TOKENS", clientUid };
+    return { success: false, reason: "NO_ACTIVE_TOKENS" };
   }
 
   const workerSnap = await admin.firestore().collection("users").doc(callerUid).get();

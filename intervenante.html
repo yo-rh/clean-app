@@ -330,7 +330,7 @@
     const messaging = getMessaging(app);
     const FCM_VAPID_KEY = "BJ6HMPnI0uSgjp6OKYGqtHOnRarUqgRg-EwgVP_kTyf2JKfTwdoPrjMZXF65wFEBcPyNbLy4Om69tfi2M62YMcs";
     const translateTaskCallable = httpsCallable(functions, "translateTask");
-    const notifySessionValidatedCallable = httpsCallable(functions, "notifySessionValidated");
+    const notifySessionValidated = httpsCallable(functions, "notifySessionValidated");
 
     const state = {
       authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '', language: 'fr' }, workerProfileUnsubscribe: null,
@@ -1103,7 +1103,7 @@
         if (session.clientNotificationSent !== true) {
           console.log("Appel notifySessionValidated via httpsCallable", { sessionId, foyerId });
           try {
-            const result = await notifySessionValidatedCallable({ sessionId, foyerId });
+            const result = await notifySessionValidated({ sessionId, foyerId });
             console.log("Résultat notifySessionValidated", result.data);
           } catch (error) {
             console.error("Erreur notifySessionValidated", error);

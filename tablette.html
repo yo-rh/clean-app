@@ -373,7 +373,7 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const functions = getFunctions(app, "europe-west1");
-    const notifySessionValidatedCallable = httpsCallable(functions, "notifySessionValidated");
+    const notifySessionValidated = httpsCallable(functions, "notifySessionValidated");
 
     const state = {
       user: null,
@@ -785,7 +785,7 @@
         if (String(state.profile?.role || '').toLowerCase() === 'intervenante' && freshSession.clientNotificationSent !== true) {
           try {
             console.log("Appel notifySessionValidated via httpsCallable", { sessionId: state.todaySession.id, foyerId: state.homeId });
-            const result = await notifySessionValidatedCallable({ sessionId: state.todaySession.id, foyerId: state.homeId });
+            const result = await notifySessionValidated({ sessionId: state.todaySession.id, foyerId: state.homeId });
             console.log("Résultat notifySessionValidated", result.data);
           } catch (notifyError) {
             console.error("Erreur notifySessionValidated", notifyError);
