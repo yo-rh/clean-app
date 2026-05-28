@@ -1101,10 +1101,10 @@
         showToast('✅ Session clôturée.');
 
         if (session.clientNotificationSent !== true) {
-          console.log("Appel notifySessionValidated", { sessionId, foyerId });
+          console.log("Appel notifySessionValidated via httpsCallable", { sessionId, foyerId });
           try {
             const result = await notifySessionValidatedCallable({ sessionId, foyerId });
-            console.log("notifySessionValidated résultat", result.data);
+            console.log("Résultat notifySessionValidated", result.data);
           } catch (error) {
             console.error("Erreur notifySessionValidated", error);
           }

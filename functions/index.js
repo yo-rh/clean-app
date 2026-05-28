@@ -174,10 +174,16 @@ function sessionBalanceDue(session) {
   return Math.max(0, expected - paid);
 }
 
-exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (request) => {
-  if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
+exports.notifySessionValidated = onCall({
+  region: "europe-west1",
+  cors: ["https://yo-rh.github.io"],
+}, async (request) => {
+  console.log("notifySessionValidated appelée", {
+    authUid: request.auth && request.auth.uid,
+    data: request.data,
+  });
 
-  console.log("notifySessionValidated appelée", request.data || {});
+  if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
 
   const sessionId = String(request.data?.sessionId || "").trim();
   const foyerId = String(request.data?.foyerId || request.data?.homeId || "").trim();
