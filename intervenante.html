@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="manifest" href="/manifest.json" />
   <title>Clean' App — Intervenante</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -38,9 +39,10 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
-  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Clean' App" />
+  <meta name="apple-mobile-web-app-title" content="Clean" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="theme-color" content="#2563eb" />
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
@@ -257,7 +259,19 @@
               <option value="ar">Arabe</option>
             </select>
           </div>
-          <button id="logoutBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Se déconnecter</button>
+          
+<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
+<h3 class="font-semibold">Notifications</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Recevez un rappel pour les prochaines sessions et les messages importants.</p>
+<button id="enableNotificationsBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Activer les notifications</button>
+</div>
+
+<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
+<h3 class="font-semibold">Notifications</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Recevez un rappel pour les prochaines sessions et les messages importants.</p>
+<button id="enableNotificationsBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Activer les notifications</button>
+</div>
+<button id="logoutBtn" type="button" class="w-full rounded-2xl border border-slate-200 dark:border-slate-700 px-4 py-3 font-medium text-slate-600 dark:text-slate-300">Se déconnecter</button>
         </section>
       </section>
     </main>
@@ -298,6 +312,7 @@
     import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, getDocs, serverTimestamp, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+    import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
@@ -316,6 +331,8 @@
     const auth = getAuth(app);
     const db = getFirestore(app);
     const functions = getFunctions(app, "europe-west1");
+    const messaging = getMessaging(app);
+    const FCM_VAPID_KEY = "A_COMPLETER_DANS_FIREBASE";
     const translateTaskCallable = httpsCallable(functions, "translateTask");
 
     const state = {
@@ -1031,6 +1048,11 @@
       document.querySelectorAll('.nav-btn').forEach((btn) => { const active = btn.dataset.page === page; btn.className = 'nav-btn flex flex-col items-center gap-1 rounded-2xl px-2 py-2 font-medium text-[11px] ' + (active ? 'text-slate-900 dark:text-white' : 'text-slate-500 dark:text-slate-400'); });
     }
 
+    function supportsPushNotifications() { return "serviceWorker" in navigator && "Notification" in window && "PushManager" in window; }
+    function isIosStandalone() { const ua = navigator.userAgent || ""; const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); const standalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches; return { isIos, standalone }; }
+    async function registerPushServiceWorker(){ if (!supportsPushNotifications()) { console.log("Notifications non supportées sur ce navigateur"); return null; } try { const r = await navigator.serviceWorker.register("/firebase-messaging-sw.js"); console.log("Service worker notifications enregistré"); return r; } catch (e) { console.error("Erreur enregistrement service worker notifications", e); return null; } }
+    async function enablePushNotifications(){ const ios = isIosStandalone(); if (ios.isIos && !ios.standalone) { alert("Pour activer les notifications sur iPhone : ouvrez Clean’ App dans Safari, appuyez sur Partager, puis Ajoutez à l’écran d’accueil. Ouvrez ensuite Clean’ App depuis l’icône."); return; } const permission = await Notification.requestPermission(); if (permission !== "granted") return; const reg = await registerPushServiceWorker(); const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg }); if (!token || !state.currentUser) return; await setDoc(doc(db, "users", state.currentUser.uid, "notificationTokens", token), { token, platform: "web", userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role: "intervenante" }, { merge: true }); alert("Notifications activées"); }
+
     function bindEvents() {
       els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
       els.registerTabBtn.addEventListener('click', () => { state.authMode = 'register'; clearAuthError(); renderAuthMode(); });
@@ -1057,6 +1079,7 @@
       byId('paymentModal')?.addEventListener('click', (event) => { if (event.target?.id === 'paymentModal') closePaymentModal(); });
       els.languageSelect.addEventListener('change', async () => { if (!state.currentUser) return; const language = els.languageSelect.value; const settings = { ...(state.workerProfile?.settings || {}), language }; await Promise.all([setDoc(doc(db, 'users', state.currentUser.uid), { settings, updatedAt: serverTimestamp() }, { merge: true }), setDoc(workerProfileRef(state.currentUser.uid), { uid: state.currentUser.uid, email: state.currentUser.email || '', firstName: state.workerInfo?.firstName || '', phone: state.workerInfo?.phone || '', language, updatedAt: serverTimestamp() }, { merge: true })]); state.workerProfile = { ...(state.workerProfile || {}), settings }; state.workerInfo = { ...(state.workerInfo || {}), language }; showToast('✅ Langue enregistrée.'); renderAll(); setCurrentPage(state.currentPage); applyTranslations(); });
       document.querySelectorAll('.nav-btn').forEach((btn) => btn.addEventListener('click', () => setCurrentPage(btn.dataset.page)));
+      els.enableNotificationsBtn?.addEventListener('click', () => enablePushNotifications().catch((error) => showToast(firebaseErrorMessage(error))));
     }
 
     function runSmokeTests() {
@@ -1092,6 +1115,8 @@
     window.__cleanAppIntervenanteTests = { runSmokeTests, workerCodeValue, normalizeSessionTasks, dueSummary };
 
     bindEvents(); renderAuthMode(); showAuth(); applyTranslations();
+    registerPushServiceWorker();
+
     onAuthStateChanged(auth, async (firebaseUser) => {
       if (!firebaseUser) { stopWorkerProfileListener(); state.currentUser = null; state.workerProfile = null; state.workerInfo = { firstName: '', phone: '', language: 'fr' }; showAuth(); return; }
       try {
