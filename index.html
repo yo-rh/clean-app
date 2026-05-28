@@ -897,7 +897,7 @@
   const db = getFirestore(firebaseApp);
   const functions = getFunctions(firebaseApp, "europe-west1");
   const messaging = getMessaging(firebaseApp);
-  const FCM_VAPID_KEY = "A_COMPLETER_DANS_FIREBASE";
+  const FCM_VAPID_KEY = "BJ6HMPnI0uSgjp6OKYGqtHOnRarUqgRg-EwgVP_kTyf2JKfTwdoPrjMZXF65wFEBcPyNbLy4Om69tfi2M62YMcs";
   const translateTaskCallable = httpsCallable(functions, "translateTask");
   const generateContactMessageCallable = httpsCallable(functions, "generateContactMessage");
 
@@ -2097,7 +2097,9 @@
     const reg = await registerPushServiceWorker(); if (!reg || !state.auth?.token) return;
     const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
     if (!token) return;
+    console.log('Token notification FCM obtenu', token);
     await setDoc(doc(db, 'users', state.auth.token, 'notificationTokens', token), { token, platform: 'web', userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role }, { merge: true });
+    console.log('Token notification enregistré dans Firestore');
     alert('Notifications activées');
   }
 
