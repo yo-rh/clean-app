@@ -8,6 +8,97 @@ if (!admin.apps.length) {
 }
 
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
+const WEBAPP_URL = "https://clean-app-5de06.web.app/";
+
+function getMessagePayload({ title, body, url }) {
+  return {
+    notification: {
+      title: String(title || "Clean’ App"),
+      body: String(body || "Vous avez une nouvelle notification."),
+    },
+    webpush: {
+      fcmOptions: {
+        link: String(url || WEBAPP_URL),
+      },
+      notification: {
+        icon: "/icons/icon-180.png",
+      },
+    },
+  };
+}
+
+async function isAdminUser(uid) {
+  const userSnap = await admin.firestore().collection("users").doc(uid).get();
+  if (!userSnap.exists) return false;
+  const data = userSnap.data() || {};
+  const role = String(data.role || "").trim().toLowerCase();
+  return data.isAdmin === true || role === "admin" || role === "administrateur";
+}
+
+async function sendNotificationToUid({ uid, title, body, url }) {
+  const tokensSnap = await admin
+    .firestore()
+    .collection("users")
+    .doc(uid)
+    .collection("notificationTokens")
+    .get();
+
+  const activeTokens = tokensSnap.docs
+    .filter((docSnap) => docSnap.data()?.enabled !== false)
+    .map((docSnap) => docSnap.id)
+    .filter(Boolean);
+
+  if (!activeTokens.length) {
+    return { success: true, sent: 0, failed: 0 };
+  }
+
+  const payload = getMessagePayload({ title, body, url });
+  const invalidTokens = [];
+  let sent = 0;
+  let failed = 0;
+
+  await Promise.all(
+    activeTokens.map(async (token) => {
+      try {
+        await admin.messaging().send({ token, ...payload });
+        sent += 1;
+      } catch (error) {
+        failed += 1;
+        const code = String(error?.errorInfo?.code || "");
+        if (
+          code.includes("registration-token-not-registered") ||
+          code.includes("invalid-registration-token")
+        ) {
+          invalidTokens.push(token);
+        }
+      }
+    })
+  );
+
+  if (invalidTokens.length) {
+    const batch = admin.firestore().batch();
+    invalidTokens.forEach((token) => {
+      const ref = admin
+        .firestore()
+        .collection("users")
+        .doc(uid)
+        .collection("notificationTokens")
+        .doc(token);
+      batch.set(
+        ref,
+        {
+          enabled: false,
+          invalidAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    });
+    await batch.commit();
+  }
+
+  return { success: true, sent, failed };
+}
 
 exports.generateContactMessage = onCall(
   {
@@ -102,40 +193,41 @@ Ta mission :
   }
 );
 
-exports.sendTestNotification = onCall(
-  { region: "europe-west1" },
-  async (request) => {
-    if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
-    const uid = String(request.data?.uid || "").trim();
-    if (!uid) throw new HttpsError("invalid-argument", "uid manquant.");
-    if (uid !== request.auth.uid) {
-      // TODO: autoriser ici les admins selon la convention du projet.
-      throw new HttpsError("permission-denied", "Vous pouvez envoyer un test uniquement à votre compte.");
-    }
-
-    const tokensSnap = await admin.firestore().collection("users").doc(uid).collection("notificationTokens").get();
-    const tokens = tokensSnap.docs.map((doc) => doc.id).filter(Boolean);
-    if (!tokens.length) return { sent: 0 };
-
-    const invalid = [];
-    let sent = 0;
-    await Promise.all(tokens.map(async (token) => {
-      try {
-        await admin.messaging().send({
-          token,
-          notification: { title: "Clean’ App", body: "Les notifications sont bien activées." },
-          webpush: { fcmOptions: { link: "https://clean-app-5de06.web.app/" } }
-        });
-        sent += 1;
-      } catch (error) {
-        const code = error?.errorInfo?.code || "";
-        if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) invalid.push(token);
-      }
-    }));
-
-    await Promise.all(invalid.map((token) =>
-      admin.firestore().collection("users").doc(uid).collection("notificationTokens").doc(token).delete()
-    ));
-    return { sent, invalidRemoved: invalid.length };
+exports.sendNotificationToUser = onCall({ region: "europe-west1" }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Connexion requise.");
   }
-);
+
+  const uid = String(request.data?.uid || "").trim();
+  if (!uid) {
+    throw new HttpsError("invalid-argument", "uid manquant.");
+  }
+
+  const callerUid = request.auth.uid;
+  const callerIsAdmin = await isAdminUser(callerUid);
+  if (uid !== callerUid && !callerIsAdmin) {
+    throw new HttpsError(
+      "permission-denied",
+      "Vous pouvez envoyer une notification test uniquement à votre compte."
+    );
+  }
+
+  const title = String(request.data?.title || "").trim() || "Clean’ App";
+  const body = String(request.data?.body || "").trim() || "Vous avez une nouvelle notification.";
+  const url = String(request.data?.url || "").trim() || WEBAPP_URL;
+
+  return sendNotificationToUid({ uid, title, body, url });
+});
+
+exports.sendTestNotificationToMe = onCall({ region: "europe-west1" }, async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Connexion requise.");
+  }
+
+  return sendNotificationToUid({
+    uid: request.auth.uid,
+    title: "Clean’ App",
+    body: "Les notifications sont bien activées.",
+    url: WEBAPP_URL,
+  });
+});
