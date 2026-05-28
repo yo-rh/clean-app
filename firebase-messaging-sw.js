@@ -20,8 +20,8 @@ messaging.onBackgroundMessage((payload) => {
 
   self.registration.showNotification(title, {
     body,
-    icon: "/icons/icon-180.png",
-    badge: "/icons/icon-180.png",
+    icon: "./icons/icon-180.png",
+    badge: "./icons/icon-180.png",
     data: { url }
   });
 });

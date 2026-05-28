@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="./manifest.json" />
   <title>Clean' App — Intervenante</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -39,7 +39,8 @@
     }
     #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   </style>
-  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
+  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+  <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-title" content="Clean" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -1050,7 +1051,7 @@
 
     function supportsPushNotifications() { return "serviceWorker" in navigator && "Notification" in window && "PushManager" in window; }
     function isIosStandalone() { const ua = navigator.userAgent || ""; const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); const standalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches; return { isIos, standalone }; }
-    async function registerPushServiceWorker(){ if (!supportsPushNotifications()) { console.log("Notifications non supportées sur ce navigateur"); return null; } try { const r = await navigator.serviceWorker.register("/firebase-messaging-sw.js"); console.log("Service worker notifications enregistré"); return r; } catch (e) { console.error("Erreur enregistrement service worker notifications", e); return null; } }
+    async function registerPushServiceWorker(){ if (!supportsPushNotifications()) { console.log("Notifications non supportées sur ce navigateur"); return null; } try { console.log("URL actuelle :", window.location.href); console.log("Service worker path utilisé :", new URL("./firebase-messaging-sw.js", window.location.href).href); console.log("Manifest path attendu :", new URL("./manifest.json", window.location.href).href); const r = await navigator.serviceWorker.register("./firebase-messaging-sw.js"); console.log("Service worker notifications enregistré"); return r; } catch (e) { console.error("Erreur enregistrement service worker notifications", e); return null; } }
     async function enablePushNotifications(){ const ios = isIosStandalone(); if (ios.isIos && !ios.standalone) { alert("Pour activer les notifications sur iPhone : ouvrez Clean’ App dans Safari, appuyez sur Partager, puis Ajoutez à l’écran d’accueil. Ouvrez ensuite Clean’ App depuis l’icône."); return; } const permission = await Notification.requestPermission(); if (permission !== "granted") return; const reg = await registerPushServiceWorker(); const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg }); if (!token || !state.currentUser) return; console.log("Token notification FCM obtenu", token); await setDoc(doc(db, "users", state.currentUser.uid, "notificationTokens", token), { token, platform: "web", userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role: "intervenante" }, { merge: true }); console.log("Token notification enregistré dans Firestore"); alert("Notifications activées"); }
 
     function bindEvents() {
