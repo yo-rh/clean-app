@@ -174,115 +174,201 @@ function sessionBalanceDue(session) {
   return Math.max(0, expected - paid);
 }
 
-exports.notifySessionValidated = onCall({
-  region: "europe-west1",
-  cors: ["https://yo-rh.github.io"],
-}, async (request) => {
-  console.log("notifySessionValidated appelée", {
-    authUid: request.auth && request.auth.uid,
-    data: request.data,
-  });
-
-  if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
-
-  const sessionId = String(request.data?.sessionId || "").trim();
-  const foyerId = String(request.data?.foyerId || request.data?.homeId || "").trim();
-  if (!sessionId || !foyerId) throw new HttpsError("invalid-argument", "sessionId et foyerId requis.");
-
-  const callerUid = request.auth.uid;
-  const clientUid = foyerId;
-  if (!clientUid) {
-    return { success: false, reason: "CLIENT_UID_NOT_FOUND" };
-  }
-  console.log("Client UID trouvé", clientUid);
-
-  const workerLink = await admin.firestore().collection("users").doc(callerUid).collection("workerHomes").doc(foyerId).get();
-  const workerAccess = workerLink.exists ? (workerLink.data() || {}) : {};
-  if (workerAccess.active === false || String(workerAccess.role || "") !== "intervenante") {
-    throw new HttpsError("permission-denied", "Utilisateur non autorisé pour ce foyer.");
-  }
-
-  const sessionRef = admin.firestore().collection("users").doc(foyerId).collection("entries").doc(sessionId);
-  const sessionSnap = await sessionRef.get();
-  if (!sessionSnap.exists) {
-    return { success: false, reason: "SESSION_NOT_FOUND" };
-  }
-  const sessionData = sessionSnap.data() || {};
-  console.log("Session trouvée", sessionId, sessionData);
-
-  if (sessionData.clientNotificationSent === true) {
-    return { success: false, reason: "ALREADY_SENT" };
-  }
-  if (String(sessionData.type || "") !== "session") throw new HttpsError("failed-precondition", "Entrée non compatible.");
-  if (!isCompletedSession(sessionData)) throw new HttpsError("failed-precondition", "Session non validée.");
-
-  const tokensPath = `users/${clientUid}/notificationTokens`;
-  console.log("Chemin tokens client", tokensPath);
-  const tokensSnap = await admin.firestore().collection("users").doc(clientUid).collection("notificationTokens").get();
-  const tokens = tokensSnap.docs.map((docSnap) => ({ id: docSnap.id, data: docSnap.data() || {} }));
-  console.log("Nombre de tokens trouvés", tokens.length);
-  const activeTokens = tokens.filter((tokenDoc) => tokenDoc.data.enabled !== false).map((tokenDoc) => tokenDoc.id).filter(Boolean);
-  console.log("Nombre de tokens actifs", activeTokens.length);
-
-  if (!activeTokens.length) {
-    return { success: false, reason: "NO_ACTIVE_TOKENS", clientUid };
-  }
-
-  const workerSnap = await admin.firestore().collection("users").doc(callerUid).get();
-  const workerProfileSnap = await admin.firestore().collection("cleanerProfiles").doc(callerUid).get();
-  const workerFirstName = String(workerProfileSnap.data()?.firstName || workerSnap.data()?.settings?.workerFirstName || workerSnap.data()?.firstName || "").trim();
-  const body = workerFirstName ? `${workerFirstName} vient de valider la session.` : "L’intervenante vient de valider la session.";
-
-  const payload = getMessagePayload({ title: "Clean’ App", body, url: `${WEBAPP_URL}?view=client&homeId=${encodeURIComponent(foyerId)}&sessionId=${encodeURIComponent(sessionId)}` });
-  console.log("Payload notification", payload);
-
-  const invalidTokens = [];
-  let sent = 0;
-  let failed = 0;
-
-  await Promise.all(activeTokens.map(async (token) => {
-    try {
-      const response = await admin.messaging().send({ token, ...payload });
-      sent += 1;
-      console.log("Résultat envoi notification", response);
-    } catch (error) {
-      failed += 1;
-      console.log("Résultat envoi notification", { success: false, token, error: error?.message || String(error) });
-      const code = String(error?.errorInfo?.code || "");
-      if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) {
-        invalidTokens.push(token);
-      }
-    }
-  }));
-
-  if (invalidTokens.length) {
-    const batch = admin.firestore().batch();
-    invalidTokens.forEach((token) => {
-      const ref = admin.firestore().collection("users").doc(clientUid).collection("notificationTokens").doc(token);
-      batch.set(ref, {
-        enabled: false,
-        invalidAt: admin.firestore.FieldValue.serverTimestamp(),
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      }, { merge: true });
-      logger.info("Token invalide désactivé", { uid: clientUid, token });
+exports.notifySessionValidated = onCall(
+  {
+    region: "europe-west1",
+    cors: [
+      "https://yo-rh.github.io",
+      "http://localhost:5000",
+      "http://127.0.0.1:5000",
+      "http://localhost:5173",
+    ],
+  },
+  async (request) => {
+    console.log("notifySessionValidated appelée", {
+      authUid: request.auth && request.auth.uid,
+      data: request.data,
     });
-    await batch.commit();
-  }
 
-  const response = { success: true, sent, failed };
-  console.log("Résultat envoi notification", response);
+    if (!request.auth) {
+      throw new HttpsError("unauthenticated", "Connexion requise pour notifier le client.");
+    }
 
-  if (sent > 0) {
+    const { sessionId, foyerId } = request.data || {};
+    const normalizedSessionId = String(sessionId || "").trim();
+    const normalizedFoyerId = String(foyerId || request.data?.homeId || "").trim();
+
+    console.log("Session ID reçu", normalizedSessionId);
+    console.log("Foyer ID reçu", normalizedFoyerId);
+
+    if (!normalizedSessionId || !normalizedFoyerId) {
+      throw new HttpsError("invalid-argument", "sessionId et foyerId sont requis.");
+    }
+
+    const callerUid = request.auth.uid;
+    const sessionRef = admin
+      .firestore()
+      .collection("users")
+      .doc(normalizedFoyerId)
+      .collection("entries")
+      .doc(normalizedSessionId);
+    const sessionSnap = await sessionRef.get();
+
+    if (!sessionSnap.exists) {
+      return { success: false, reason: "SESSION_NOT_FOUND" };
+    }
+
+    const sessionData = sessionSnap.data() || {};
+
+    if (sessionData.clientNotificationSent === true) {
+      return { success: false, reason: "ALREADY_SENT" };
+    }
+
+    if (String(sessionData.type || "") !== "session") {
+      throw new HttpsError("failed-precondition", "Entrée non compatible avec une session.");
+    }
+
+    if (!isCompletedSession(sessionData)) {
+      throw new HttpsError("failed-precondition", "Session non validée.");
+    }
+
+    const workerLink = await admin
+      .firestore()
+      .collection("users")
+      .doc(callerUid)
+      .collection("workerHomes")
+      .doc(normalizedFoyerId)
+      .get();
+    const workerAccess = workerLink.exists ? (workerLink.data() || {}) : {};
+    if (workerAccess.active === false || String(workerAccess.role || "") !== "intervenante") {
+      throw new HttpsError("permission-denied", "Utilisateur non autorisé pour ce foyer.");
+    }
+
+    const foyerSnap = await admin.firestore().collection("users").doc(normalizedFoyerId).get();
+    const foyerData = foyerSnap.exists ? (foyerSnap.data() || {}) : {};
+    const clientUid = String(
+      sessionData.clientUid ||
+      sessionData.clientId ||
+      sessionData.userUid ||
+      foyerData.uid ||
+      foyerData.firebaseUid ||
+      foyerData.authUid ||
+      normalizedFoyerId ||
+      ""
+    ).trim();
+
+    if (!clientUid) {
+      return { success: false, reason: "CLIENT_UID_NOT_FOUND" };
+    }
+
+    console.log("Client UID trouvé", clientUid);
+
+    const tokensSnap = await admin
+      .firestore()
+      .collection("users")
+      .doc(clientUid)
+      .collection("notificationTokens")
+      .get();
+
+    const activeTokens = tokensSnap.docs
+      .filter((docSnap) => docSnap.data()?.enabled !== false)
+      .map((docSnap) => docSnap.id)
+      .filter(Boolean);
+
+    console.log("Nombre de tokens actifs", activeTokens.length);
+
+    if (!activeTokens.length) {
+      return { success: false, reason: "NO_ACTIVE_TOKENS", clientUid };
+    }
+
+    const workerSnap = await admin.firestore().collection("users").doc(callerUid).get();
+    const workerProfileSnap = await admin.firestore().collection("cleanerProfiles").doc(callerUid).get();
+    const workerData = workerSnap.exists ? (workerSnap.data() || {}) : {};
+    const workerProfile = workerProfileSnap.exists ? (workerProfileSnap.data() || {}) : {};
+    const workerFirstName = String(
+      workerProfile.firstName ||
+      workerData.settings?.workerFirstName ||
+      workerData.firstName ||
+      workerData.prenom ||
+      ""
+    ).trim();
+    const body = workerFirstName
+      ? `${workerFirstName} vient de valider la session.`
+      : "L’intervenante vient de valider la session.";
+
+    const payload = {
+      notification: {
+        title: "Clean’ App",
+        body,
+      },
+      webpush: {
+        fcmOptions: {
+          link: "https://yo-rh.github.io/clean-app/",
+        },
+        notification: {
+          icon: "/clean-app/icons/icon-180.png",
+        },
+      },
+    };
+
+    const invalidTokens = [];
+    let sent = 0;
+    let failed = 0;
+
+    await Promise.all(activeTokens.map(async (token) => {
+      try {
+        await admin.messaging().send({ token, ...payload });
+        sent += 1;
+      } catch (error) {
+        failed += 1;
+        console.error("Erreur envoi notification session validée", {
+          token,
+          message: error?.message || String(error),
+          code: error?.errorInfo?.code,
+        });
+        const code = String(error?.errorInfo?.code || "");
+        if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) {
+          invalidTokens.push(token);
+        }
+      }
+    }));
+
+    if (invalidTokens.length) {
+      const batch = admin.firestore().batch();
+      invalidTokens.forEach((token) => {
+        const ref = admin
+          .firestore()
+          .collection("users")
+          .doc(clientUid)
+          .collection("notificationTokens")
+          .doc(token);
+        batch.set(ref, {
+          enabled: false,
+          invalidAt: admin.firestore.FieldValue.serverTimestamp(),
+          updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+      });
+      await batch.commit();
+    }
+
     await sessionRef.set({
       clientNotificationSent: true,
       clientNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
       updatedAt: admin.firestore.FieldValue.serverTimestamp(),
     }, { merge: true });
-  }
 
-  logger.info("Notification session validée traitée", { sessionId, foyerId, sent, failed });
-  return response;
-});
+    console.log("Notification session validée envoyée");
+    logger.info("Notification session validée traitée", {
+      sessionId: normalizedSessionId,
+      foyerId: normalizedFoyerId,
+      clientUid,
+      sent,
+      failed,
+    });
+
+    return { success: true, sent, failed };
+  }
+);
 
 exports.scheduledSessionReminder = onSchedule({
   schedule: "0 18 * * *",
