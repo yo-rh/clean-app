@@ -163,7 +163,7 @@ function isCancelledSession(session) {
 
 function isCompletedSession(session) {
   const status = String(session?.status || "").toLowerCase();
-  return status === "terminee_intervenante" || status === "terminee" || status === "terminée" || session?.completed === true;
+  return status === "completed" || status === "terminee_intervenante" || status === "terminee" || status === "terminée" || session?.completed === true;
 }
 
 function sessionBalanceDue(session) {
@@ -179,9 +179,12 @@ exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (reque
 
   const sessionId = String(request.data?.sessionId || "").trim();
   const foyerId = String(request.data?.foyerId || request.data?.homeId || "").trim();
+  console.log("notifySessionValidated appelée", { sessionId, foyerId });
   if (!sessionId || !foyerId) throw new HttpsError("invalid-argument", "sessionId et foyerId requis.");
 
   const callerUid = request.auth.uid;
+  const clientUid = foyerId;
+  console.log("Client UID trouvé", clientUid);
   const workerLink = await admin.firestore().collection("users").doc(callerUid).collection("workerHomes").doc(foyerId).get();
   const workerAccess = workerLink.exists ? (workerLink.data() || {}) : {};
   if (workerAccess.active === false || String(workerAccess.role || "") !== "intervenante") {
@@ -198,11 +201,15 @@ exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (reque
   if (!isCompletedSession(session)) throw new HttpsError("failed-precondition", "Session non validée.");
 
   const workerSnap = await admin.firestore().collection("users").doc(callerUid).get();
-  const workerFirstName = String(workerSnap.data()?.settings?.workerFirstName || workerSnap.data()?.firstName || "").trim();
+  const workerProfileSnap = await admin.firestore().collection("cleanerProfiles").doc(callerUid).get();
+  const workerFirstName = String(workerProfileSnap.data()?.firstName || workerSnap.data()?.settings?.workerFirstName || workerSnap.data()?.firstName || "").trim();
   const body = workerFirstName ? `${workerFirstName} vient de valider la session.` : "L’intervenante vient de valider la session.";
 
   const payload = getMessagePayload({ title: "Clean’ App", body, url: `${WEBAPP_URL}?view=client&homeId=${encodeURIComponent(foyerId)}&sessionId=${encodeURIComponent(sessionId)}` });
-  const pushResult = await sendPushToUser(foyerId, payload);
+  const tokensSnap = await admin.firestore().collection("users").doc(clientUid).collection("notificationTokens").get();
+  const tokens = tokensSnap.docs.filter((docSnap) => docSnap.data()?.enabled !== false).map((docSnap) => docSnap.id).filter(Boolean);
+  console.log("Nombre de tokens client actifs", tokens.length);
+  const pushResult = await sendPushToUser(clientUid, payload);
 
   await sessionRef.set({
     clientNotificationSent: true,
@@ -210,6 +217,7 @@ exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (reque
     updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   }, { merge: true });
 
+  console.log("Notification session validée envoyée");
   logger.info("Notification session validée envoyée", { sessionId, foyerId, sent: pushResult.sent, failed: pushResult.failed });
   return { success: true, ...pushResult };
 });

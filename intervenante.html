@@ -330,6 +330,7 @@
     const messaging = getMessaging(app);
     const FCM_VAPID_KEY = "BJ6HMPnI0uSgjp6OKYGqtHOnRarUqgRg-EwgVP_kTyf2JKfTwdoPrjMZXF65wFEBcPyNbLy4Om69tfi2M62YMcs";
     const translateTaskCallable = httpsCallable(functions, "translateTask");
+    const notifySessionValidatedCallable = httpsCallable(functions, "notifySessionValidated");
 
     const state = {
       authMode: 'login', currentUser: null, workerProfile: null, workerInfo: { firstName: '', phone: '', language: 'fr' }, workerProfileUnsubscribe: null,
@@ -810,7 +811,13 @@
           status: String(entry.status || ''),
           intervenanteComment: String(entry.intervenanteComment || ''),
           notes: String(entry.notes || entry.note || entry.comment || ''),
-          intervenanteValidatedAt: String(entry.intervenanteValidatedAt || '')
+          intervenanteValidatedAt: String(entry.intervenanteValidatedAt || ''),
+          completedAt: entry.completedAt || null,
+          completedBy: String(entry.completedBy || ''),
+          completedTasksCount: Number(entry.completedTasksCount || 0),
+          totalTasksCount: Number(entry.totalTasksCount || 0),
+          unfinishedTasksCount: Number(entry.unfinishedTasksCount || 0),
+          clientNotificationSent: entry.clientNotificationSent === true
         };
       });
     }
@@ -904,8 +911,12 @@
       });
     }
 
-    function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && e.status !== 'terminee_intervenante').sort(compareSessionsAsc); }
-    function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || e.status === 'terminee_intervenante')).sort(compareSessionsDesc); }
+    function isSessionClosed(session) {
+      const status = String(session?.status || '').toLowerCase();
+      return status === 'completed' || status === 'terminee_intervenante' || status === 'terminee' || status === 'terminée' || session?.completed === true;
+    }
+    function nextSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && toISODateOnly(e.date) >= today && !isSessionClosed(e)).sort(compareSessionsAsc); }
+    function pastSessionsForEntries(entries) { const today = todayISO(); return entries.filter((e) => e.type === 'session' && (toISODateOnly(e.date) < today || isSessionClosed(e))).sort(compareSessionsDesc); }
 
     async function loadWorkerHomes() {
       if (!state.currentUser) return;
@@ -944,16 +955,24 @@
     }
     function taskChecklistHtml(session) {
       const tasks = normalizeSessionTasks(session.tasks);
+      const disabled = isSessionClosed(session) ? ' disabled' : '';
       return '<div class="space-y-2"><p class="font-medium text-sm">Tâches</p>' + (tasks.length ? tasks.map((task) => {
         const sourceLabel = '';
         const doneClasses = task.done ? ' border-slate-200 bg-slate-100 text-slate-400 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-500' : ' border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-950';
-        return '<label class="flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm transition' + doneClasses + '"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through' : '') + '">' + esc(getTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc([sourceLabel, task.done ? 'Terminée' : 'À faire'].filter(Boolean).join(' · ')) + '</span></span></label>';
+        return '<label class="flex items-start gap-3 rounded-2xl border px-4 py-3 text-sm transition' + doneClasses + '"><input type="checkbox" class="worker-task-checkbox mt-0.5 h-4 w-4" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '" data-task-id="' + esc(task.id) + '" ' + (task.done ? 'checked' : '') + disabled + ' /><span class="min-w-0"><span class="' + (task.done ? 'line-through' : '') + '">' + esc(getTaskLabel(task)) + '</span><span class="block text-xs text-slate-500 dark:text-slate-400">' + esc([sourceLabel, task.done ? 'Terminée' : 'À faire'].filter(Boolean).join(' · ')) + '</span></span></label>';
       }).join('') : '<div class="rounded-2xl border border-dashed border-slate-300 dark:border-slate-700 px-4 py-3 text-sm text-slate-500 dark:text-slate-400">Aucune tâche renseignée pour cette session.</div>') + '</div>';
     }
+    function sessionCloseActionHtml(session) {
+      if (isSessionClosed(session)) {
+        return '<div class="rounded-2xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 px-4 py-3 text-center text-sm font-medium text-emerald-700 dark:text-emerald-300">Session clôturée</div>';
+      }
+      return '<button type="button" class="close-session-btn w-full rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-4 text-base font-semibold shadow-soft" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">Clôturer la session</button>';
+    }
+
     function sessionDetailHtml(session) {
       const address = session.homeInfo?.address || '';
-      const statusLine = session.status ? '<p><span class="font-medium">Statut :</span> ' + esc(t(session.status)) + '</p>' : '';
-      return '<div class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3"><div class="text-sm text-slate-600 dark:text-slate-300 space-y-1"><p><span class="font-medium">Date :</span> ' + esc(formatSessionDateTime(session)) + '</p><p><span class="font-medium">Durée :</span> ' + esc(session.duration || 0) + 'h</p><p><span class="font-medium">Domicile :</span> ' + esc(session.homeLabel || 'Domicile') + '</p>' + (address ? '<p><span class="font-medium">Adresse :</span> ' + esc(address) + '</p>' : '') + '<p><span class="font-medium">Montant prévu :</span> ' + euro(sessionExpectedAmount(session)) + '</p>' + statusLine + '</div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(session) + '</div>' + taskChecklistHtml(session) + (session.notes || session.intervenanteComment ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Notes</p>' + (session.notes ? '<p class="whitespace-pre-wrap">' + esc(session.notes) + '</p>' : '') + (session.intervenanteComment ? '<p class="whitespace-pre-wrap mt-1">' + esc(session.intervenanteComment) + '</p>' : '') + '</div>' : '') + '</div>';
+      const statusLine = session.status ? '<p><span class="font-medium">Statut :</span> ' + esc(isSessionClosed(session) ? 'Session clôturée' : t(session.status)) + '</p>' : '';
+      return '<div class="mt-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 space-y-3"><div class="text-sm text-slate-600 dark:text-slate-300 space-y-1"><p><span class="font-medium">Date :</span> ' + esc(formatSessionDateTime(session)) + '</p><p><span class="font-medium">Durée :</span> ' + esc(session.duration || 0) + 'h</p><p><span class="font-medium">Domicile :</span> ' + esc(session.homeLabel || 'Domicile') + '</p>' + (address ? '<p><span class="font-medium">Adresse :</span> ' + esc(address) + '</p>' : '') + '<p><span class="font-medium">Montant prévu :</span> ' + euro(sessionExpectedAmount(session)) + '</p>' + statusLine + '</div><div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Paiement</p>' + paymentInfoHtml(session) + '</div>' + taskChecklistHtml(session) + sessionCloseActionHtml(session) + (session.notes || session.intervenanteComment ? '<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 px-4 py-3 text-sm"><p class="font-medium mb-1">Notes</p>' + (session.notes ? '<p class="whitespace-pre-wrap">' + esc(session.notes) + '</p>' : '') + (session.intervenanteComment ? '<p class="whitespace-pre-wrap mt-1">' + esc(session.intervenanteComment) + '</p>' : '') + '</div>' : '') + '</div>';
     }
     function sessionCardHtml(session, context = 'sessions') {
       const tasks = normalizeSessionTasks(session.tasks); const done = tasks.filter((t) => t.done).length;
@@ -961,7 +980,7 @@
       const paid = totalPaidForSession(session);
       const paymentStatus = sessionPaymentStatus(session);
       const paymentSummary = paid ? t('Paiement :') + ' ' + euro(paid) + (paymentStatus ? ' · ' + esc(t(paymentStatus)) : '') : (paymentStatus ? t('Paiement :') + ' ' + esc(t(paymentStatus)) : '');
-      const statusSummary = session.status ? ' · Statut : ' + esc(t(session.status)) : '';
+      const statusSummary = session.status ? ' · Statut : ' + esc(isSessionClosed(session) ? 'Session clôturée' : t(session.status)) : '';
       const expanded = state.expandedSessionKey === sessionKey(session);
       return '<article class="rounded-3xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-4 shadow-soft"><div class="flex items-start justify-between gap-3"><div class="min-w-0"><p class="text-xs uppercase tracking-wide text-slate-500 dark:text-slate-400">' + esc(session.homeLabel) + '</p><h3 class="mt-1 font-semibold">' + esc(formatSessionDateTime(session)) + ' · ' + esc(session.duration || 0) + 'h</h3><p class="mt-1 text-sm text-slate-500 dark:text-slate-400">' + done + '/' + tasks.length + ' tâche(s) terminée(s)</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Montant prévu : ' + euro(sessionExpectedAmount(session)) + statusSummary + '</p><p class="mt-1 text-xs text-slate-500 dark:text-slate-400">Tâches : ' + taskLabels + '</p>' + (paymentSummary ? '<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">' + paymentSummary + '</p>' : '') + '</div><button type="button" class="open-session-btn shrink-0 rounded-2xl bg-apple-600 text-white px-4 py-3 text-sm font-medium" data-context="' + esc(context) + '" data-home-id="' + esc(session.homeId) + '" data-session-id="' + esc(session.id) + '">' + (expanded ? 'Réduire' : 'Voir') + '</button></div>' + (expanded ? sessionDetailHtml(session) : '') + '</article>';
     }
@@ -988,8 +1007,8 @@
 
     function renderSessionsPage() {
       const today = todayISO();
-      const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && s.status !== 'terminee_intervenante').sort(compareSessionsAsc);
-      const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || s.status === 'terminee_intervenante').sort(compareSessionsDesc);
+      const upcoming = state.allSessions.filter((s) => toISODateOnly(s.date) >= today && !isSessionClosed(s)).sort(compareSessionsAsc);
+      const history = state.allSessions.filter((s) => toISODateOnly(s.date) < today || isSessionClosed(s)).sort(compareSessionsDesc);
       [...upcoming.slice(0, 10), ...history.slice(0, 10)].forEach(scheduleMissingTaskTranslations);
       const groups = byId('sessionGroups');
       if (groups) groups.innerHTML = dueSummaryHtml() + sessionListHtml('À venir', upcoming, 'Aucune session à venir.', 'sessions') + sessionListHtml('Historique', history, 'Aucune session passée.', 'sessions');
@@ -1018,11 +1037,12 @@
         rerenderCurrentLists();
       }));
       document.querySelectorAll('.worker-task-checkbox').forEach((checkbox) => checkbox.addEventListener('change', updateSessionTaskState));
+      document.querySelectorAll('.close-session-btn').forEach((btn) => btn.addEventListener('click', closeWorkerSession));
     }
     async function updateSessionTaskState(event) {
       const checkbox = event.currentTarget;
       const homeId = checkbox.dataset.homeId; const sessionId = checkbox.dataset.sessionId; const taskId = checkbox.dataset.taskId;
-      const session = findSession(homeId, sessionId); if (!session) return;
+      const session = findSession(homeId, sessionId); if (!session || isSessionClosed(session)) return;
       const previousTasks = normalizeSessionTasks(session.tasks);
       const tasks = previousTasks.map((task) => task.id === taskId ? { ...task, done: checkbox.checked } : task);
       refreshSessionInState(homeId, sessionId, (s) => ({ ...s, tasks }));
@@ -1033,6 +1053,65 @@
       } catch (error) {
         console.error(error);
         showToast('⚠️ Tâche gardée localement, mais non enregistrée (règles Firestore).');
+      }
+    }
+
+
+    async function closeWorkerSession(event) {
+      const button = event.currentTarget;
+      const homeId = String(button.dataset.homeId || '');
+      const sessionId = String(button.dataset.sessionId || '');
+      console.log("Clic Clôturer session", { sessionId, foyerId: homeId });
+      if (!homeId || !sessionId || !state.currentUser) return;
+      const session = findSession(homeId, sessionId);
+      if (!session || isSessionClosed(session)) return;
+      if (!window.confirm('Confirmer la clôture de cette session ?')) return;
+
+      const tasks = normalizeSessionTasks(session.tasks);
+      const completedTasksCount = tasks.filter((task) => task.done).length;
+      const totalTasksCount = tasks.length;
+      const unfinishedTasksCount = Math.max(totalTasksCount - completedTasksCount, 0);
+      console.log("Nombre de tâches cochées :", completedTasksCount);
+      console.log("Nombre de tâches non cochées :", unfinishedTasksCount);
+
+      button.disabled = true;
+      button.classList.add('opacity-60');
+      try {
+        await setDoc(doc(db, 'users', homeId, 'entries', sessionId), {
+          status: 'completed',
+          completedAt: serverTimestamp(),
+          completedBy: state.currentUser.uid,
+          completedTasksCount,
+          totalTasksCount,
+          unfinishedTasksCount,
+          updatedAt: serverTimestamp()
+        }, { merge: true });
+        console.log("Session clôturée dans Firestore");
+
+        refreshSessionInState(homeId, sessionId, (s) => ({
+          ...s,
+          status: 'completed',
+          completedBy: state.currentUser.uid,
+          completedTasksCount,
+          totalTasksCount,
+          unfinishedTasksCount
+        }));
+        rerenderCurrentLists();
+        showToast('✅ Session clôturée.');
+
+        if (session.clientNotificationSent !== true) {
+          console.log("Appel notification client après clôture");
+          try {
+            await notifySessionValidatedCallable({ sessionId, foyerId: homeId });
+          } catch (error) {
+            console.warn("Session clôturée, mais notification client non envoyée", error);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        showToast('⚠️ Session non clôturée.');
+        button.disabled = false;
+        button.classList.remove('opacity-60');
       }
     }
 
