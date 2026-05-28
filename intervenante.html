@@ -1060,8 +1060,9 @@
     async function closeWorkerSession(event) {
       const button = event.currentTarget;
       const homeId = String(button.dataset.homeId || '');
+      const foyerId = homeId;
       const sessionId = String(button.dataset.sessionId || '');
-      console.log("Clic Clôturer session", { sessionId, foyerId: homeId });
+      console.log("Clic Clôturer session détecté", { sessionId, foyerId });
       if (!homeId || !sessionId || !state.currentUser) return;
       const session = findSession(homeId, sessionId);
       if (!session || isSessionClosed(session)) return;
@@ -1086,7 +1087,7 @@
           unfinishedTasksCount,
           updatedAt: serverTimestamp()
         }, { merge: true });
-        console.log("Session clôturée dans Firestore");
+        console.log("Session clôturée dans Firestore", { sessionId });
 
         refreshSessionInState(homeId, sessionId, (s) => ({
           ...s,
@@ -1100,11 +1101,12 @@
         showToast('✅ Session clôturée.');
 
         if (session.clientNotificationSent !== true) {
-          console.log("Appel notification client après clôture");
+          console.log("Appel notifySessionValidated", { sessionId, foyerId });
           try {
-            await notifySessionValidatedCallable({ sessionId, foyerId: homeId });
+            const result = await notifySessionValidatedCallable({ sessionId, foyerId });
+            console.log("notifySessionValidated résultat", result.data);
           } catch (error) {
-            console.warn("Session clôturée, mais notification client non envoyée", error);
+            console.error("Erreur notifySessionValidated", error);
           }
         }
       } catch (error) {

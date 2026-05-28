@@ -177,14 +177,19 @@ function sessionBalanceDue(session) {
 exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (request) => {
   if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
 
+  console.log("notifySessionValidated appelée", request.data || {});
+
   const sessionId = String(request.data?.sessionId || "").trim();
   const foyerId = String(request.data?.foyerId || request.data?.homeId || "").trim();
-  console.log("notifySessionValidated appelée", { sessionId, foyerId });
   if (!sessionId || !foyerId) throw new HttpsError("invalid-argument", "sessionId et foyerId requis.");
 
   const callerUid = request.auth.uid;
   const clientUid = foyerId;
+  if (!clientUid) {
+    return { success: false, reason: "CLIENT_UID_NOT_FOUND" };
+  }
   console.log("Client UID trouvé", clientUid);
+
   const workerLink = await admin.firestore().collection("users").doc(callerUid).collection("workerHomes").doc(foyerId).get();
   const workerAccess = workerLink.exists ? (workerLink.data() || {}) : {};
   if (workerAccess.active === false || String(workerAccess.role || "") !== "intervenante") {
@@ -193,12 +198,29 @@ exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (reque
 
   const sessionRef = admin.firestore().collection("users").doc(foyerId).collection("entries").doc(sessionId);
   const sessionSnap = await sessionRef.get();
-  if (!sessionSnap.exists) throw new HttpsError("not-found", "Session introuvable.");
-  const session = sessionSnap.data() || {};
+  if (!sessionSnap.exists) {
+    return { success: false, reason: "SESSION_NOT_FOUND" };
+  }
+  const sessionData = sessionSnap.data() || {};
+  console.log("Session trouvée", sessionId, sessionData);
 
-  if (session.clientNotificationSent === true) return { success: true, alreadySent: true };
-  if (String(session.type || "") !== "session") throw new HttpsError("failed-precondition", "Entrée non compatible.");
-  if (!isCompletedSession(session)) throw new HttpsError("failed-precondition", "Session non validée.");
+  if (sessionData.clientNotificationSent === true) {
+    return { success: false, reason: "ALREADY_SENT" };
+  }
+  if (String(sessionData.type || "") !== "session") throw new HttpsError("failed-precondition", "Entrée non compatible.");
+  if (!isCompletedSession(sessionData)) throw new HttpsError("failed-precondition", "Session non validée.");
+
+  const tokensPath = `users/${clientUid}/notificationTokens`;
+  console.log("Chemin tokens client", tokensPath);
+  const tokensSnap = await admin.firestore().collection("users").doc(clientUid).collection("notificationTokens").get();
+  const tokens = tokensSnap.docs.map((docSnap) => ({ id: docSnap.id, data: docSnap.data() || {} }));
+  console.log("Nombre de tokens trouvés", tokens.length);
+  const activeTokens = tokens.filter((tokenDoc) => tokenDoc.data.enabled !== false).map((tokenDoc) => tokenDoc.id).filter(Boolean);
+  console.log("Nombre de tokens actifs", activeTokens.length);
+
+  if (!activeTokens.length) {
+    return { success: false, reason: "NO_ACTIVE_TOKENS", clientUid };
+  }
 
   const workerSnap = await admin.firestore().collection("users").doc(callerUid).get();
   const workerProfileSnap = await admin.firestore().collection("cleanerProfiles").doc(callerUid).get();
@@ -206,20 +228,54 @@ exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (reque
   const body = workerFirstName ? `${workerFirstName} vient de valider la session.` : "L’intervenante vient de valider la session.";
 
   const payload = getMessagePayload({ title: "Clean’ App", body, url: `${WEBAPP_URL}?view=client&homeId=${encodeURIComponent(foyerId)}&sessionId=${encodeURIComponent(sessionId)}` });
-  const tokensSnap = await admin.firestore().collection("users").doc(clientUid).collection("notificationTokens").get();
-  const tokens = tokensSnap.docs.filter((docSnap) => docSnap.data()?.enabled !== false).map((docSnap) => docSnap.id).filter(Boolean);
-  console.log("Nombre de tokens client actifs", tokens.length);
-  const pushResult = await sendPushToUser(clientUid, payload);
+  console.log("Payload notification", payload);
 
-  await sessionRef.set({
-    clientNotificationSent: true,
-    clientNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
-    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-  }, { merge: true });
+  const invalidTokens = [];
+  let sent = 0;
+  let failed = 0;
 
-  console.log("Notification session validée envoyée");
-  logger.info("Notification session validée envoyée", { sessionId, foyerId, sent: pushResult.sent, failed: pushResult.failed });
-  return { success: true, ...pushResult };
+  await Promise.all(activeTokens.map(async (token) => {
+    try {
+      const response = await admin.messaging().send({ token, ...payload });
+      sent += 1;
+      console.log("Résultat envoi notification", response);
+    } catch (error) {
+      failed += 1;
+      console.log("Résultat envoi notification", { success: false, token, error: error?.message || String(error) });
+      const code = String(error?.errorInfo?.code || "");
+      if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) {
+        invalidTokens.push(token);
+      }
+    }
+  }));
+
+  if (invalidTokens.length) {
+    const batch = admin.firestore().batch();
+    invalidTokens.forEach((token) => {
+      const ref = admin.firestore().collection("users").doc(clientUid).collection("notificationTokens").doc(token);
+      batch.set(ref, {
+        enabled: false,
+        invalidAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      logger.info("Token invalide désactivé", { uid: clientUid, token });
+    });
+    await batch.commit();
+  }
+
+  const response = { success: true, sent, failed };
+  console.log("Résultat envoi notification", response);
+
+  if (sent > 0) {
+    await sessionRef.set({
+      clientNotificationSent: true,
+      clientNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+  }
+
+  logger.info("Notification session validée traitée", { sessionId, foyerId, sent, failed });
+  return response;
 });
 
 exports.scheduledSessionReminder = onSchedule({
