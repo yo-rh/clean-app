@@ -784,9 +784,11 @@
         showConfirmation();
         if (String(state.profile?.role || '').toLowerCase() === 'intervenante' && freshSession.clientNotificationSent !== true) {
           try {
-            await notifySessionValidatedCallable({ sessionId: state.todaySession.id, foyerId: state.homeId });
+            console.log("Appel notifySessionValidated via httpsCallable", { sessionId: state.todaySession.id, foyerId: state.homeId });
+            const result = await notifySessionValidatedCallable({ sessionId: state.todaySession.id, foyerId: state.homeId });
+            console.log("Résultat notifySessionValidated", result.data);
           } catch (notifyError) {
-            console.warn('Session clôturée, notification non envoyée :', notifyError);
+            console.error("Erreur notifySessionValidated", notifyError);
           }
         }
       } catch (error) {
