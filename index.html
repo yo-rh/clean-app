@@ -2310,6 +2310,12 @@
       if (entry.status) row.status = String(entry.status);
       if (entry.intervenanteComment) row.intervenanteComment = String(entry.intervenanteComment);
       if (entry.intervenanteValidatedAt) row.intervenanteValidatedAt = String(entry.intervenanteValidatedAt);
+      if (entry.completedAt) row.completedAt = entry.completedAt;
+      if (entry.completedBy) row.completedBy = String(entry.completedBy);
+      if (entry.completedTasksCount !== undefined) row.completedTasksCount = Number(entry.completedTasksCount || 0);
+      if (entry.totalTasksCount !== undefined) row.totalTasksCount = Number(entry.totalTasksCount || 0);
+      if (entry.unfinishedTasksCount !== undefined) row.unfinishedTasksCount = Number(entry.unfinishedTasksCount || 0);
+      if (entry.clientNotificationSent === true) row.clientNotificationSent = true;
     }
 
     return row;
@@ -2344,6 +2350,12 @@
         status: type === 'session' ? String(entry.status || '') : undefined,
         intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined,
         intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined,
+        completedAt: type === 'session' ? (entry.completedAt || null) : undefined,
+        completedBy: type === 'session' ? String(entry.completedBy || '') : undefined,
+        completedTasksCount: type === 'session' ? Number(entry.completedTasksCount || 0) : undefined,
+        totalTasksCount: type === 'session' ? Number(entry.totalTasksCount || 0) : undefined,
+        unfinishedTasksCount: type === 'session' ? Number(entry.unfinishedTasksCount || 0) : undefined,
+        clientNotificationSent: type === 'session' ? entry.clientNotificationSent === true : undefined,
         createdAt: String(entry.createdAt || nowISO())
       };
     });
@@ -2877,6 +2889,12 @@
         status: type === 'session' ? String(entry.status || '') : undefined,
         intervenanteComment: type === 'session' ? String(entry.intervenanteComment || '') : undefined,
         intervenanteValidatedAt: type === 'session' ? String(entry.intervenanteValidatedAt || '') : undefined,
+        completedAt: type === 'session' ? (entry.completedAt || null) : undefined,
+        completedBy: type === 'session' ? String(entry.completedBy || '') : undefined,
+        completedTasksCount: type === 'session' ? Number(entry.completedTasksCount || 0) : undefined,
+        totalTasksCount: type === 'session' ? Number(entry.totalTasksCount || 0) : undefined,
+        unfinishedTasksCount: type === 'session' ? Number(entry.unfinishedTasksCount || 0) : undefined,
+        clientNotificationSent: type === 'session' ? entry.clientNotificationSent === true : undefined,
         createdAt: String(entry.createdAt || nowISO())
       };
     });
@@ -2902,10 +2920,15 @@
     }
   }
 
+  function isSessionClosed(entry) {
+    const status = String(entry?.status || '').toLowerCase();
+    return status === 'completed' || status === 'terminee_intervenante' || status === 'terminee' || status === 'terminée' || entry?.completed === true;
+  }
+
   function nextWorkerSession(entries) {
     const today = todayISO();
     return entries
-      .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today && entry.status !== 'terminee_intervenante')
+      .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today && !isSessionClosed(entry))
       .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)) || sessionTimeSortValue(a).localeCompare(sessionTimeSortValue(b)))[0] || null;
   }
 
@@ -2959,9 +2982,14 @@
       const tasks = normalizeSessionTasks((session.tasks && session.tasks.length ? session.tasks : homeSettings.sessionTasks?.[sessionId]) || []).map((task) => ({ ...task, done: checked.has(task.id) }));
       const payload = {
         tasks,
-        status: 'terminee_intervenante',
+        status: 'completed',
         intervenanteComment: (els.workerCommentInput?.value || '').trim(),
         intervenanteValidatedAt: nowISO(),
+        completedAt: serverTimestamp(),
+        completedBy: currentUid(),
+        completedTasksCount: tasks.filter((task) => task.done).length,
+        totalTasksCount: tasks.length,
+        unfinishedTasksCount: tasks.filter((task) => !task.done).length,
         updatedAt: serverTimestamp()
       };
 
@@ -2969,7 +2997,7 @@
       try {
         await notifySessionValidatedCallable({ sessionId, foyerId: homeId });
       } catch (notifyError) {
-        console.warn("Session validée, mais notification client non envoyée", notifyError);
+        console.warn("Session clôturée, mais notification client non envoyée", notifyError);
       }
       showToast('✅ Session terminée.');
       await loadWorkerHome();
@@ -3278,7 +3306,7 @@
   function nextSessionEntry(sorted) {
     const today = todayISO();
     return sorted
-      .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today)
+      .filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) >= today && !isSessionClosed(entry))
       .sort((a, b) => toISODateOnly(a.date).localeCompare(toISODateOnly(b.date)) || sessionTimeSortValue(a).localeCompare(sessionTimeSortValue(b)))[0] || null;
   }
 
@@ -3411,7 +3439,7 @@
       const icon = isSession ? '🧽' : '💳';
       const title = isSession ? t('Session') : t('Paiement');
       const detail = isSession
-        ? esc(String(entry.duration)) + ' h · ' + euro(entry.rate) + '/h'
+        ? esc(String(entry.duration)) + ' h · ' + euro(entry.rate) + '/h' + (isSessionClosed(entry) ? ' · Terminée' : '')
         : t('Montant enregistré');
       const prefix = isSession ? '+' : '-';
 
