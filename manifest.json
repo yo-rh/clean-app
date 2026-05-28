@@ -1,0 +1,16 @@
+{
+  "name": "Clean’ App",
+  "short_name": "Clean",
+  "display": "standalone",
+  "start_url": "/",
+  "scope": "/",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/icons/icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

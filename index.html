@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <link rel="manifest" href="/manifest.json" />
   <title>Clean' App !</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -131,9 +132,10 @@
     .setup-step { display: none; }
     .setup-step.active { display: block; }
   </style>
-  <link rel="apple-touch-icon" href="icons/icon-180.png" />
+  <link rel="apple-touch-icon" href="/icons/icon-180.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-title" content="Clean' App" />
+  <meta name="apple-mobile-web-app-title" content="Clean" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="theme-color" content="#2563eb" />
 </head>
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen">
@@ -729,7 +731,13 @@
                 </div>
               </div>
 
-              <div id="adminSyncCard" class="hidden rounded-2xl border border-apple-200 bg-apple-50 p-4 space-y-3 dark:border-apple-900 dark:bg-apple-950/30">
+              
+<div class="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-950 p-4 space-y-3">
+<h3 class="font-semibold">Notifications</h3>
+<p class="text-sm text-slate-500 dark:text-slate-400">Recevez un rappel pour les prochaines sessions et les messages importants.</p>
+<button id="enableNotificationsBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Activer les notifications</button>
+</div>
+<div id="adminSyncCard" class="hidden rounded-2xl border border-apple-200 bg-apple-50 p-4 space-y-3 dark:border-apple-900 dark:bg-apple-950/30">
                 <div>
                   <h3 class="font-semibold text-apple-900 dark:text-apple-100">Administration</h3>
                   <p class="mt-1 text-sm text-apple-700 dark:text-apple-200">Accédez au dashboard réservé aux comptes administrateurs.</p>
@@ -867,6 +875,7 @@
     onSnapshot
   } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
   import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+  import { getMessaging, getToken } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging.js";
 
   // Remplace ce bloc par le firebaseConfig de ton projet Firebase.
   const firebaseConfig = {
@@ -887,6 +896,8 @@
   const auth = getAuth(firebaseApp);
   const db = getFirestore(firebaseApp);
   const functions = getFunctions(firebaseApp, "europe-west1");
+  const messaging = getMessaging(firebaseApp);
+  const FCM_VAPID_KEY = "A_COMPLETER_DANS_FIREBASE";
   const translateTaskCallable = httpsCallable(functions, "translateTask");
   const generateContactMessageCallable = httpsCallable(functions, "generateContactMessage");
 
@@ -2060,6 +2071,34 @@
     renderAuthMode();
     renderWorkerAuthMode();
     renderSetup();
+  }
+
+  
+  function supportsPushNotifications() {
+    return 'serviceWorker' in navigator && 'Notification' in window && 'PushManager' in window;
+  }
+  function isIosStandalone() {
+    const ua = navigator.userAgent || '';
+    const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const standalone = window.navigator.standalone === true || window.matchMedia('(display-mode: standalone)').matches;
+    return { isIos, standalone };
+  }
+  async function registerPushServiceWorker() {
+    if (!supportsPushNotifications()) { console.log('Notifications non supportées sur ce navigateur'); return null; }
+    try { const r = await navigator.serviceWorker.register('/firebase-messaging-sw.js'); console.log('Service worker notifications enregistré'); return r; }
+    catch (e) { console.error('Erreur enregistrement service worker notifications', e); return null; }
+  }
+  async function enablePushNotifications(role = 'client') {
+    const ios = isIosStandalone();
+    if (ios.isIos && !ios.standalone) { alert('Pour activer les notifications sur iPhone : ouvrez Clean’ App dans Safari, appuyez sur Partager, puis Ajoutez à l’écran d’accueil. Ouvrez ensuite Clean’ App depuis l’icône.'); return; }
+    if (!supportsPushNotifications()) { alert('Sur iPhone, les notifications fonctionnent uniquement si Clean’ App est ajoutée à l’écran d’accueil.'); return; }
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') { alert(permission === 'denied' ? 'Les notifications sont bloquées. Vous pouvez les réactiver dans les réglages de votre téléphone.' : 'Notifications non activées.'); return; }
+    const reg = await registerPushServiceWorker(); if (!reg || !state.auth?.token) return;
+    const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+    if (!token) return;
+    await setDoc(doc(db, 'users', state.auth.token, 'notificationTokens', token), { token, platform: 'web', userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role }, { merge: true });
+    alert('Notifications activées');
   }
 
   function firebaseErrorMessage(error) {
@@ -4035,6 +4074,8 @@
   applySessionDefaults(true);
 
   renderShellVisibility();
+
+  registerPushServiceWorker();
 
   onAuthStateChanged(auth, async (firebaseUser) => {
     try {

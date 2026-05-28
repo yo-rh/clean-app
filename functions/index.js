@@ -1,6 +1,11 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
 const { defineSecret } = require("firebase-functions/params");
 const { GoogleGenAI } = require("@google/genai");
+const admin = require("firebase-admin");
+
+if (!admin.apps.length) {
+  admin.initializeApp();
+}
 
 const geminiApiKey = defineSecret("GEMINI_API_KEY");
 
@@ -94,5 +99,43 @@ Ta mission :
         "Impossible de générer le message pour le moment."
       );
     }
+  }
+);
+
+exports.sendTestNotification = onCall(
+  { region: "europe-west1" },
+  async (request) => {
+    if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
+    const uid = String(request.data?.uid || "").trim();
+    if (!uid) throw new HttpsError("invalid-argument", "uid manquant.");
+    if (uid !== request.auth.uid) {
+      // TODO: autoriser ici les admins selon la convention du projet.
+      throw new HttpsError("permission-denied", "Vous pouvez envoyer un test uniquement à votre compte.");
+    }
+
+    const tokensSnap = await admin.firestore().collection("users").doc(uid).collection("notificationTokens").get();
+    const tokens = tokensSnap.docs.map((doc) => doc.id).filter(Boolean);
+    if (!tokens.length) return { sent: 0 };
+
+    const invalid = [];
+    let sent = 0;
+    await Promise.all(tokens.map(async (token) => {
+      try {
+        await admin.messaging().send({
+          token,
+          notification: { title: "Clean’ App", body: "Les notifications sont bien activées." },
+          webpush: { fcmOptions: { link: "https://clean-app-5de06.web.app/" } }
+        });
+        sent += 1;
+      } catch (error) {
+        const code = error?.errorInfo?.code || "";
+        if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) invalid.push(token);
+      }
+    }));
+
+    await Promise.all(invalid.map((token) =>
+      admin.firestore().collection("users").doc(uid).collection("notificationTokens").doc(token).delete()
+    ));
+    return { sent, invalidRemoved: invalid.length };
   }
 );
