@@ -902,7 +902,7 @@
   const FCM_VAPID_KEY = "BJ6HMPnI0uSgjp6OKYGqtHOnRarUqgRg-EwgVP_kTyf2JKfTwdoPrjMZXF65wFEBcPyNbLy4Om69tfi2M62YMcs";
   const translateTaskCallable = httpsCallable(functions, "translateTask");
   const generateContactMessageCallable = httpsCallable(functions, "generateContactMessage");
-  const notifySessionValidatedCallable = httpsCallable(functions, "notifySessionValidated");
+  const notifySessionValidated = httpsCallable(functions, "notifySessionValidated");
 
   const STORAGE_KEY_PREFIX = 'cleanAppFirebaseV1';
   const WORKER_CODES_COLLECTION = 'intervenanteAccessCodes';
@@ -2996,7 +2996,7 @@
       await setDoc(sessionRef, payload, { merge: true });
       try {
         console.log("Appel notifySessionValidated via httpsCallable", { sessionId, foyerId: homeId });
-        const result = await notifySessionValidatedCallable({ sessionId, foyerId: homeId });
+        const result = await notifySessionValidated({ sessionId, foyerId: homeId });
         console.log("Résultat notifySessionValidated", result.data);
       } catch (notifyError) {
         console.error("Erreur notifySessionValidated", notifyError);
