@@ -332,7 +332,7 @@
     const db = getFirestore(app);
     const functions = getFunctions(app, "europe-west1");
     const messaging = getMessaging(app);
-    const FCM_VAPID_KEY = "A_COMPLETER_DANS_FIREBASE";
+    const FCM_VAPID_KEY = "BJ6HMPnI0uSgjp6OKYGqtHOnRarUqgRg-EwgVP_kTyf2JKfTwdoPrjMZXF65wFEBcPyNbLy4Om69tfi2M62YMcs";
     const translateTaskCallable = httpsCallable(functions, "translateTask");
 
     const state = {
@@ -1051,7 +1051,7 @@
     function supportsPushNotifications() { return "serviceWorker" in navigator && "Notification" in window && "PushManager" in window; }
     function isIosStandalone() { const ua = navigator.userAgent || ""; const isIos = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1); const standalone = window.navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches; return { isIos, standalone }; }
     async function registerPushServiceWorker(){ if (!supportsPushNotifications()) { console.log("Notifications non supportées sur ce navigateur"); return null; } try { const r = await navigator.serviceWorker.register("/firebase-messaging-sw.js"); console.log("Service worker notifications enregistré"); return r; } catch (e) { console.error("Erreur enregistrement service worker notifications", e); return null; } }
-    async function enablePushNotifications(){ const ios = isIosStandalone(); if (ios.isIos && !ios.standalone) { alert("Pour activer les notifications sur iPhone : ouvrez Clean’ App dans Safari, appuyez sur Partager, puis Ajoutez à l’écran d’accueil. Ouvrez ensuite Clean’ App depuis l’icône."); return; } const permission = await Notification.requestPermission(); if (permission !== "granted") return; const reg = await registerPushServiceWorker(); const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg }); if (!token || !state.currentUser) return; await setDoc(doc(db, "users", state.currentUser.uid, "notificationTokens", token), { token, platform: "web", userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role: "intervenante" }, { merge: true }); alert("Notifications activées"); }
+    async function enablePushNotifications(){ const ios = isIosStandalone(); if (ios.isIos && !ios.standalone) { alert("Pour activer les notifications sur iPhone : ouvrez Clean’ App dans Safari, appuyez sur Partager, puis Ajoutez à l’écran d’accueil. Ouvrez ensuite Clean’ App depuis l’icône."); return; } const permission = await Notification.requestPermission(); if (permission !== "granted") return; const reg = await registerPushServiceWorker(); const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg }); if (!token || !state.currentUser) return; console.log("Token notification FCM obtenu", token); await setDoc(doc(db, "users", state.currentUser.uid, "notificationTokens", token), { token, platform: "web", userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role: "intervenante" }, { merge: true }); console.log("Token notification enregistré dans Firestore"); alert("Notifications activées"); }
 
     function bindEvents() {
       els.loginTabBtn.addEventListener('click', () => { state.authMode = 'login'; clearAuthError(); renderAuthMode(); });
