@@ -737,6 +737,7 @@
 <h3 class="font-semibold">Notifications</h3>
 <p class="text-sm text-slate-500 dark:text-slate-400">Recevez un rappel pour les prochaines sessions et les messages importants.</p>
 <button id="enableNotificationsBtn" type="button" class="w-full rounded-2xl bg-apple-600 hover:bg-apple-700 text-white px-4 py-3 font-medium">Activer les notifications</button>
+<div id="notificationStatus" class="text-sm text-slate-600 dark:text-slate-300" aria-live="polite"></div>
 </div>
 <div id="adminSyncCard" class="hidden rounded-2xl border border-apple-200 bg-apple-50 p-4 space-y-3 dark:border-apple-900 dark:bg-apple-950/30">
                 <div>
@@ -2090,18 +2091,38 @@
     catch (e) { console.error('Erreur enregistrement service worker notifications', e); return null; }
   }
   async function enablePushNotifications(role = 'client') {
-    const ios = isIosStandalone();
-    if (ios.isIos && !ios.standalone) { alert('Pour activer les notifications sur iPhone : ouvrez Clean’ App dans Safari, appuyez sur Partager, puis Ajoutez à l’écran d’accueil. Ouvrez ensuite Clean’ App depuis l’icône.'); return; }
-    if (!supportsPushNotifications()) { alert('Sur iPhone, les notifications fonctionnent uniquement si Clean’ App est ajoutée à l’écran d’accueil.'); return; }
-    const permission = await Notification.requestPermission();
-    if (permission !== 'granted') { alert(permission === 'denied' ? 'Les notifications sont bloquées. Vous pouvez les réactiver dans les réglages de votre téléphone.' : 'Notifications non activées.'); return; }
-    const reg = await registerPushServiceWorker(); if (!reg || !state.auth?.token) return;
-    const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
-    if (!token) return;
-    console.log('Token notification FCM obtenu', token);
-    await setDoc(doc(db, 'users', state.auth.token, 'notificationTokens', token), { token, platform: 'web', userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role }, { merge: true });
-    console.log('Token notification enregistré dans Firestore');
-    alert('Notifications activées');
+    try {
+      console.log('Début enablePushNotifications');
+      console.log('Notification supportée :', 'Notification' in window);
+      console.log('Service Worker supporté :', 'serviceWorker' in navigator);
+      console.log('PushManager supporté :', 'PushManager' in window);
+      console.log('Permission actuelle :', Notification.permission);
+      const ios = isIosStandalone();
+      if (ios.isIos && !ios.standalone) { console.log('iPhone détecté hors mode standalone'); showNotificationStatus("Sur iPhone, ajoutez Clean’ App à l’écran d’accueil pour activer les notifications"); console.warn('Activation notifications interrompue : iPhone hors mode standalone'); return; }
+      if (!supportsPushNotifications()) { showNotificationStatus('Notifications non supportées sur ce navigateur'); console.warn('Activation notifications interrompue : notifications non supportées'); return; }
+      console.log('Demande permission notifications...');
+      const permission = await Notification.requestPermission();
+      console.log('Résultat permission notifications :', permission);
+      if (permission !== 'granted') { showNotificationStatus(permission === 'denied' ? 'Les notifications sont bloquées dans les réglages du navigateur' : 'Notifications non activées.'); console.warn('Activation notifications interrompue : permission non accordée'); return; }
+      const reg = await registerPushServiceWorker(); if (!reg || !state.auth?.token) { console.warn('Activation notifications interrompue : service worker ou session absente'); return; }
+      const token = await getToken(messaging, { vapidKey: FCM_VAPID_KEY, serviceWorkerRegistration: reg });
+      if (!token) { console.warn('Activation notifications interrompue : token FCM introuvable'); return; }
+      console.log('Token notification FCM obtenu', token);
+      await setDoc(doc(db, 'users', state.auth.token, 'notificationTokens', token), { token, platform: 'web', userAgent: navigator.userAgent, createdAt: serverTimestamp(), updatedAt: serverTimestamp(), enabled: true, role }, { merge: true });
+      console.log('Token notification enregistré dans Firestore');
+      showNotificationStatus('Notifications activées');
+    } catch (error) {
+      console.error('Erreur activation notifications :', error);
+      showNotificationStatus("Impossible d’activer les notifications pour le moment.");
+    }
+  }
+  function showNotificationStatus(message) { const statusEl = document.getElementById('notificationStatus'); if (statusEl) statusEl.textContent = message; }
+  function bindNotificationButtons() {
+    const btn = document.getElementById('enableNotificationsBtn');
+    if (!btn) { console.warn('Bouton notifications introuvable'); return; }
+    if (btn.dataset.boundNotifications === 'true') return;
+    btn.dataset.boundNotifications = 'true';
+    btn.addEventListener('click', async () => { console.log('Clic Activer notifications détecté'); showNotificationStatus('Vérification des notifications...'); await enablePushNotifications('client'); });
   }
 
   function firebaseErrorMessage(error) {
@@ -3678,6 +3699,7 @@
   document.querySelectorAll('.nav-btn').forEach((btn) => {
     btn.addEventListener('click', () => setCurrentPage(btn.dataset.page));
   });
+  bindNotificationButtons();
 
   if (els.quickAddTodayBtn) {
     els.quickAddTodayBtn.addEventListener('click', () => {
