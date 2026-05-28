@@ -1,4 +1,6 @@
 const { onCall, HttpsError } = require("firebase-functions/v2/https");
+const { onSchedule } = require("firebase-functions/v2/scheduler");
+const { logger } = require("firebase-functions");
 const { defineSecret } = require("firebase-functions/params");
 const { GoogleGenAI } = require("@google/genai");
 const admin = require("firebase-admin");
@@ -100,6 +102,167 @@ async function sendNotificationToUid({ uid, title, body, url }) {
   return { success: true, sent, failed };
 }
 
+
+
+async function sendPushToUser(uid, payload) {
+  const userUid = String(uid || "").trim();
+  if (!userUid) return { success: false, sent: 0, failed: 0 };
+
+  const tokensSnap = await admin
+    .firestore()
+    .collection("users")
+    .doc(userUid)
+    .collection("notificationTokens")
+    .get();
+
+  const activeTokenDocs = tokensSnap.docs.filter((docSnap) => docSnap.data()?.enabled !== false);
+  if (!activeTokenDocs.length) {
+    logger.info("Aucun token actif pour cet utilisateur", { uid: userUid });
+    return { success: true, sent: 0, failed: 0 };
+  }
+
+  const invalidTokens = [];
+  let sent = 0;
+  let failed = 0;
+
+  await Promise.all(activeTokenDocs.map(async (tokenDoc) => {
+    const token = tokenDoc.id;
+    try {
+      await admin.messaging().send({ token, ...payload });
+      sent += 1;
+    } catch (error) {
+      failed += 1;
+      const code = String(error?.errorInfo?.code || "");
+      if (code.includes("registration-token-not-registered") || code.includes("invalid-registration-token")) {
+        invalidTokens.push(token);
+      }
+    }
+  }));
+
+  if (invalidTokens.length) {
+    const batch = admin.firestore().batch();
+    invalidTokens.forEach((token) => {
+      const ref = admin.firestore().collection("users").doc(userUid).collection("notificationTokens").doc(token);
+      batch.set(ref, {
+        enabled: false,
+        invalidAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      }, { merge: true });
+      logger.info("Token invalide désactivé", { uid: userUid, token });
+    });
+    await batch.commit();
+  }
+
+  return { success: true, sent, failed };
+}
+
+function isCancelledSession(session) {
+  const status = String(session?.status || "").toLowerCase();
+  return ["annulee", "annulée", "annule", "annulé", "cancelled", "canceled"].includes(status) || session?.cancelled === true || session?.isCancelled === true;
+}
+
+function isCompletedSession(session) {
+  const status = String(session?.status || "").toLowerCase();
+  return status === "terminee_intervenante" || status === "terminee" || status === "terminée" || session?.completed === true;
+}
+
+function sessionBalanceDue(session) {
+  const explicitDue = Number(session?.balanceDue ?? session?.remainingAmount ?? session?.dueAmount);
+  if (Number.isFinite(explicitDue) && explicitDue >= 0) return explicitDue;
+  const expected = Number(session?.amount ?? session?.expectedAmount ?? session?.price ?? 0);
+  const paid = Number(session?.paidAmount ?? session?.amountPaid ?? session?.payment?.amount ?? 0);
+  return Math.max(0, expected - paid);
+}
+
+exports.notifySessionValidated = onCall({ region: "europe-west1" }, async (request) => {
+  if (!request.auth) throw new HttpsError("unauthenticated", "Connexion requise.");
+
+  const sessionId = String(request.data?.sessionId || "").trim();
+  const foyerId = String(request.data?.foyerId || request.data?.homeId || "").trim();
+  if (!sessionId || !foyerId) throw new HttpsError("invalid-argument", "sessionId et foyerId requis.");
+
+  const callerUid = request.auth.uid;
+  const workerLink = await admin.firestore().collection("users").doc(callerUid).collection("workerHomes").doc(foyerId).get();
+  const workerAccess = workerLink.exists ? (workerLink.data() || {}) : {};
+  if (workerAccess.active === false || String(workerAccess.role || "") !== "intervenante") {
+    throw new HttpsError("permission-denied", "Utilisateur non autorisé pour ce foyer.");
+  }
+
+  const sessionRef = admin.firestore().collection("users").doc(foyerId).collection("entries").doc(sessionId);
+  const sessionSnap = await sessionRef.get();
+  if (!sessionSnap.exists) throw new HttpsError("not-found", "Session introuvable.");
+  const session = sessionSnap.data() || {};
+
+  if (session.clientNotificationSent === true) return { success: true, alreadySent: true };
+  if (String(session.type || "") !== "session") throw new HttpsError("failed-precondition", "Entrée non compatible.");
+  if (!isCompletedSession(session)) throw new HttpsError("failed-precondition", "Session non validée.");
+
+  const workerSnap = await admin.firestore().collection("users").doc(callerUid).get();
+  const workerFirstName = String(workerSnap.data()?.settings?.workerFirstName || workerSnap.data()?.firstName || "").trim();
+  const body = workerFirstName ? `${workerFirstName} vient de valider la session.` : "L’intervenante vient de valider la session.";
+
+  const payload = getMessagePayload({ title: "Clean’ App", body, url: `${WEBAPP_URL}?view=client&homeId=${encodeURIComponent(foyerId)}&sessionId=${encodeURIComponent(sessionId)}` });
+  const pushResult = await sendPushToUser(foyerId, payload);
+
+  await sessionRef.set({
+    clientNotificationSent: true,
+    clientNotifiedAt: admin.firestore.FieldValue.serverTimestamp(),
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+  }, { merge: true });
+
+  logger.info("Notification session validée envoyée", { sessionId, foyerId, sent: pushResult.sent, failed: pushResult.failed });
+  return { success: true, ...pushResult };
+});
+
+exports.scheduledSessionReminder = onSchedule({
+  schedule: "0 18 * * *",
+  timeZone: "Europe/Paris",
+  region: "europe-west1",
+}, async () => {
+  const now = new Date();
+  const start = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 1, 0, 0, 0));
+  const end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + 2, 0, 0, 0));
+  const startIso = start.toISOString().slice(0, 10);
+  const endIso = end.toISOString().slice(0, 10);
+
+  const sessionsSnap = await admin.firestore().collectionGroup("entries")
+    .where("type", "==", "session")
+    .where("date", ">=", startIso)
+    .where("date", "<", endIso)
+    .get();
+
+  for (const docSnap of sessionsSnap.docs) {
+    const session = docSnap.data() || {};
+    const sessionRef = docSnap.ref;
+    const sessionId = docSnap.id;
+    const userRef = sessionRef.parent.parent;
+    const clientUid = userRef?.id;
+    if (!clientUid) continue;
+
+    if (session.reminderNotificationSent === true) {
+      logger.info("Rappel déjà envoyé, ignoré", { sessionId, clientUid });
+      continue;
+    }
+    if (isCancelledSession(session) || isCompletedSession(session)) continue;
+
+    const due = sessionBalanceDue(session);
+    const body = due > 0
+      ? `Votre session est prévue demain. Solde dû : ${due.toFixed(2).replace('.', ',')} €.`
+      : "Votre session est prévue demain. Aucun solde dû pour le moment.";
+
+    const payload = getMessagePayload({ title: "Clean’ App", body, url: WEBAPP_URL });
+    const pushResult = await sendPushToUser(clientUid, payload);
+
+    await sessionRef.set({
+      reminderNotificationSent: true,
+      reminderSentAt: admin.firestore.FieldValue.serverTimestamp(),
+      reminderBalanceDue: due,
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    }, { merge: true });
+
+    logger.info("Rappel session demain envoyé", { sessionId, clientUid, due, sent: pushResult.sent, failed: pushResult.failed });
+  }
+});
 exports.generateContactMessage = onCall(
   {
     region: "europe-west1",
