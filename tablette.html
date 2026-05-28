@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Clean’ App — Tablette</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="apple-touch-icon" href="./icons/icon-180.png" />
+  <meta name="theme-color" content="#f7f2ea" />
+  <!-- URL d’utilisation iframe Home Assistant : https://TON-DOMAINE/tablette.html -->
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f7f2ea;
+      --card: rgba(255, 255, 255, 0.82);
+      --card-strong: #ffffff;
+      --text: #18202f;
+      --muted: #6f7684;
+      --line: rgba(24, 32, 47, 0.10);
+      --accent: #3b82f6;
+      --accent-strong: #2563eb;
+      --ok: #0f9f6e;
+      --ok-soft: #e5f7ef;
+      --warn: #b7791f;
+      --warn-soft: #fff5d6;
+      --danger: #b42318;
+      --danger-soft: #fff0ed;
+      --shadow: 0 22px 60px rgba(74, 65, 48, 0.12);
+      --radius-xl: 34px;
+      --radius-lg: 26px;
+      --bottom-space: calc(132px + env(safe-area-inset-bottom));
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-height: 100%; height: 100%; -webkit-tap-highlight-color: transparent; background: var(--bg); }
+    body {
+      min-height: 100%;
+      height: 100%;
+      margin: 0;
+      background:
+        radial-gradient(circle at top left, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 34rem),
+        linear-gradient(135deg, #f8efe1 0%, #eef5ff 52%, #f7f2ea 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; border: 0; }
+    button:disabled { cursor: not-allowed; opacity: 0.55; }
+    .hidden { display: none !important; }
+
+    .screen {
+      min-height: 100dvh;
+      width: 100%;
+      padding: clamp(18px, 3vw, 38px);
+    }
+
+    .auth-shell {
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+
+    .auth-card {
+      width: min(100%, 520px);
+      padding: clamp(24px, 5vw, 44px);
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.76);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(28px);
+    }
+
+    .brand {
+      width: 74px;
+      height: 74px;
+      border-radius: 24px;
+      box-shadow: 0 14px 36px rgba(37, 99, 235, 0.14);
+      object-fit: cover;
+    }
+
+    h1, h2, h3, p { margin: 0; }
+    h1 { margin-top: 22px; font-size: clamp(2.2rem, 5vw, 4.6rem); line-height: 0.94; letter-spacing: -0.065em; }
+    .auth-card h1 { font-size: clamp(2.1rem, 7vw, 3.5rem); }
+    .subtitle { margin-top: 12px; color: var(--muted); font-size: clamp(1rem, 2vw, 1.2rem); line-height: 1.45; }
+
+    .form { margin-top: 30px; display: grid; gap: 16px; }
+    label.field-label { display: grid; gap: 8px; color: var(--muted); font-weight: 700; }
+    input[type="email"], input[type="password"] {
+      width: 100%;
+      min-height: 62px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.78);
+      color: var(--text);
+      padding: 0 18px;
+      outline: none;
+      font-size: 1.08rem;
+    }
+    input:focus { box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.18); border-color: rgba(59, 130, 246, 0.55); }
+
+    .primary-btn, .secondary-btn {
+      min-height: 66px;
+      border-radius: 24px;
+      padding: 0 24px;
+      font-weight: 850;
+      font-size: clamp(1.05rem, 2vw, 1.3rem);
+      transition: transform .16s ease, background .16s ease, box-shadow .16s ease;
+    }
+    .primary-btn {
+      color: #fff;
+      background: linear-gradient(135deg, var(--accent), var(--accent-strong));
+      box-shadow: 0 16px 36px rgba(37, 99, 235, 0.24);
+    }
+    .secondary-btn { color: var(--text); background: rgba(255, 255, 255, 0.72); border: 1px solid var(--line); }
+    .primary-btn:not(:disabled):active, .secondary-btn:not(:disabled):active, .task-row:active { transform: scale(0.985); }
+
+    .message {
+      border-radius: 22px;
+      padding: 16px 18px;
+      background: rgba(255, 255, 255, 0.62);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 700;
+    }
+    .message.error { background: var(--danger-soft); border-color: rgba(180, 35, 24, 0.18); color: var(--danger); }
+    .message.ok { background: var(--ok-soft); border-color: rgba(15, 159, 110, 0.2); color: var(--ok); }
+
+    .app-shell {
+      min-height: 100dvh;
+      padding-bottom: var(--bottom-space);
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: clamp(20px, 3vw, 34px);
+    }
+    .eyebrow { color: var(--muted); font-size: clamp(0.95rem, 1.6vw, 1.2rem); font-weight: 800; letter-spacing: 0.02em; }
+    .worker-name { color: var(--muted); font-weight: 800; font-size: clamp(1rem, 1.7vw, 1.2rem); text-align: right; }
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 50px;
+      margin-top: 20px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.64);
+      border: 1px solid var(--line);
+      color: var(--muted);
+      font-weight: 900;
+      font-size: clamp(0.95rem, 1.8vw, 1.18rem);
+    }
+    .status-pill.ok { background: var(--ok-soft); color: var(--ok); border-color: rgba(15, 159, 110, 0.2); }
+    .status-pill.warn { background: var(--warn-soft); color: var(--warn); border-color: rgba(183, 121, 31, 0.2); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(340px, 0.72fr);
+      gap: clamp(18px, 2.5vw, 28px);
+      align-items: start;
+    }
+    .stack { display: grid; gap: clamp(18px, 2.5vw, 28px); }
+
+    .card {
+      border-radius: var(--radius-xl);
+      background: var(--card);
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(28px);
+      padding: clamp(20px, 3vw, 32px);
+    }
+    .card h2 { font-size: clamp(1.2rem, 2vw, 1.65rem); letter-spacing: -0.03em; }
+
+    .balance-card {
+      background: linear-gradient(145deg, rgba(24, 32, 47, 0.96), rgba(45, 58, 80, 0.92));
+      color: #fff;
+      overflow: hidden;
+      position: relative;
+    }
+    .balance-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -80px -100px auto;
+      width: 240px;
+      height: 240px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.10);
+    }
+    .balance-label { color: rgba(255, 255, 255, 0.72); font-size: 1.05rem; font-weight: 800; }
+    .balance-amount { margin-top: 8px; font-size: clamp(3.2rem, 8vw, 7rem); line-height: 0.92; letter-spacing: -0.08em; font-weight: 900; }
+    .balance-details { margin-top: 22px; display: grid; gap: 10px; color: rgba(255, 255, 255, 0.82); font-size: clamp(1.02rem, 1.8vw, 1.22rem); font-weight: 750; }
+    .balance-details strong { color: #fff; }
+
+    .facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 20px; }
+    .fact { border-radius: 24px; background: rgba(255,255,255,0.62); border: 1px solid var(--line); padding: 18px; }
+    .fact span { display: block; color: var(--muted); font-weight: 800; font-size: 0.95rem; }
+    .fact strong { display: block; margin-top: 6px; font-size: clamp(1.35rem, 2.8vw, 2.05rem); letter-spacing: -0.04em; }
+
+    .task-header { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 16px; }
+    .task-count { color: var(--muted); font-weight: 850; }
+    .tasks { display: grid; gap: 12px; }
+    .task-row {
+      min-height: 82px;
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 18px;
+      border-radius: 26px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.72);
+      transition: transform .16s ease, opacity .16s ease, background .16s ease;
+      user-select: none;
+    }
+    .task-row.done { background: rgba(229, 247, 239, 0.8); border-color: rgba(15, 159, 110, 0.20); }
+    .task-row input { width: 34px; height: 34px; accent-color: var(--ok); }
+    .task-title { font-size: clamp(1.12rem, 2.1vw, 1.45rem); font-weight: 850; letter-spacing: -0.025em; }
+    .task-row.done .task-title { color: var(--ok); text-decoration: line-through; text-decoration-thickness: 2px; }
+    .task-source { margin-top: 4px; color: var(--muted); font-weight: 750; }
+
+    .empty-state { text-align: center; padding: clamp(28px, 5vw, 64px); }
+    .empty-state .icon { font-size: clamp(3rem, 8vw, 6rem); }
+    .empty-state h2 { margin-top: 18px; font-size: clamp(1.8rem, 4vw, 3.2rem); letter-spacing: -0.055em; }
+    .empty-state p { max-width: 620px; margin: 12px auto 0; color: var(--muted); font-size: clamp(1rem, 2vw, 1.25rem); line-height: 1.45; font-weight: 650; }
+
+    .bottom-action {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 20;
+      padding: 18px clamp(18px, 3vw, 38px) calc(18px + env(safe-area-inset-bottom));
+      background: linear-gradient(to top, rgba(247, 242, 234, 0.98), rgba(247, 242, 234, 0.82), rgba(247, 242, 234, 0));
+      backdrop-filter: blur(20px);
+    }
+    .bottom-action button { width: 100%; min-height: 82px; border-radius: 30px; font-size: clamp(1.25rem, 2.8vw, 1.7rem); }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: calc(112px + env(safe-area-inset-bottom));
+      transform: translateX(-50%) translateY(10px);
+      max-width: min(92vw, 720px);
+      z-index: 40;
+      padding: 14px 20px;
+      border-radius: 999px;
+      background: rgba(24, 32, 47, 0.92);
+      color: #fff;
+      font-weight: 800;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .18s ease, transform .18s ease;
+      box-shadow: 0 16px 36px rgba(24, 32, 47, 0.2);
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 920px) {
+      .grid { grid-template-columns: 1fr; }
+      .topbar { align-items: flex-start; }
+      .facts { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      .screen { padding: 16px; }
+      .topbar { flex-direction: column; }
+      .worker-name { text-align: left; }
+      .task-header { flex-direction: column; align-items: stretch; }
+      .secondary-btn { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <section id="authScreen" class="auth-shell hidden" aria-live="polite">
+    <div class="auth-card">
+      <img src="./icons/icon-180.png" class="brand" alt="Clean’ App" />
+      <h1>Tablette Clean’ App</h1>
+      <p class="subtitle">Connexion nécessaire pour afficher la session du jour du foyer actif.</p>
+      <form id="loginForm" class="form">
+        <label class="field-label" for="emailInput">Email
+          <input id="emailInput" type="email" autocomplete="email" placeholder="intervenante@mail.com" required />
+        </label>
+        <label class="field-label" for="passwordInput">Mot de passe
+          <input id="passwordInput" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </label>
+        <p id="authMessage" class="message error hidden">Connexion nécessaire</p>
+        <button id="loginBtn" class="primary-btn" type="submit">Se connecter</button>
+      </form>
+    </div>
+  </section>
+
+  <main id="appScreen" class="screen app-shell hidden" aria-live="polite">
+    <header class="topbar">
+      <div>
+        <p id="todayLabel" class="eyebrow">Aujourd’hui</p>
+        <h1 id="homeName">Clean’ App</h1>
+        <div id="sessionStatus" class="status-pill warn">Chargement…</div>
+      </div>
+      <p id="workerName" class="worker-name">Intervenante</p>
+    </header>
+
+    <div id="contentGrid" class="grid">
+      <section class="stack">
+        <article class="card balance-card">
+          <p class="balance-label">Solde dû</p>
+          <div id="balanceAmount" class="balance-amount">—</div>
+          <div class="balance-details">
+            <p>Session du jour : <strong id="todaySessionAmount">—</strong></p>
+            <p id="balanceAfterLine">Total après session : <strong id="balanceAfterAmount">—</strong></p>
+            <p id="balanceUpdatedLine">Dernière mise à jour : <strong id="balanceUpdatedAt">—</strong></p>
+          </div>
+        </article>
+
+        <article id="sessionCard" class="card">
+          <h2>Session du jour</h2>
+          <div class="facts">
+            <div class="fact"><span>Heure prévue</span><strong id="sessionTime">—</strong></div>
+            <div class="fact"><span>Durée prévue</span><strong id="sessionDuration">—</strong></div>
+            <div class="fact"><span>Tarif / montant</span><strong id="sessionRate">—</strong></div>
+            <div class="fact"><span>Paiement</span><strong id="paymentStatus">—</strong></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="card">
+        <div class="task-header">
+          <div>
+            <h2>Tâches à réaliser</h2>
+            <p id="taskCount" class="task-count">—</p>
+          </div>
+          <button id="checkAllBtn" class="secondary-btn" type="button">Tout cocher</button>
+        </div>
+        <div id="tasksList" class="tasks"></div>
+      </section>
+    </div>
+
+    <section id="emptyState" class="card empty-state hidden">
+      <div class="icon">🌿</div>
+      <h2 id="emptyTitle">Aucune session prévue aujourd’hui</h2>
+      <p id="emptyText">La tablette reste prête. Rechargez la page si une session vient d’être ajoutée depuis l’application principale.</p>
+    </section>
+  </main>
+
+  <div id="bottomAction" class="bottom-action hidden">
+    <button id="closeSessionBtn" class="primary-btn" type="button" disabled>Clôturer la session</button>
+  </div>
+  <div id="toast" class="toast"></div>
+
+  <script type="module">
+    'use strict';
+
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+    import { getFirestore, doc, getDoc, getDocs, setDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDlA5KRdh52Is8Gb78JulcMjcPROl5tQ-0",
+      authDomain: "clean-app-5de06.firebaseapp.com",
+      projectId: "clean-app-5de06",
+      storageBucket: "clean-app-5de06.firebasestorage.app",
+      messagingSenderId: "82379739846",
+      appId: "1:82379739846:web:8ad0fce19cc89958d97dc7",
+      measurementId: "G-VLH9KQB80W"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const functions = getFunctions(app, "europe-west1");
+    const notifySessionValidatedCallable = httpsCallable(functions, "notifySessionValidated");
+
+    const state = {
+      user: null,
+      profile: null,
+      workerProfile: null,
+      homeId: "",
+      home: null,
+      entries: [],
+      todaySession: null,
+      localTaskIds: new Set(),
+      localOnlyTasks: false,
+      closing: false
+    };
+
+    const byId = (id) => document.getElementById(id);
+    const els = {
+      authScreen: byId('authScreen'), appScreen: byId('appScreen'), loginForm: byId('loginForm'), emailInput: byId('emailInput'), passwordInput: byId('passwordInput'), authMessage: byId('authMessage'), loginBtn: byId('loginBtn'), todayLabel: byId('todayLabel'), homeName: byId('homeName'), sessionStatus: byId('sessionStatus'), workerName: byId('workerName'), contentGrid: byId('contentGrid'), emptyState: byId('emptyState'), emptyTitle: byId('emptyTitle'), emptyText: byId('emptyText'), balanceAmount: byId('balanceAmount'), todaySessionAmount: byId('todaySessionAmount'), balanceAfterLine: byId('balanceAfterLine'), balanceAfterAmount: byId('balanceAfterAmount'), balanceUpdatedAt: byId('balanceUpdatedAt'), sessionTime: byId('sessionTime'), sessionDuration: byId('sessionDuration'), sessionRate: byId('sessionRate'), paymentStatus: byId('paymentStatus'), taskCount: byId('taskCount'), tasksList: byId('tasksList'), checkAllBtn: byId('checkAllBtn'), closeSessionBtn: byId('closeSessionBtn'), toast: byId('toast')
+    };
+
+    function esc(value) {
+      return String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    }
+
+    function nowISO() { return new Date().toISOString(); }
+    function todayISO() { return new Date().toISOString().slice(0, 10); }
+    function normalizeSessionTime(value) {
+      const text = String(value || '').trim();
+      const match = text.match(/^(\d{1,2})[:hH]?(\d{2})?$/);
+      if (!match) return text.slice(0, 5);
+      const hours = String(Math.min(23, Math.max(0, Number(match[1] || 0)))).padStart(2, '0');
+      const minutes = String(Math.min(59, Math.max(0, Number(match[2] || 0)))).padStart(2, '0');
+      return `${hours}:${minutes}`;
+    }
+    function toISODateOnly(value) {
+      if (!value) return '';
+      if (typeof value === 'string') return value.slice(0, 10);
+      if (typeof value?.toDate === 'function') return value.toDate().toISOString().slice(0, 10);
+      if (value instanceof Date) return value.toISOString().slice(0, 10);
+      return String(value).slice(0, 10);
+    }
+    function dateTimeValue(entry) {
+      const date = toISODateOnly(entry?.date) || '1970-01-01';
+      const time = normalizeSessionTime(entry?.time || entry?.sessionTime || entry?.hour || '23:59') || '23:59';
+      return `${date}T${time}`;
+    }
+    function timestampToDate(value) {
+      if (!value) return null;
+      if (value instanceof Date) return value;
+      if (typeof value?.toDate === 'function') return value.toDate();
+      if (typeof value === 'string') {
+        const parsed = new Date(value);
+        return Number.isNaN(parsed.getTime()) ? null : parsed;
+      }
+      return null;
+    }
+    function formatDateLong(date = new Date()) {
+      return new Intl.DateTimeFormat('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }).format(date);
+    }
+    function formatDateTime(value) {
+      const date = timestampToDate(value);
+      if (!date) return '—';
+      return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' }).format(date);
+    }
+    function euro(value) {
+      return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 2 }).format(Number(value || 0));
+    }
+    function money(value) { return Number(Number(value || 0).toFixed(2)); }
+    function firebaseErrorMessage(error) {
+      const code = String(error?.code || error?.message || '');
+      if (code.includes('auth/invalid-credential') || code.includes('auth/wrong-password')) return 'Email ou mot de passe incorrect.';
+      if (code.includes('auth/invalid-email')) return 'Adresse email invalide.';
+      if (code.includes('permission-denied')) return 'Accès refusé par les règles Firestore.';
+      if (code.includes('unavailable')) return 'Service indisponible. Vérifiez la connexion réseau.';
+      return error?.message || 'Erreur Firebase.';
+    }
+    let toastTimer = null;
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => els.toast.classList.remove('show'), 2600);
+    }
+    function showAuthMessage(message, isError = true) {
+      els.authMessage.textContent = message;
+      els.authMessage.classList.toggle('error', isError);
+      els.authMessage.classList.toggle('ok', !isError);
+      els.authMessage.classList.remove('hidden');
+    }
+
+    function cleanTaskText(value) {
+      const text = String(value || '').trim();
+      if (!text || /^[0-9a-f]{8,}$/i.test(text) || /^task-[a-z0-9-]*$/i.test(text)) return '';
+      return text;
+    }
+    function stableTaskId(label, index) {
+      return 'task-' + index + '-' + String(label || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 32);
+    }
+    function normalizeTranslations(value) {
+      if (!value || typeof value !== 'object' || Array.isArray(value)) return {};
+      return Object.fromEntries(Object.entries(value).map(([language, text]) => [String(language), cleanTaskText(text)]).filter(([, text]) => text));
+    }
+    function normalizeSessionTasks(value) {
+      if (!Array.isArray(value)) return [];
+      return value.map((task, index) => {
+        if (typeof task === 'string') {
+          const label = cleanTaskText(task);
+          return { id: stableTaskId(label, index), label, originalText: label, originalLanguage: 'fr', type: 'custom', source: 'manual', translations: {}, done: false };
+        }
+        const originalText = cleanTaskText(task?.originalText || task?.label || task?.title || task?.name || task?.text);
+        const label = cleanTaskText(task?.label || task?.title || task?.name || task?.text || originalText);
+        const type = String(task?.type || (task?.originalText || task?.source === 'manual' ? 'custom' : 'preset'));
+        return {
+          id: String(task?.id || stableTaskId(label || originalText, index)),
+          label,
+          labelKey: String(task?.labelKey || task?.i18nKey || ''),
+          i18nKey: String(task?.i18nKey || task?.labelKey || ''),
+          originalText,
+          originalLanguage: String(task?.originalLanguage || 'fr'),
+          type,
+          source: String(task?.source || (type === 'custom' ? 'manual' : 'default')),
+          translations: normalizeTranslations(task?.translations),
+          done: Boolean(task?.done || task?.completed || task?.checked)
+        };
+      }).filter((task) => taskLabel(task));
+    }
+    function taskLabel(task) {
+      return cleanTaskText(task?.label || task?.originalText || task?.title || task?.name || task?.text || task?.labelKey || task?.i18nKey);
+    }
+    function taskSourceLabel(source) {
+      if (source === 'recurring') return 'Récurrente';
+      if (source === 'punctual') return 'Ponctuelle';
+      if (source === 'manual') return 'Ajoutée';
+      return 'Base';
+    }
+
+    function isSessionClosed(session) {
+      const status = String(session?.status || '').toLowerCase();
+      return status === 'completed' || status === 'terminee_intervenante' || status === 'terminee' || status === 'terminée' || session?.completed === true;
+    }
+    function sessionExpectedAmount(session) {
+      const explicit = Number(session?.amount || session?.expectedAmount || session?.price || session?.total || session?.value || 0);
+      if (explicit) return money(explicit);
+      return money(Number(session?.duration || 0) * Number(session?.rate || session?.hourlyRate || state.home?.settings?.hourlyRate || 0));
+    }
+    function directSessionPaymentAmount(session) {
+      return money(session?.paidAmount || session?.paymentAmount || session?.amountPaid || session?.payment?.amount || 0);
+    }
+    function entryPaymentAmount(entry) {
+      return money(entry?.amount || entry?.value || entry?.total || entry?.payment?.amount || 0);
+    }
+    function paymentLinkedToSession(payment, session) {
+      const linkedId = String(payment?.sessionId || payment?.entryId || payment?.session?.id || payment?.payment?.sessionId || '').trim();
+      return Boolean(linkedId && linkedId === String(session?.id || ''));
+    }
+    function totalPaidForSession(session) {
+      return money(directSessionPaymentAmount(session) + state.entries.filter((entry) => entry.type !== 'session' && (paymentLinkedToSession(entry, session) || toISODateOnly(entry.date || entry.paidAt || entry.createdAt) === toISODateOnly(session?.date))).reduce((sum, payment) => sum + entryPaymentAmount(payment), 0));
+    }
+    function computeBalance() {
+      const sessionsTotal = state.entries.filter((entry) => entry.type === 'session').reduce((sum, session) => sum + sessionExpectedAmount(session), 0);
+      const entryPaymentsTotal = state.entries.filter((entry) => entry.type !== 'session').reduce((sum, payment) => sum + entryPaymentAmount(payment), 0);
+      const directPaymentsTotal = state.entries.filter((entry) => entry.type === 'session').reduce((sum, session) => sum + directSessionPaymentAmount(session), 0);
+      return money(sessionsTotal - entryPaymentsTotal - directPaymentsTotal);
+    }
+    function latestUpdate() {
+      const dates = state.entries.flatMap((entry) => [entry.updatedAt, entry.createdAt, entry.completedAt]).map(timestampToDate).filter(Boolean);
+      if (!dates.length) return null;
+      return dates.sort((a, b) => b.getTime() - a.getTime())[0];
+    }
+
+    function homeLabelFromData(homeId, data = {}) {
+      const settings = data.settings || {};
+      return String(settings.homeName || settings.householdName || settings.domicileName || settings.contactName || data.email || ('Foyer ' + String(homeId).slice(0, 6)));
+    }
+    function normalizeEntry(documentSnapshot) {
+      const entry = documentSnapshot.data() || {};
+      const type = String(entry.type || 'payment');
+      const id = String(entry.id || documentSnapshot.id);
+      return {
+        ...entry,
+        id,
+        type,
+        date: toISODateOnly(entry.date || entry.paidAt || entry.createdAt),
+        time: type === 'session' ? normalizeSessionTime(entry.time || entry.sessionTime || entry.hour) : '',
+        duration: type === 'session' ? Number(entry.duration || 0) : undefined,
+        rate: type === 'session' ? Number(entry.rate || entry.hourlyRate || 0) : undefined,
+        amount: Number(entry.amount || entry.expectedAmount || entry.price || entry.total || entry.value || entry.payment?.amount || 0),
+        tasks: type === 'session' ? normalizeSessionTasks(entry.tasks || []) : []
+      };
+    }
+
+    async function getUserProfile(uid) {
+      const snapshot = await getDoc(doc(db, 'users', uid));
+      return snapshot.exists() ? snapshot.data() || {} : {};
+    }
+    async function getWorkerProfile(uid) {
+      try {
+        const snapshot = await getDoc(doc(db, 'cleanerProfiles', uid));
+        return snapshot.exists() ? snapshot.data() || {} : {};
+      } catch (error) {
+        console.warn('Profil intervenante non accessible :', error);
+        return {};
+      }
+    }
+    async function resolveHomeId() {
+      const params = new URLSearchParams(window.location.search);
+      const requestedHomeId = String(params.get('homeId') || params.get('foyerId') || '').trim();
+      const role = String(state.profile?.role || '').toLowerCase();
+      if (requestedHomeId) return requestedHomeId;
+      if (role === 'intervenante' || role === 'worker' || role === 'cleaner') {
+        const linksSnapshot = await getDocs(collection(db, 'users', state.user.uid, 'workerHomes'));
+        const links = linksSnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...(docSnap.data() || {}) })).filter((link) => link.active !== false && link.homeId);
+        const saved = localStorage.getItem('cleanAppTabletHomeId') || localStorage.getItem('cleanAppWorkerCurrentHomeId') || '';
+        const selected = links.find((link) => String(link.homeId) === saved) || links[0];
+        return selected ? String(selected.homeId) : '';
+      }
+      return state.user.uid;
+    }
+    async function loadHomeData() {
+      state.homeId = await resolveHomeId();
+      if (!state.homeId) throw new Error('Aucun foyer actif trouvé pour ce compte.');
+      localStorage.setItem('cleanAppTabletHomeId', state.homeId);
+      const homeSnapshot = await getDoc(doc(db, 'users', state.homeId));
+      state.home = homeSnapshot.exists() ? homeSnapshot.data() || {} : {};
+      const entriesSnapshot = await getDocs(collection(db, 'users', state.homeId, 'entries'));
+      const entries = entriesSnapshot.docs.map(normalizeEntry);
+      const sessionTasks = state.home?.settings?.sessionTasks || {};
+      state.entries = entries.map((entry) => entry.type !== 'session' ? entry : {
+        ...entry,
+        tasks: normalizeSessionTasks(entry.tasks?.length ? entry.tasks : sessionTasks[entry.id] || [])
+      });
+      state.todaySession = pickTodaySession();
+      state.localTaskIds = new Set(normalizeSessionTasks(state.todaySession?.tasks || []).filter((task) => task.done).map((task) => task.id));
+    }
+    function pickTodaySession() {
+      const today = todayISO();
+      const sessions = state.entries.filter((entry) => entry.type === 'session' && toISODateOnly(entry.date) === today);
+      if (!sessions.length) return null;
+      const currentMinutes = new Date().getHours() * 60 + new Date().getMinutes();
+      const minutesFromTime = (time) => {
+        const normalized = normalizeSessionTime(time || '23:59');
+        const [h, m] = normalized.split(':').map(Number);
+        return (Number.isFinite(h) ? h : 23) * 60 + (Number.isFinite(m) ? m : 59);
+      };
+      const sorted = sessions.slice().sort((a, b) => {
+        const closed = Number(isSessionClosed(a)) - Number(isSessionClosed(b));
+        if (closed !== 0) return closed;
+        const distance = Math.abs(minutesFromTime(a.time) - currentMinutes) - Math.abs(minutesFromTime(b.time) - currentMinutes);
+        if (distance !== 0) return distance;
+        return dateTimeValue(a).localeCompare(dateTimeValue(b));
+      });
+      return sorted[0];
+    }
+
+    function sessionStateText() {
+      const session = state.todaySession;
+      if (!session) return { text: 'Aucune session prévue aujourd’hui', tone: 'warn' };
+      if (isSessionClosed(session)) return { text: 'Session clôturée', tone: 'ok' };
+      const now = new Date();
+      const start = new Date(`${toISODateOnly(session.date)}T${normalizeSessionTime(session.time || '00:00') || '00:00'}:00`);
+      const durationMs = Number(session.duration || 0) * 60 * 60 * 1000;
+      if (!Number.isNaN(start.getTime()) && durationMs > 0 && now >= start && now <= new Date(start.getTime() + durationMs)) return { text: 'Session en cours', tone: 'ok' };
+      return { text: 'Session prévue aujourd’hui', tone: 'warn' };
+    }
+    function render() {
+      els.todayLabel.textContent = formatDateLong(new Date());
+      els.homeName.textContent = homeLabelFromData(state.homeId, state.home || {});
+      const firstName = String(state.workerProfile?.firstName || state.profile?.settings?.workerFirstName || state.profile?.firstName || '').trim();
+      els.workerName.textContent = firstName ? `Intervenante · ${firstName}` : 'Intervenante';
+      renderStatus();
+      renderBalance();
+      renderSession();
+      renderTasks();
+    }
+    function renderStatus() {
+      const status = sessionStateText();
+      els.sessionStatus.textContent = status.text;
+      els.sessionStatus.classList.toggle('ok', status.tone === 'ok');
+      els.sessionStatus.classList.toggle('warn', status.tone === 'warn');
+      const hasSession = Boolean(state.todaySession);
+      els.contentGrid.classList.toggle('hidden', !hasSession);
+      els.emptyState.classList.toggle('hidden', hasSession);
+      els.closeSessionBtn.disabled = !hasSession || isSessionClosed(state.todaySession) || state.closing;
+      els.closeSessionBtn.textContent = hasSession && isSessionClosed(state.todaySession) ? 'Session déjà clôturée' : 'Clôturer la session';
+      if (!hasSession) {
+        els.emptyTitle.textContent = 'Aucune session prévue aujourd’hui';
+        els.emptyText.textContent = 'Aucune session prévue aujourd’hui pour le foyer actif. La tablette reste prête.';
+      }
+    }
+    function renderBalance() {
+      const balanceWithPlannedSessions = computeBalance();
+      const session = state.todaySession;
+      const amount = session ? sessionExpectedAmount(session) : 0;
+      const paid = session ? totalPaidForSession(session) : 0;
+      const theoreticalSessionDue = Math.max(amount - paid, 0);
+      const currentBalance = session && !isSessionClosed(session) ? money(balanceWithPlannedSessions - amount) : balanceWithPlannedSessions;
+      const balanceAfterSession = session && !isSessionClosed(session) ? money(currentBalance + theoreticalSessionDue) : balanceWithPlannedSessions;
+      els.balanceAmount.textContent = euro(Math.max(currentBalance, 0));
+      els.todaySessionAmount.textContent = session ? euro(amount) : '—';
+      els.balanceAfterLine.classList.toggle('hidden', !session || isSessionClosed(session));
+      els.balanceAfterAmount.textContent = session ? euro(Math.max(balanceAfterSession, 0)) : '—';
+      const updatedAt = latestUpdate();
+      els.balanceUpdatedAt.textContent = updatedAt ? formatDateTime(updatedAt) : '—';
+    }
+    function renderSession() {
+      const session = state.todaySession;
+      if (!session) return;
+      const amount = sessionExpectedAmount(session);
+      const rate = Number(session.rate || session.hourlyRate || state.home?.settings?.hourlyRate || 0);
+      const paymentStatus = String(session.paymentStatus || session.paidStatus || session.payment?.status || '').trim();
+      const paid = totalPaidForSession(session);
+      els.sessionTime.textContent = normalizeSessionTime(session.time) || '—';
+      els.sessionDuration.textContent = session.duration ? `${session.duration} h` : '—';
+      els.sessionRate.textContent = rate ? `${euro(rate)} / h · ${euro(amount)}` : euro(amount);
+      els.paymentStatus.textContent = paymentStatus || (paid ? `${euro(paid)} payé` : 'Non payé');
+    }
+    function renderTasks() {
+      const session = state.todaySession;
+      const tasks = normalizeSessionTasks(session?.tasks || []);
+      const done = tasks.filter((task) => task.done).length;
+      els.taskCount.textContent = session ? `${done}/${tasks.length} tâche(s) cochée(s)` : '—';
+      els.checkAllBtn.disabled = !session || isSessionClosed(session) || !tasks.length;
+      if (!session) {
+        els.tasksList.innerHTML = '';
+        return;
+      }
+      els.tasksList.innerHTML = tasks.length ? tasks.map((task) => {
+        const disabled = isSessionClosed(session) ? 'disabled' : '';
+        return `<label class="task-row ${task.done ? 'done' : ''}">
+          <input class="task-checkbox" type="checkbox" data-task-id="${esc(task.id)}" ${task.done ? 'checked' : ''} ${disabled} />
+          <span><span class="task-title">${esc(taskLabel(task))}</span><span class="task-source">${esc(taskSourceLabel(task.source))} · ${task.done ? 'Terminée' : 'À faire'}</span></span>
+        </label>`;
+      }).join('') : '<div class="message">Aucune tâche à afficher pour cette session.</div>';
+      document.querySelectorAll('.task-checkbox').forEach((checkbox) => checkbox.addEventListener('change', updateTaskState));
+    }
+
+    async function persistTasks(tasks) {
+      if (!state.todaySession) return;
+      state.todaySession.tasks = tasks;
+      state.entries = state.entries.map((entry) => entry.id === state.todaySession.id ? { ...entry, tasks } : entry);
+      try {
+        await setDoc(doc(db, 'users', state.homeId, 'entries', state.todaySession.id), { tasks, updatedAt: serverTimestamp() }, { merge: true });
+        state.localOnlyTasks = false;
+      } catch (error) {
+        state.localOnlyTasks = true;
+        console.warn('Tâches conservées localement :', error);
+        showToast('Tâche gardée localement, puis enregistrée à la clôture si possible.');
+      }
+    }
+    async function updateTaskState(event) {
+      const taskId = String(event.currentTarget.dataset.taskId || '');
+      if (!state.todaySession || isSessionClosed(state.todaySession) || !taskId) return;
+      const tasks = normalizeSessionTasks(state.todaySession.tasks).map((task) => task.id === taskId ? { ...task, done: event.currentTarget.checked } : task);
+      state.localTaskIds = new Set(tasks.filter((task) => task.done).map((task) => task.id));
+      state.todaySession.tasks = tasks;
+      renderTasks();
+      await persistTasks(tasks);
+    }
+    async function checkAllTasks() {
+      if (!state.todaySession || isSessionClosed(state.todaySession)) return;
+      const tasks = normalizeSessionTasks(state.todaySession.tasks).map((task) => ({ ...task, done: true }));
+      state.localTaskIds = new Set(tasks.map((task) => task.id));
+      state.todaySession.tasks = tasks;
+      renderTasks();
+      await persistTasks(tasks);
+      showToast('Toutes les tâches sont cochées.');
+    }
+    async function closeSession() {
+      if (!state.todaySession) {
+        showToast('Aucune session prévue aujourd’hui');
+        return;
+      }
+      if (isSessionClosed(state.todaySession)) {
+        showToast('Session déjà clôturée');
+        renderStatus();
+        return;
+      }
+      if (!window.confirm('Confirmer la clôture de la session ?')) return;
+      state.closing = true;
+      renderStatus();
+      try {
+        const sessionRef = doc(db, 'users', state.homeId, 'entries', state.todaySession.id);
+        const freshSnapshot = await getDoc(sessionRef);
+        const freshSession = freshSnapshot.exists() ? { ...freshSnapshot.data(), id: state.todaySession.id } : state.todaySession;
+        if (isSessionClosed(freshSession)) {
+          state.todaySession = { ...state.todaySession, ...freshSession };
+          showToast('Session déjà clôturée');
+          render();
+          return;
+        }
+        const homeSettings = state.home?.settings || {};
+        const sourceTasks = normalizeSessionTasks((freshSession.tasks && freshSession.tasks.length ? freshSession.tasks : state.todaySession.tasks?.length ? state.todaySession.tasks : homeSettings.sessionTasks?.[state.todaySession.id]) || []);
+        const checked = state.localTaskIds.size ? state.localTaskIds : new Set(sourceTasks.filter((task) => task.done).map((task) => task.id));
+        const tasks = sourceTasks.map((task) => ({ ...task, done: checked.has(task.id) }));
+        const payload = {
+          tasks,
+          status: 'completed',
+          completedAt: serverTimestamp(),
+          completedBy: state.user.uid,
+          completedTasksCount: tasks.filter((task) => task.done).length,
+          totalTasksCount: tasks.length,
+          unfinishedTasksCount: tasks.filter((task) => !task.done).length,
+          updatedAt: serverTimestamp()
+        };
+        await setDoc(sessionRef, payload, { merge: true });
+        state.todaySession = { ...state.todaySession, ...payload, tasks, status: 'completed' };
+        state.entries = state.entries.map((entry) => entry.id === state.todaySession.id ? state.todaySession : entry);
+        render();
+        showConfirmation();
+        if (String(state.profile?.role || '').toLowerCase() === 'intervenante' && freshSession.clientNotificationSent !== true) {
+          try {
+            await notifySessionValidatedCallable({ sessionId: state.todaySession.id, foyerId: state.homeId });
+          } catch (notifyError) {
+            console.warn('Session clôturée, notification non envoyée :', notifyError);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+        showToast('Impossible de clôturer la session.');
+      } finally {
+        state.closing = false;
+        renderStatus();
+      }
+    }
+    function showConfirmation() {
+      els.contentGrid.classList.add('hidden');
+      els.emptyState.classList.remove('hidden');
+      els.emptyTitle.textContent = 'Session clôturée, merci !';
+      els.emptyText.textContent = 'Les tâches cochées et la clôture ont été enregistrées. Le paiement reste géré depuis l’application principale.';
+      els.closeSessionBtn.disabled = true;
+      els.closeSessionBtn.textContent = 'Session clôturée';
+      showToast('Session clôturée, merci !');
+    }
+
+    async function bootForUser(user) {
+      state.user = user;
+      state.profile = await getUserProfile(user.uid);
+      state.workerProfile = await getWorkerProfile(user.uid);
+      await loadHomeData();
+      els.authScreen.classList.add('hidden');
+      els.appScreen.classList.remove('hidden');
+      els.bottomAction.classList.remove('hidden');
+      render();
+    }
+
+    els.loginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      els.authMessage.classList.add('hidden');
+      const email = els.emailInput.value.trim();
+      const password = els.passwordInput.value;
+      if (!email || !password) {
+        showAuthMessage('Connexion nécessaire');
+        return;
+      }
+      els.loginBtn.disabled = true;
+      try {
+        const credential = await signInWithEmailAndPassword(auth, email, password);
+        showAuthMessage('Connexion réussie.', false);
+        await bootForUser(credential.user);
+      } catch (error) {
+        console.error(error);
+        showAuthMessage(firebaseErrorMessage(error));
+      } finally {
+        els.loginBtn.disabled = false;
+      }
+    });
+    els.checkAllBtn.addEventListener('click', checkAllTasks);
+    els.closeSessionBtn.addEventListener('click', closeSession);
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        els.appScreen.classList.add('hidden');
+        els.bottomAction.classList.add('hidden');
+        els.authScreen.classList.remove('hidden');
+        showAuthMessage('Connexion nécessaire');
+        return;
+      }
+      try {
+        await bootForUser(user);
+      } catch (error) {
+        console.error('Impossible de charger la session :', error);
+        els.appScreen.classList.add('hidden');
+        els.bottomAction.classList.add('hidden');
+        els.authScreen.classList.remove('hidden');
+        showAuthMessage('Impossible de charger la session. ' + firebaseErrorMessage(error));
+      }
+    });
+  </script>
+</body>
+</html>
